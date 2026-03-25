@@ -1,0 +1,47 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - dialog "Unhandled Runtime Error" [ref=e157]:
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - generic [ref=e160]:
+            - navigation [ref=e161]:
+              - button "previous" [disabled] [ref=e162]:
+                - img "previous" [ref=e163]
+              - button "next" [disabled] [ref=e165]:
+                - img "next" [ref=e166]
+              - generic [ref=e168]: 1 of 1 error
+              - generic [ref=e169]:
+                - text: Next.js (15.1.0) is outdated
+                - link "(learn more)" [ref=e171] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/messages/version-staleness
+            - button "Close" [ref=e172] [cursor=pointer]:
+              - img [ref=e174]
+          - generic [ref=e177]:
+            - heading "Unhandled Runtime Error" [level=1] [ref=e178]
+            - generic [ref=e179]:
+              - button "Copy error stack" [ref=e180] [cursor=pointer]:
+                - img [ref=e181]
+              - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e184] [cursor=pointer]:
+                - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                - img [ref=e185]
+          - paragraph [ref=e188]: "[ Server ] Error: Ảnh case chỉ nhận file ảnh"
+        - generic [ref=e189]:
+          - heading "Source" [level=2] [ref=e190]
+          - generic [ref=e191]:
+            - link "app/actions-kb.ts (86:13) @ ensureImageFiles" [ref=e193] [cursor=pointer]:
+              - generic [ref=e194]: app/actions-kb.ts (86:13) @ ensureImageFiles
+              - img [ref=e195]
+            - generic [ref=e199]: "84 | for (const file of files) { 85 | if (!isImageFile(file)) { > 86 | throw new Error(`${label} chỉ nhận file ảnh`); | ^ 87 | } 88 | } 89 |"
+          - generic [ref=e200]:
+            - heading "ensureImageFiles" [level=3] [ref=e201]
+            - link "app/actions-kb.ts (280:22)" [ref=e202] [cursor=pointer]:
+              - generic [ref=e203]: app/actions-kb.ts (280:22)
+              - img [ref=e204]
+          - button "Show ignored frames" [ref=e208] [cursor=pointer]
+    - status [ref=e209]:
+      - generic [ref=e210]:
+        - img [ref=e212]
+        - generic [ref=e214]:
+          - text: Static route
+          - button "Hide static indicator" [ref=e215] [cursor=pointer]:
+            - img [ref=e216]

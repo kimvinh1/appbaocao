@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+build/
+
+# Environment – KHÔNG commit file này lên git
+.env
+.env.local
+.env.production
+
+# Database local
+prisma/dev.db
+prisma/dev.db-journal
+
+# Misc
+.DS_Store
+*.tsbuildinfo
+
+# Next.js build cache
+.next/
+.next_stale*/
+out/
+
+# Next.js build cache
+.next/
+.next_stale*/
+out/

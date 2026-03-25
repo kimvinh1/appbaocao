@@ -1,0 +1,143 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - paragraph [ref=e5]: APP Team Portal
+        - heading "Hỗ Trợ Kỹ Thuật" [level=1] [ref=e6]
+        - generic [ref=e7]:
+          - paragraph [ref=e8]: Quan tri he thong
+          - paragraph [ref=e9]: admin@portal.local
+          - paragraph [ref=e10]: Admin
+      - generic [ref=e11]:
+        - img [ref=e12]
+        - textbox "Tìm kiếm..." [ref=e15]
+      - navigation [ref=e16]:
+        - link "Tổng Quan" [ref=e17] [cursor=pointer]:
+          - /url: /
+          - img [ref=e18]
+          - generic [ref=e23]: Tổng Quan
+        - generic [ref=e25]:
+          - button "Illumina" [ref=e26] [cursor=pointer]:
+            - generic [ref=e27]:
+              - img [ref=e28]
+              - text: Illumina
+            - img [ref=e40]
+          - generic [ref=e42]:
+            - link "Quản Lý Dự Án" [ref=e43] [cursor=pointer]:
+              - /url: /projects
+              - img [ref=e44]
+              - generic [ref=e46]: Quản Lý Dự Án
+            - link "Nhật Ký Công Việc" [ref=e47] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e48]
+              - generic [ref=e50]: Nhật Ký Công Việc
+            - link "Tra cứu mã lỗi" [ref=e51] [cursor=pointer]:
+              - /url: /illumina/ma-loi
+              - img [ref=e52]
+              - generic [ref=e54]: Tra cứu mã lỗi
+            - link "Case hỗ trợ" [ref=e55] [cursor=pointer]:
+              - /url: /illumina/case
+              - img [ref=e56]
+              - generic [ref=e59]: Case hỗ trợ
+            - link "Tài liệu kỹ thuật" [ref=e60] [cursor=pointer]:
+              - /url: /kien-thuc/illumina
+              - img [ref=e61]
+              - generic [ref=e64]: Tài liệu kỹ thuật
+        - button "Vi Sinh" [ref=e67] [cursor=pointer]:
+          - generic [ref=e68]:
+            - img [ref=e69]
+            - text: Vi Sinh
+          - img [ref=e73]
+        - button "Cepheid" [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]:
+            - img [ref=e79]
+            - text: Cepheid
+          - img [ref=e81]
+        - generic [ref=e84]:
+          - paragraph [ref=e85]: Quản Lý Chung
+          - link "Thư Viện Tài Liệu" [ref=e86] [cursor=pointer]:
+            - /url: /kien-thuc
+            - img [ref=e87]
+            - generic [ref=e90]: Thư Viện Tài Liệu
+          - link "Quản trị người dùng" [ref=e91] [cursor=pointer]:
+            - /url: /quan-tri/nguoi-dung
+            - img [ref=e92]
+            - generic [ref=e95]: Quản trị người dùng
+        - button "Đăng xuất" [ref=e98] [cursor=pointer]:
+          - img [ref=e99]
+          - generic [ref=e102]: Đăng xuất
+    - main [ref=e103]:
+      - generic [ref=e105]:
+        - generic [ref=e106]:
+          - heading "Nhật ký hỗ trợ – Cepheid" [level=2] [ref=e107]:
+            - img [ref=e108]
+            - text: Nhật ký hỗ trợ – Cepheid
+          - paragraph [ref=e111]: Ghi nhận sự cố, ảnh hiện trường và tiến độ xử lý cho các hệ thống GeneXpert.
+        - group [ref=e112]:
+          - generic "Ghi Nhận Case Mới" [ref=e113] [cursor=pointer]:
+            - img [ref=e114]
+            - text: Ghi Nhận Case Mới
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - text: Ngày Khách Báo
+              - textbox "Ngày Khách Báo" [ref=e132]: 2026-03-13
+            - generic [ref=e133]:
+              - text: Khách Hàng / Đơn Vị
+              - textbox "Khách Hàng / Đơn Vị" [active] [ref=e134]:
+                - /placeholder: "VD: BV Chợ Rẫy"
+                - text: Khach hang demo
+            - generic [ref=e135]:
+              - text: Thiết Bị
+              - combobox "Thiết Bị" [ref=e136]:
+                - option "GeneXpert IV"
+                - option "GeneXpert XVI"
+                - option "GeneXpert Infinity"
+                - option "GeneXpert Edge" [selected]
+                - option "GeneXpert Omni"
+                - option "Khác"
+            - generic [ref=e137]:
+              - text: Mô Tả Vấn Đề
+              - textbox "Mô Tả Vấn Đề" [ref=e138]:
+                - /placeholder: Khách hàng báo lỗi gì, hiện tượng ra sao...
+            - generic [ref=e139]:
+              - text: Hướng Xử Lý / Kết Quả
+              - textbox "Hướng Xử Lý / Kết Quả" [ref=e140]:
+                - /placeholder: Đã làm gì để khắc phục (hoặc để trống nếu đang xử lý)...
+            - generic [ref=e141]:
+              - text: Loại Vấn Đề
+              - combobox "Loại Vấn Đề" [ref=e142]:
+                - option "Phần cứng" [selected]
+                - option "Phần mềm"
+                - option "Hóa chất"
+                - option "Ứng dụng"
+                - option "Khác"
+            - generic [ref=e143]:
+              - text: Người Phụ Trách
+              - textbox "Người Phụ Trách" [ref=e144]:
+                - /placeholder: Tên APP...
+            - generic [ref=e145]:
+              - text: Trạng Thái
+              - combobox "Trạng Thái" [ref=e146]:
+                - option "Đang xử lý" [selected]
+                - option "Đã giải quyết"
+                - option "Leo thang"
+            - generic [ref=e147]:
+              - text: Ảnh hiện trường / ảnh lỗi (tối đa 2 ảnh)
+              - button "Ảnh hiện trường / ảnh lỗi (tối đa 2 ảnh)" [ref=e148]
+            - generic [ref=e149]:
+              - text: File PDF Đính Kèm (Tuỳ chọn)
+              - button "File PDF Đính Kèm (Tuỳ chọn)" [ref=e150]
+            - button "Ghi Nhận Case" [ref=e152] [cursor=pointer]:
+              - img [ref=e154]
+              - text: Ghi Nhận Case
+        - table [ref=e116]:
+          - rowgroup [ref=e117]:
+            - row "Ngày / Khách Vấn Đề / Thiết Bị Người Xử Lý Trạng Thái" [ref=e118]:
+              - columnheader "Ngày / Khách" [ref=e119]
+              - columnheader "Vấn Đề / Thiết Bị" [ref=e120]
+              - columnheader "Người Xử Lý" [ref=e121]
+              - columnheader "Trạng Thái" [ref=e122]
+          - rowgroup [ref=e123]:
+            - row "Chưa có case hỗ trợ nào." [ref=e124]:
+              - cell "Chưa có case hỗ trợ nào." [ref=e125]
+  - alert [ref=e126]

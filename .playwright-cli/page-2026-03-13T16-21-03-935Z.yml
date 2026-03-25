@@ -1,0 +1,104 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e39]:
+      - generic [ref=e40]:
+        - paragraph [ref=e41]: APP Team Portal
+        - heading "Hỗ Trợ Kỹ Thuật" [level=1] [ref=e42]
+        - generic [ref=e43]:
+          - paragraph [ref=e44]: Quan tri he thong
+          - paragraph [ref=e45]: admin@portal.local
+          - paragraph [ref=e46]: Admin
+      - generic [ref=e47]:
+        - img [ref=e48]
+        - textbox "Tìm kiếm..." [ref=e51]
+      - navigation [ref=e52]:
+        - link "Tổng Quan" [ref=e53] [cursor=pointer]:
+          - /url: /
+          - img [ref=e54]
+          - generic [ref=e59]: Tổng Quan
+        - generic [ref=e61]:
+          - button "Illumina" [ref=e62] [cursor=pointer]:
+            - generic [ref=e63]:
+              - img [ref=e64]
+              - text: Illumina
+            - img [ref=e76]
+          - generic [ref=e78]:
+            - link "Quản Lý Dự Án" [ref=e79] [cursor=pointer]:
+              - /url: /projects
+              - img [ref=e80]
+              - generic [ref=e82]: Quản Lý Dự Án
+            - link "Nhật Ký Công Việc" [ref=e83] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e84]
+              - generic [ref=e86]: Nhật Ký Công Việc
+            - link "Tra cứu mã lỗi" [ref=e87] [cursor=pointer]:
+              - /url: /illumina/ma-loi
+              - img [ref=e88]
+              - generic [ref=e90]: Tra cứu mã lỗi
+            - link "Case hỗ trợ" [ref=e91] [cursor=pointer]:
+              - /url: /illumina/case
+              - img [ref=e92]
+              - generic [ref=e95]: Case hỗ trợ
+            - link "Tài liệu kỹ thuật" [ref=e96] [cursor=pointer]:
+              - /url: /kien-thuc/illumina
+              - img [ref=e97]
+              - generic [ref=e100]: Tài liệu kỹ thuật
+        - button "Vi Sinh" [ref=e103] [cursor=pointer]:
+          - generic [ref=e104]:
+            - img [ref=e105]
+            - text: Vi Sinh
+          - img [ref=e109]
+        - button "Cepheid" [ref=e113] [cursor=pointer]:
+          - generic [ref=e114]:
+            - img [ref=e115]
+            - text: Cepheid
+          - img [ref=e117]
+        - generic [ref=e120]:
+          - paragraph [ref=e121]: Quản Lý Chung
+          - link "Thư Viện Tài Liệu" [ref=e122] [cursor=pointer]:
+            - /url: /kien-thuc
+            - img [ref=e123]
+            - generic [ref=e126]: Thư Viện Tài Liệu
+          - link "Quản trị người dùng" [ref=e127] [cursor=pointer]:
+            - /url: /quan-tri/nguoi-dung
+            - img [ref=e128]
+            - generic [ref=e131]: Quản trị người dùng
+        - button "Đăng xuất" [ref=e134] [cursor=pointer]:
+          - img [ref=e135]
+          - generic [ref=e138]: Đăng xuất
+    - main [ref=e3]:
+      - generic [ref=e139]:
+        - generic [ref=e140]:
+          - heading "Tổng quan vận hành" [level=2] [ref=e141]
+          - paragraph [ref=e142]: Theo dõi dự án, hoạt động kỹ thuật và mức độ sử dụng cổng hỗ trợ.
+        - generic [ref=e143]:
+          - article [ref=e144]:
+            - generic [ref=e145]:
+              - paragraph [ref=e146]: Người Dùng
+              - img [ref=e147]
+            - paragraph [ref=e152]: "1"
+          - article [ref=e153]:
+            - generic [ref=e154]:
+              - paragraph [ref=e155]: Tổng Tài Liệu
+              - img [ref=e156]
+            - paragraph [ref=e159]: "0"
+          - article [ref=e160]:
+            - generic [ref=e161]:
+              - paragraph [ref=e162]: Tổng dự án
+              - img [ref=e163]
+            - paragraph [ref=e165]: "0"
+          - article [ref=e166]:
+            - generic [ref=e167]:
+              - paragraph [ref=e168]: Tổng Case Hỗ Trợ
+              - img [ref=e169]
+            - paragraph [ref=e172]: "0"
+        - generic [ref=e173]:
+          - generic [ref=e174]:
+            - generic [ref=e175]:
+              - heading "Phân bổ nhật ký theo nhóm việc" [level=3] [ref=e176]
+              - paragraph [ref=e177]: Cho biết đội đang dành thời gian vào nhóm công việc nào nhiều nhất.
+            - button "Xuất nhật ký (.xlsx)" [disabled] [ref=e178]:
+              - img [ref=e179]
+              - text: Xuất nhật ký (.xlsx)
+          - generic [ref=e182]: Chưa có nhật ký công việc nào. Hãy thêm dữ liệu ở trang nhật ký để biểu đồ này hoạt động.
+  - alert [ref=e38]

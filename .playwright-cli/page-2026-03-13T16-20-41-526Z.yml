@@ -1,0 +1,32 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - paragraph [ref=e6]: APP Portal
+        - heading "Cổng điều phối hỗ trợ kỹ thuật" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Hệ thống này dành cho đội APP, admin và khách hàng theo luồng chia sẻ quy trình. Bạn có thể ghi nhận case, đính ảnh hiện trường, chia sẻ SOP và theo dõi phản hồi hiệu quả từ khách hàng.
+        - generic [ref=e9]:
+          - generic [ref=e10]:
+            - img [ref=e11]
+            - paragraph [ref=e14]: Phân quyền nội bộ
+            - paragraph [ref=e15]: Admin tạo user và kiểm soát quyền truy cập.
+          - generic [ref=e16]:
+            - img [ref=e17]
+            - paragraph [ref=e20]: Chia sẻ quy trình
+            - paragraph [ref=e21]: Gửi link cho khách hàng và ghi nhận trạng thái hoàn tất.
+          - generic [ref=e22]:
+            - img [ref=e23]
+            - paragraph [ref=e27]: Case có ảnh
+            - paragraph [ref=e28]: Lưu lại ảnh lỗi hoặc hiện trường để truy vết nhanh hơn.
+      - generic [ref=e29]:
+        - paragraph [ref=e30]: Đăng nhập hệ thống
+        - heading "Chào mừng quay lại" [level=2] [ref=e31]
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - text: Email
+            - textbox "Email" [ref=e34]
+          - generic [ref=e35]:
+            - text: Mật khẩu
+            - textbox "Mật khẩu" [ref=e36]
+          - button "Đăng nhập" [ref=e37] [cursor=pointer]
+  - alert [ref=e38]
