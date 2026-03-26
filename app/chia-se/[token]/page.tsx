@@ -55,6 +55,22 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
             line.trim() === '' ? <br key={index} /> : <p key={index} className="text-slate-200 leading-relaxed">{line}</p>
           ))}
         </div>
+        {share.article.images && share.article.images.length > 0 && (
+          <div className="mt-6">
+            <p className="mb-3 text-sm font-medium text-slate-300">Ảnh đính kèm</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {share.article.images.map((img) => (
+                <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={img.imageUrl}
+                    alt="Ảnh đính kèm"
+                    className="h-40 w-full rounded-xl object-cover border border-slate-700 hover:opacity-90 transition"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="glass-panel rounded-2xl p-6">
