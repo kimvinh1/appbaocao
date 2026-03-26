@@ -9,17 +9,34 @@ datasource db {
 }
 
 model Project {
-  id         String        @id @default(uuid())
-  code       String        @unique
-  clientName String
-  panelType  String
-  status     String
-  deadline   DateTime
-  createdAt  DateTime      @default(now())
-  logs       ActivityLog[]
+  id          String        @id @default(uuid())
+  code        String        @unique
+  clientName  String
+  instrument  String        @default("")
+  panelType   String
+  description String        @default("")
+  status      String
+  deadline    DateTime?
+  createdAt   DateTime      @default(now())
+  logs        ActivityLog[]
+  projectLogs ProjectLog[]
 
   @@index([status])
-  @@index([deadline])
+  @@index([createdAt])
+}
+
+model ProjectLog {
+  id          String   @id @default(uuid())
+  note        String
+  status      String
+  updatedBy   String
+  createdAt   DateTime @default(now())
+  projectId   String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([createdAt])
 }
 
 model ActivityLog {

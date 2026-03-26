@@ -60,10 +60,10 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     defaultOpen={true}
                     items={[
                         { href: '/projects', label: 'Quản Lý Dự Án', icon: FolderKanban },
-                        { href: '/logs', label: 'Nhật Ký Công Việc', icon: Activity },
-                        { href: '/illumina/ma-loi', label: 'Tra cứu mã lỗi', icon: AlertTriangle },
+                        
+                        { href: '/illumina/ma-loi', label: 'Mã lỗi Illumina', icon: AlertTriangle },
                         { href: '/illumina/case', label: 'Case hỗ trợ', icon: TicketCheck },
-                        { href: '/kien-thuc/illumina', label: 'Tài liệu kỹ thuật', icon: FileText },
+                        { href: '/kien-thuc/illumina', label: 'Quy trình kỹ thuật', icon: FileText },
                     ]}
                 />
 
@@ -75,9 +75,9 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     icon={Microscope}
                     color="text-red-400"
                     items={[
-                        { href: '/vi-sinh/ma-loi', label: 'Tra cứu mã lỗi', icon: AlertTriangle },
+                        { href: '/vi-sinh/ma-loi', label: 'Mã lỗi Vi Sinh', icon: AlertTriangle },
                         { href: '/vi-sinh/case', label: 'Case hỗ trợ', icon: TicketCheck },
-                        { href: '/kien-thuc/vi-sinh', label: 'Tài liệu kỹ thuật', icon: FileText },
+                        { href: '/kien-thuc/vi-sinh', label: 'Quy trình kỹ thuật', icon: FileText },
                     ]}
                 />
 
@@ -89,9 +89,9 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     icon={FlaskConical}
                     color="text-cyan-300"
                     items={[
-                        { href: '/cepheid/ma-loi', label: 'Tra cứu mã lỗi', icon: AlertTriangle },
+                        { href: '/cepheid/ma-loi', label: 'Mã lỗi Cepheid', icon: AlertTriangle },
                         { href: '/cepheid/case', label: 'Case hỗ trợ', icon: TicketCheck },
-                        { href: '/kien-thuc/cepheid', label: 'Tài liệu kỹ thuật', icon: FileText },
+                        { href: '/kien-thuc/cepheid', label: 'Quy trình kỹ thuật', icon: FileText },
                     ]}
                 />
 
