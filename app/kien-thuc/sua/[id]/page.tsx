@@ -1,6 +1,6 @@
-import { updateArticle, getArticleById } from '@/app/actions-kb';
+import { deleteArticleImage, updateArticle, getArticleById } from '@/app/actions-kb';
 import { SubmitButton } from '@/app/components/ui/submit-button';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Save, Trash2 } from 'lucide-react';
 import { getModuleTheme, normalizeModuleKey } from '@/lib/module-theme';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -89,6 +89,49 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
             rows={16}
             defaultValue={article.content}
             className={`mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 font-mono text-sm text-white outline-none transition ${moduleTheme.focusBorderClass}`}
+          />
+        </label>
+
+        {article.images && article.images.length > 0 && (
+          <div className="block text-sm text-slate-300">
+            <p className="mb-2">Ảnh hiện tại</p>
+            <div className="grid grid-cols-3 gap-2">
+              {article.images.map((img) => (
+                <div key={img.id} className="relative group">
+                  <img
+                    src={img.imageUrl}
+                    alt="Ảnh đính kèm"
+                    className="h-28 w-full rounded-lg object-cover border border-slate-700"
+                  />
+                  <form
+                    action={deleteArticleImage}
+                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <input type="hidden" name="imageId" value={img.id} />
+                    <button
+                      type="submit"
+                      title="Xóa ảnh"
+                      className="rounded-full bg-red-500/80 p-1 text-white hover:bg-red-500"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </form>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <label className="block text-sm text-slate-300">
+          <span className="flex items-center gap-1.5">
+            <ImagePlus size={14} /> Thêm ảnh mới <span className="text-slate-500">(tối đa 5 ảnh mỗi lần)</span>
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            name="imageFiles"
+            multiple
+            className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700"
           />
         </label>
 
