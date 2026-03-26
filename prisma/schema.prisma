@@ -16,6 +16,8 @@ model Project {
   panelType   String
   description String        @default("")
   status      String
+  salesPerson String        @default("")
+  appPerson   String        @default("")
   deadline    DateTime?
   createdAt   DateTime      @default(now())
   logs        ActivityLog[]
