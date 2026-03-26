@@ -16,8 +16,8 @@ export default async function ModuleKienThucPage({ params }: { params: Promise<{
                     <Link href="/kien-thuc" className="flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-2 transition">
                         <ArrowLeft size={12} /> Thư Viện Tài Liệu
                     </Link>
-                                        <h2 className={`text-2xl font-semibold ${cfg.textClass}`}>{cfg.label} – Quy Trình Kỹ Thuật</h2>h2>
-                                        <p className="mt-1 text-sm text-slate-400">{articles.length} quy trình</p>p></p>
+                    <h2 className={`text-2xl font-semibold ${cfg.textClass}`}>{cfg.label} – Quy Trình Kỹ Thuật</h2>
+                    <p className="mt-1 text-sm text-slate-400">{articles.length} quy trình</p>
                 </div>
                 <Link
                     href={`/kien-thuc/moi?module=${moduleSlug}`}
