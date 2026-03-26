@@ -56,52 +56,81 @@ export async function getArticles(module?: string) {
 }
 
 export async function getArticleById(id: string) {
-  return prisma.article.findUnique({ where: { id } });
+  return prisma.article.findUnique({
+    where: { id },
+    include: {
+      images: { orderBy: { sortOrder: 'asc' } },
+    },
+  });
 }
 
 export async function createArticle(formData: FormData) {
   const user = await requireUser();
-  const moduleKey = normalizeModuleKey(formData.get('module') as string);
+  const module = normalizeModuleKey(formData.get('module') as string);
   const category = (formData.get('category') as string) || 'quy-trinh';
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const tags = formData.get('tags') as string;
-  // v2: link Drive thay vì upload file
-  const attachmentUrl = sanitizeUrl(formData.get('attachmentUrl') as string | null);
+  const attachment = ensurePdfFile(formData.get('attachment') as File | null, 'Tài liệu đính kèm');
+  const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
-  if (!moduleKey || !title || !content) throw new Error('Missing required fields');
+  if (!module || !title || !content) throw new Error('Missing required fields');
+
+  const attachmentUrl = await uploadFileToSupabase(attachment, 'articles');
+  const imageUrls = await Promise.all(
+    imageFiles.map((f) => uploadFileToSupabase(f, 'articles/images'))
+  );
 
   await prisma.article.create({
     data: {
-      module: moduleKey,
+      module,
       category,
       title,
       content,
       tags: tags || '',
       author: user.fullName,
       attachmentUrl,
+      ...(imageUrls.length > 0
+        ? {
+            images: {
+              create: imageUrls
+                .filter((url): url is string => Boolean(url))
+                .map((imageUrl, index) => ({ imageUrl, sortOrder: index })),
+            },
+          }
+        : undefined),
     },
   });
 
-  revalidateKnowledgeBase(moduleKey);
+  revalidateKnowledgeBase(module);
 }
-
 export async function updateArticle(formData: FormData) {
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const tags = formData.get('tags') as string;
   const category = (formData.get('category') as string) || undefined;
-  const attachmentUrlNew = sanitizeUrl(formData.get('attachmentUrl') as string | null);
+  const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
   if (!id || !title || !content) throw new Error('Missing required fields');
 
   const existingArticle = await prisma.article.findUnique({
     where: { id },
-    select: { module: true, attachmentUrl: true },
+    select: { module: true },
   });
 
   if (!existingArticle) throw new Error('Article not found');
+
+  const imageUrls = await Promise.all(
+    imageFiles.map((f) => uploadFileToSupabase(f, 'articles/images'))
+  );
+
+  const currentImages = await prisma.articleImage.findMany({
+    where: { articleId: id },
+    orderBy: { sortOrder: 'desc' },
+    select: { sortOrder: true },
+  });
+  const nextSortOrder = currentImages.length > 0 ? currentImages[0].sortOrder + 1 : 0;
 
   await prisma.article.update({
     where: { id },
@@ -110,14 +139,36 @@ export async function updateArticle(formData: FormData) {
       content,
       tags: tags || '',
       ...(category ? { category } : undefined),
-      // Giữ link cũ nếu không nhập mới
-      attachmentUrl: attachmentUrlNew ?? existingArticle.attachmentUrl,
+      ...(imageUrls.length > 0
+        ? {
+            images: {
+              create: imageUrls
+                .filter((url): url is string => Boolean(url))
+                .map((imageUrl, index) => ({ imageUrl, sortOrder: nextSortOrder + index })),
+            },
+          }
+        : undefined),
     },
   });
 
   revalidateKnowledgeBase(existingArticle.module, id);
 }
 
+export async function deleteArticleImage(formData: FormData) {
+  const imageId = formData.get('imageId') as string;
+  if (!imageId) throw new Error('Missing image ID');
+
+  const image = await prisma.articleImage.findUnique({
+    where: { id: imageId },
+    select: { articleId: true, article: { select: { module: true } } },
+  });
+
+  if (!image) throw new Error('Image not found');
+
+  await prisma.articleImage.delete({ where: { id: imageId } });
+
+  revalidateKnowledgeBase(image.article.module, image.articleId);
+}
 export async function deleteArticle(formData: FormData) {
   const id = formData.get('id') as string;
   if (!id) throw new Error('Missing article ID');
@@ -299,7 +350,11 @@ export async function getProcedureShareByToken(token: string) {
   const share = await prisma.procedureShare.findUnique({
     where: { token },
     include: {
-      article: true,
+      article: {
+        include: {
+          images: { orderBy: { sortOrder: 'asc' } },
+        },
+      },
       reactions: true,
       sharedBy: { select: { fullName: true, email: true } },
     },
