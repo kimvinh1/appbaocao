@@ -37,18 +37,40 @@ function parseRequiredNumber(value: FormDataEntryValue | null, fieldName: string
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
-export async function getProjects() {
-  return prisma.project.findMany({
-    orderBy: [{ createdAt: 'desc' }],
-    include: {
-      projectLogs: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-      },
-    },
-  });
+export async function getProjects(filters?: {
+    status?: string;
+    clientName?: string;
+    dateFrom?: string;
+    dateTo?: string;
+}) {
+    const where: Record<string, unknown> = {};
+    if (filters?.status && filters.status !== 'all') {
+          where.status = filters.status;
+    }
+    if (filters?.clientName) {
+          where.clientName = { contains: filters.clientName };
+    }
+    if (filters?.dateFrom || filters?.dateTo) {
+          const createdAt: Record<string, Date> = {};
+          if (filters.dateFrom) createdAt.gte = new Date(filters.dateFrom);
+          if (filters.dateTo) {
+                  const to = new Date(filters.dateTo);
+                  to.setHours(23, 59, 59, 999);
+                  createdAt.lte = to;
+          }
+          where.createdAt = createdAt;
+    }
+    return prisma.project.findMany({
+          where,
+          orderBy: [{ createdAt: 'desc' }],
+          include: {
+                  projectLogs: {
+                            orderBy: { createdAt: 'desc' },
+                            take: 1,
+                  },
+          },
+    });
 }
-
 export async function getProjectById(id: string) {
   return prisma.project.findUnique({
     where: { id },
@@ -85,6 +107,8 @@ export async function createProject(formData: FormData) {
   const panelType = parseRequiredString(formData.get('panelType'), 'Panel / Xét nghiệm');
   const description = (formData.get('description') as string)?.trim() ?? '';
   const status = parseRequiredString(formData.get('status'), 'Trạng thái');
+    const salesPerson = (formData.get('salesPerson') as string)?.trim() ?? '';
+    const appPerson = (formData.get('appPerson') as string)?.trim() ?? '';
   const updatedBy = (formData.get('updatedBy') as string)?.trim() || 'Hệ thống';
 
   const project = await prisma.project.create({
@@ -95,11 +119,13 @@ export async function createProject(formData: FormData) {
       panelType,
       description,
       status,
+            salesPerson,
+            appPerson,
     },
   });
 
   await prisma.projectLog.create({
-    data: {
+              data: {
       projectId: project.id,
       status,
       note: description ? `Tạo dự án: ${description}` : 'Tạo dự án mới',
