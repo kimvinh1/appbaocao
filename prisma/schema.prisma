@@ -72,9 +72,22 @@ model Article {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   procedureShares ProcedureShare[]
+  images    ArticleImage[]
 
   @@index([module])
   @@index([category])
+}
+
+model ArticleImage {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  articleId String
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, sortOrder])
 }
 
 // --- Vi Sinh Module ---
