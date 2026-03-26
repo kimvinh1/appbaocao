@@ -36,6 +36,18 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <p className="text-slate-500 text-xs uppercase tracking-wide">Ngày tạo</p>
             <p className="text-slate-200 mt-0.5">{new Date(project.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
           </div>
+          {(project as any).salesPerson && (
+            <div>
+              <p className="text-slate-500 text-xs uppercase tracking-wide">PS / Sales</p>
+              <p className="text-slate-200 mt-0.5">{(project as any).salesPerson}</p>
+            </div>
+          )}
+          {(project as any).appPerson && (
+            <div>
+              <p className="text-slate-500 text-xs uppercase tracking-wide">App phụ trách</p>
+              <p className="text-slate-200 mt-0.5">{(project as any).appPerson}</p>
+            </div>
+          )}
           {project.description && (
             <div className="col-span-2">
               <p className="text-slate-500 text-xs uppercase tracking-wide">Mô tả</p>
