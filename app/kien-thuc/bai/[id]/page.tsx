@@ -55,6 +55,24 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                         line.trim() === '' ? <br key={i} /> : <p key={i} className="text-slate-200 leading-relaxed">{line}</p>
                     ))}
                 </div>
+
+                {article.images && article.images.length > 0 && (
+                    <div className="mt-6">
+                        <p className="mb-3 text-sm font-medium text-slate-300">\u1ea2nh \u0111\u00ednh k\u00e8m</p>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {article.images.map((img) => (
+                                <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                                    <img
+                                        src={img.imageUrl}
+                                        alt="\u1ea2nh \u0111\u00ednh k\u00e8m"
+                                        className="h-40 w-full rounded-xl object-cover border border-slate-700 hover:opacity-90 transition"
+                                    />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {article.attachmentUrl ? (
                     <div className="mt-6 rounded-xl border border-slate-700/60 bg-slate-950/40 p-4">
                         <p className="text-sm font-medium text-white">Tài liệu đính kèm</p>
