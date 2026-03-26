@@ -12,12 +12,12 @@ model Project {
   id          String        @id @default(uuid())
   code        String        @unique
   clientName  String
-  instrument  String        @default("")
+  instrument  String?
   panelType   String
-  description String        @default("")
+  description String?
   status      String
-  salesPerson String        @default("")
-  appPerson   String        @default("")
+  salesPerson String?
+  appPerson   String?
   deadline    DateTime?
   createdAt   DateTime      @default(now())
   logs        ActivityLog[]
