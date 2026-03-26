@@ -73,7 +73,7 @@ export async function createArticle(formData: FormData) {
 
   await prisma.article.create({
     data: {
-      moduleKey,
+      module: moduleKey,
       category,
       title,
       content,
@@ -226,7 +226,7 @@ export async function createSupportCase(formData: FormData) {
 
   await prisma.supportCase.create({
     data: {
-      moduleKey,
+      module: moduleKey,
       caseDate,
       customer,
       instrument,
