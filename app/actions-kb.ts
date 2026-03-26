@@ -61,7 +61,7 @@ export async function getArticleById(id: string) {
 
 export async function createArticle(formData: FormData) {
   const user = await requireUser();
-  const module = normalizeModuleKey(formData.get('module') as string);
+  const moduleKey = normalizeModuleKey(formData.get('module') as string);
   const category = (formData.get('category') as string) || 'quy-trinh';
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
@@ -69,11 +69,11 @@ export async function createArticle(formData: FormData) {
   // v2: link Drive thay vì upload file
   const attachmentUrl = sanitizeUrl(formData.get('attachmentUrl') as string | null);
 
-  if (!module || !title || !content) throw new Error('Missing required fields');
+  if (!moduleKey || !title || !content) throw new Error('Missing required fields');
 
   await prisma.article.create({
     data: {
-      module,
+      moduleKey,
       category,
       title,
       content,
@@ -83,7 +83,7 @@ export async function createArticle(formData: FormData) {
     },
   });
 
-  revalidateKnowledgeBase(module);
+  revalidateKnowledgeBase(moduleKey);
 }
 
 export async function updateArticle(formData: FormData) {
@@ -151,7 +151,7 @@ export async function getErrorCodes(module?: string, instrument?: string) {
 }
 
 export async function createErrorCode(formData: FormData) {
-  const module = normalizeModuleKey((formData.get('module') as string | null) || 'vi-sinh');
+  const moduleKey = normalizeModuleKey((formData.get('module') as string | null) || 'vi-sinh');
   const code = formData.get('code') as string;
   const instrument = formData.get('instrument') as string;
   const description = formData.get('description') as string;
@@ -166,7 +166,7 @@ export async function createErrorCode(formData: FormData) {
 
   await prisma.errorCode.create({
     data: {
-      module: module || 'vi-sinh',
+      module: moduleKey || 'vi-sinh',
       code,
       instrument,
       description,
@@ -177,7 +177,7 @@ export async function createErrorCode(formData: FormData) {
     },
   });
 
-  revalidateModulePages(module);
+  revalidateModulePages(moduleKey);
 }
 
 // ─── SUPPORT CASES ────────────────────────────────────────────────────────────
@@ -201,7 +201,7 @@ export async function getSupportCases(module?: string) {
 }
 
 export async function createSupportCase(formData: FormData) {
-  const module = normalizeModuleKey(formData.get('module') as string);
+  const moduleKey = normalizeModuleKey(formData.get('module') as string);
   const caseDateRaw = formData.get('caseDate') as string;
   const customer = formData.get('customer') as string;
   const instrument = formData.get('instrument') as string;
@@ -216,7 +216,7 @@ export async function createSupportCase(formData: FormData) {
   // v2: link Drive cho tài liệu đính kèm
   const attachmentUrl = sanitizeUrl(formData.get('attachmentUrl') as string | null);
 
-  if (!module || !caseDateRaw || !customer || !instrument || !issueType || !description || !handler || !status)
+  if (!moduleKey || !caseDateRaw || !customer || !instrument || !issueType || !description || !handler || !status)
     throw new Error('Missing required fields');
 
   const caseDate = new Date(caseDateRaw);
@@ -226,7 +226,7 @@ export async function createSupportCase(formData: FormData) {
 
   await prisma.supportCase.create({
     data: {
-      module,
+      moduleKey,
       caseDate,
       customer,
       instrument,
@@ -249,7 +249,7 @@ export async function createSupportCase(formData: FormData) {
     },
   });
 
-  revalidateModulePages(module);
+  revalidateModulePages(moduleKey);
 }
 
 export async function updateCaseStatus(formData: FormData) {

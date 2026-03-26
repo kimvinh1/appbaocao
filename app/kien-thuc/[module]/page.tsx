@@ -5,9 +5,9 @@ import { getModuleTheme, normalizeModuleKey } from '@/lib/module-theme';
 
 export default async function ModuleKienThucPage({ params }: { params: Promise<{ module: string }> }) {
     const { module: rawModule } = await params;
-    const module = normalizeModuleKey(rawModule);
-    const articles = await getArticles(module);
-    const cfg = getModuleTheme(module);
+    const moduleSlug = normalizeModuleKey(rawModule);
+    const articles = await getArticles(moduleSlug);
+    const cfg = getModuleTheme(moduleSlug);
 
     return (
         <div className="space-y-6">
@@ -20,7 +20,7 @@ export default async function ModuleKienThucPage({ params }: { params: Promise<{
                     <p className="mt-1 text-sm text-slate-400">{articles.length} tài liệu</p>
                 </div>
                 <Link
-                    href={`/kien-thuc/moi?module=${module}`}
+                    href={`/kien-thuc/moi?module=${moduleSlug}`}
                     className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium ring-1 transition ${cfg.buttonClass}`}
                 >
                     <Plus size={16} /> Thêm Tài Liệu

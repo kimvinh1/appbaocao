@@ -1,4 +1,4 @@
-import { ClipboardList, FolderKanban, Users, FileText, TicketCheck } from 'lucide-react';
+import { FolderKanban, Users, FileText, TicketCheck } from 'lucide-react';
 import { getActivityLogs } from '@/app/actions';
 import { getDashboardStats } from '@/app/actions-kb';
 import { ExportLogsButton } from '@/app/components/dashboard/export-logs-button';

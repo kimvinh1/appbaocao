@@ -23,7 +23,6 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
     const { module, title, description, instruments, colorClass, buttonBgClass, focusBorderClass } = props;
     const cases = await getSupportCases(module);
     const fieldClassName = `mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${focusBorderClass}`;
-    const fileFieldClassName = `mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none ${focusBorderClass} file:mr-4 file:rounded file:border-0 file:bg-slate-800 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-300 hover:file:bg-slate-700`;
 
     return (
         <div className="space-y-6">
