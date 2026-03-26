@@ -1,10 +1,10 @@
 'use client';
 
 import { createArticle } from '@/app/actions-kb';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Save, X } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 const MODULES = [
     { value: 'illumina', label: 'Illumina' },
@@ -23,11 +23,24 @@ export default function NewArticlePage() {
     const searchParams = useSearchParams();
     const rawModule = searchParams.get('module') ?? 'illumina';
     const defaultModule = rawModule === 'sinh-hoc-phan-tu' ? 'cepheid' : rawModule;
-    const formRef = useRef<HTMLFormElement>(null);
+    const formRef = useRef(null);
+    const [imagePreviews, setImagePreviews] = useState([]);
 
-    async function handleSubmit(formData: FormData) {
+    function handleImageChange(e) {
+        const files = Array.from(e.target.files ?? []);
+        setImagePreviews(files.map((f) => URL.createObjectURL(f)));
+    }
+
+    function removeImagePreview(index) {
+        setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+        const input = formRef.current?.querySelector('input[name="imageFiles"]');
+        if (input) input.value = '';
+    }
+
+    async function handleSubmit(formData) {
         await createArticle(formData);
         formRef.current?.reset();
+        setImagePreviews([]);
         window.location.href = '/kien-thuc';
     }
 
@@ -84,15 +97,44 @@ export default function NewArticlePage() {
                 </label>
 
                 <label className="block text-sm text-slate-300">
-                    Link Tài Liệu Đính Kèm <span className="text-slate-500">(Google Drive, tuỳ chọn)</span>
+                    File PDF Đính Kèm
                     <input
-                        type="url"
-                        name="attachmentUrl"
-                        placeholder="https://drive.google.com/file/d/..."
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        name="attachment"
+                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none focus:border-cyan-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700"
                     />
-                    <span className="mt-1 block text-xs text-slate-500">Nhớ set quyền &quot;Anyone with the link can view&quot; trên Drive trước khi dán link.</span>
                 </label>
+
+                <div className="block text-sm text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                        <ImagePlus size={14} /> Ảnh đính kèm <span className="text-slate-500">(tối đa 5 ảnh)</span>
+                    </span>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        name="imageFiles"
+                        multiple
+                        onChange={handleImageChange}
+                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none focus:border-cyan-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700"
+                    />
+                    {imagePreviews.length > 0 && (
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                            {imagePreviews.map((src, i) => (
+                                <div key={i} className="relative group">
+                                    <img src={src} alt="" className="h-28 w-full rounded-lg object-cover border border-slate-700" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImagePreview(i)}
+                                        className="absolute top-1 right-1 rounded-full bg-slate-900/80 p-0.5 text-slate-300 opacity-0 group-hover:opacity-100 transition hover:text-white"
+                                    >
+                                        <X size={13} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <label className="block text-sm text-slate-300">
                     Nội Dung
