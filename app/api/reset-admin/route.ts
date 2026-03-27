@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       create: {
         email: 'admin@portal.local',
         name: 'Quan tri he thong',
+        fullName: 'Quan tri he thong',
         passwordHash: hash,
         role: 'admin',
         isActive: true,
