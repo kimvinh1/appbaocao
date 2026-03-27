@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
       update: { passwordHash: hash },
       create: {
         email: 'admin@portal.local',
-        name: 'Quan tri he thong',
         fullName: 'Quan tri he thong',
         passwordHash: hash,
         role: 'admin',
