@@ -14,11 +14,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password too short' }, { status: 400 });
     }
     const hash = hashPassword(newPassword);
-    await prisma.user.update({
+    await prisma.user.upsert({
       where: { email: 'admin@portal.local' },
-      data: { passwordHash: hash },
+      update: { passwordHash: hash },
+      create: {
+        email: 'admin@portal.local',
+        name: 'Quan tri he thong',
+        passwordHash: hash,
+        role: 'admin',
+        isActive: true,
+      },
     });
-    return NextResponse.json({ success: true, message: 'Password reset OK' });
+    return NextResponse.json({ success: true, message: 'Admin OK' });
   } catch (e: unknown) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
