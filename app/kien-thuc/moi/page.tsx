@@ -5,6 +5,7 @@ import { ArrowLeft, ImagePlus, Save, X } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
 
 const MODULES = [
     { value: 'illumina', label: 'Illumina' },
@@ -23,21 +24,22 @@ export default function NewArticlePage() {
     const searchParams = useSearchParams();
     const rawModule = searchParams.get('module') ?? 'illumina';
     const defaultModule = rawModule === 'sinh-hoc-phan-tu' ? 'cepheid' : rawModule;
-    const formRef = useRef(null);
-    const [imagePreviews, setImagePreviews] = useState([]);
+    const formRef = useRef<HTMLFormElement>(null);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-    function handleImageChange(e) {
+    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         const files = Array.from(e.target.files ?? []);
         setImagePreviews(files.map((f) => URL.createObjectURL(f)));
     }
 
-    function removeImagePreview(index) {
+    function removeImagePreview(index: number) {
         setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-        const input = formRef.current?.querySelector('input[name="imageFiles"]');
+        // Reset the file input so it doesn't carry removed files
+        const input = formRef.current?.querySelector<HTMLInputElement>('input[name="imageFiles"]');
         if (input) input.value = '';
     }
 
-    async function handleSubmit(formData) {
+    async function handleSubmit(formData: FormData) {
         await createArticle(formData);
         formRef.current?.reset();
         setImagePreviews([]);
@@ -136,16 +138,12 @@ export default function NewArticlePage() {
                     )}
                 </div>
 
-                <label className="block text-sm text-slate-300">
+                <div className="block text-sm text-slate-300">
                     Nội Dung
-                    <textarea
-                        name="content"
-                        required
-                        rows={14}
-                        placeholder="Nhập nội dung hướng dẫn, quy trình hoặc thông tin kỹ thuật tại đây..."
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400 font-mono"
-                    />
-                </label>
+                    <div className="mt-1">
+                        <RichContentEditor name="content" rows={14} />
+                    </div>
+                </div>
 
                 <button
                     type="submit"
