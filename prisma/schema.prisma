@@ -202,3 +202,19 @@ model ProcedureReaction {
   @@index([shareId])
   @@index([reactionType])
 }
+
+// --- Content Feedback (like/dislike cho article, case, error-code) ---
+model ContentFeedback {
+  id          String   @id @default(uuid())
+  contentType String   // article | case | error-code
+  contentId   String
+  userId      String   // user id hoặc anonymous session id
+  reaction    String   // like | dislike
+  comment     String?  // feedback comment tùy chọn
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([contentType, contentId, userId])
+  @@index([contentType, contentId])
+  @@index([userId])
+}
