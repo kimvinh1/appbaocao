@@ -3,7 +3,8 @@
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { requireUser } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
+import { requireUser, getCurrentUser } from '@/lib/auth';
 import { normalizeModuleKey, resolveModuleAliases } from '@/lib/module-theme';
 
 function revalidateKnowledgeBase(module: string, articleId?: string) {
@@ -34,16 +35,77 @@ function revalidateModulePages(module: string) {
 
 function getModuleFilter(module?: string) {
   const aliases = resolveModuleAliases(module);
-  if (!aliases) return undefined;
-  return { in: aliases };
+
+  if (!aliases) {
+    return undefined;
+  }
+
+  return {
+    in: aliases,
+  };
 }
 
-/** Làm sạch URL Drive/link – trả null nếu rỗng hoặc không hợp lệ */
-function sanitizeUrl(url: string | null | undefined): string | null {
-  if (!url || url.trim() === '') return null;
-  const trimmed = url.trim();
-  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) return null;
-  return trimmed;
+function isFormFile(value: FormDataEntryValue | null): value is File {
+  return value instanceof File;
+}
+
+function getUploadedFiles(formData: FormData, fieldName: string) {
+  return formData
+    .getAll(fieldName)
+    .filter(isFormFile)
+    .filter((file) => file.size > 0);
+}
+
+function isPdfFile(file: File) {
+  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+}
+
+function isImageFile(file: File) {
+  return file.type.startsWith('image/');
+}
+
+function ensurePdfFile(file: File | null, label: string) {
+  if (!file || file.size === 0) {
+    return null;
+  }
+
+  if (!isPdfFile(file)) {
+    throw new Error(`${label} phải là file PDF`);
+  }
+
+  return file;
+}
+
+function ensureImageFiles(files: File[], maxCount: number, label: string) {
+  if (files.length > maxCount) {
+    throw new Error(`${label} chỉ được tối đa ${maxCount} ảnh`);
+  }
+
+  for (const file of files) {
+    if (!isImageFile(file)) {
+      throw new Error(`${label} chỉ nhận file ảnh`);
+    }
+  }
+
+  return files;
+}
+
+async function uploadFileToSupabase(file: File | null, folder = 'portal') {
+  if (!file || file.size === 0) return null;
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+  const { error } = await supabase.storage
+    .from('portal-files')
+    .upload(fileName, file);
+
+  if (error) throw new Error('Upload failed: ' + error.message);
+
+  const { data: publicUrlData } = supabase.storage
+    .from('portal-files')
+    .getPublicUrl(fileName);
+
+  return publicUrlData.publicUrl;
 }
 
 // ─── ARTICLES ───────────────────────────────────────────────────────────────
@@ -104,6 +166,7 @@ export async function createArticle(formData: FormData) {
 
   revalidateKnowledgeBase(module);
 }
+
 export async function updateArticle(formData: FormData) {
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
@@ -169,6 +232,7 @@ export async function deleteArticleImage(formData: FormData) {
 
   revalidateKnowledgeBase(image.article.module, image.articleId);
 }
+
 export async function deleteArticle(formData: FormData) {
   const id = formData.get('id') as string;
   if (!id) throw new Error('Missing article ID');
@@ -202,22 +266,27 @@ export async function getErrorCodes(module?: string, instrument?: string) {
 }
 
 export async function createErrorCode(formData: FormData) {
-  const moduleKey = normalizeModuleKey((formData.get('module') as string | null) || 'vi-sinh');
+  const module = normalizeModuleKey((formData.get('module') as string | null) || 'vi-sinh');
   const code = formData.get('code') as string;
   const instrument = formData.get('instrument') as string;
   const description = formData.get('description') as string;
   const cause = formData.get('cause') as string;
   const solution = formData.get('solution') as string;
   const severity = formData.get('severity') as string;
-  // v2: chỉ nhận link ảnh
-  const imageUrl = sanitizeUrl(formData.get('imageUrl') as string | null);
+  const imageFile = formData.get('imageFile') as File | null;
+  let imageUrl = formData.get('imageUrl') as string | null;
 
   if (!code || !instrument || !description || !cause || !solution || !severity)
     throw new Error('All fields except module/imageUrl are required');
 
+  const uploadedImageUrl = await uploadFileToSupabase(imageFile, 'error-codes');
+  if (uploadedImageUrl) imageUrl = uploadedImageUrl;
+
+  const targetModule = module || 'vi-sinh';
+
   await prisma.errorCode.create({
     data: {
-      module: moduleKey || 'vi-sinh',
+      module: targetModule,
       code,
       instrument,
       description,
@@ -228,16 +297,18 @@ export async function createErrorCode(formData: FormData) {
     },
   });
 
-  revalidateModulePages(moduleKey);
+  revalidateModulePages(targetModule);
 }
 
-// ─── SUPPORT CASES ────────────────────────────────────────────────────────────
+// ─── SUPPORT CASES ──────────────────────────────────────────────────────────
 
 export async function getSupportCases(module?: string) {
   const cases = await prisma.supportCase.findMany({
     where: module ? { module: getModuleFilter(module) } : undefined,
     include: {
-      images: { orderBy: { sortOrder: 'asc' } },
+      images: {
+        orderBy: { sortOrder: 'asc' },
+      },
     },
     orderBy: [{ caseDate: 'desc' }],
   });
@@ -252,7 +323,7 @@ export async function getSupportCases(module?: string) {
 }
 
 export async function createSupportCase(formData: FormData) {
-  const moduleKey = normalizeModuleKey(formData.get('module') as string);
+  const module = normalizeModuleKey(formData.get('module') as string);
   const caseDateRaw = formData.get('caseDate') as string;
   const customer = formData.get('customer') as string;
   const instrument = formData.get('instrument') as string;
@@ -261,23 +332,23 @@ export async function createSupportCase(formData: FormData) {
   const resolution = formData.get('resolution') as string;
   const handler = formData.get('handler') as string;
   const status = formData.get('status') as string;
-  // v2: link ảnh (tối đa 2) thay vì upload
-  const imageUrl1 = sanitizeUrl(formData.get('imageUrl1') as string | null);
-  const imageUrl2 = sanitizeUrl(formData.get('imageUrl2') as string | null);
-  // v2: link Drive cho tài liệu đính kèm
-  const attachmentUrl = sanitizeUrl(formData.get('attachmentUrl') as string | null);
+  const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 2, 'Ảnh case');
+  const attachment = ensurePdfFile(formData.get('attachment') as File | null, 'File đính kèm');
 
-  if (!moduleKey || !caseDateRaw || !customer || !instrument || !issueType || !description || !handler || !status)
+  if (!module || !caseDateRaw || !customer || !instrument || !issueType || !description || !handler || !status)
     throw new Error('Missing required fields');
 
   const caseDate = new Date(caseDateRaw);
   if (isNaN(caseDate.getTime())) throw new Error('Invalid date');
 
-  const imageUrls = [imageUrl1, imageUrl2].filter((url): url is string => Boolean(url));
+  const imageUrls = await Promise.all(
+    imageFiles.map((imageFile) => uploadFileToSupabase(imageFile, 'support-cases/images'))
+  );
+  const attachmentUrl = await uploadFileToSupabase(attachment, 'support-cases/files');
 
   await prisma.supportCase.create({
     data: {
-      module: moduleKey,
+      module,
       caseDate,
       customer,
       instrument,
@@ -290,17 +361,19 @@ export async function createSupportCase(formData: FormData) {
       ...(imageUrls.length > 0
         ? {
             images: {
-              create: imageUrls.map((imageUrl, index) => ({
-                imageUrl,
-                sortOrder: index,
-              })),
+              create: imageUrls
+                .filter((imageUrl): imageUrl is string => Boolean(imageUrl))
+                .map((imageUrl, index) => ({
+                  imageUrl,
+                  sortOrder: index,
+                })),
             },
           }
         : undefined),
     },
   });
 
-  revalidateModulePages(moduleKey);
+  revalidateModulePages(module);
 }
 
 export async function updateCaseStatus(formData: FormData) {
@@ -325,7 +398,10 @@ export async function getDashboardStats() {
   const totalArticles = await prisma.article.count();
   const totalProjects = await prisma.project.count();
   const totalSupportCases = await prisma.supportCase.count();
-  const totalUsers = await prisma.user.count({ where: { isActive: true } });
+  const totalUsers = await prisma.user.count({
+    where: { isActive: true },
+  });
+
   return { totalArticles, totalProjects, totalSupportCases, totalUsers };
 }
 
@@ -333,7 +409,11 @@ export async function getProcedureSharesByArticle(articleId: string) {
   const shares = await prisma.procedureShare.findMany({
     where: { articleId },
     include: {
-      sharedBy: { select: { fullName: true } },
+      sharedBy: {
+        select: {
+          fullName: true,
+        },
+      },
       reactions: true,
     },
     orderBy: [{ sharedAt: 'desc' }],
@@ -341,8 +421,8 @@ export async function getProcedureSharesByArticle(articleId: string) {
 
   return shares.map((share) => ({
     ...share,
-    likeCount: share.reactions.filter((r) => r.reactionType === 'like').length,
-    heartCount: share.reactions.filter((r) => r.reactionType === 'heart').length,
+    likeCount: share.reactions.filter((reaction) => reaction.reactionType === 'like').length,
+    heartCount: share.reactions.filter((reaction) => reaction.reactionType === 'heart').length,
   }));
 }
 
@@ -356,11 +436,18 @@ export async function getProcedureShareByToken(token: string) {
         },
       },
       reactions: true,
-      sharedBy: { select: { fullName: true, email: true } },
+      sharedBy: {
+        select: {
+          fullName: true,
+          email: true,
+        },
+      },
     },
   });
 
-  if (!share) return null;
+  if (!share) {
+    return null;
+  }
 
   return {
     ...share,
@@ -368,8 +455,8 @@ export async function getProcedureShareByToken(token: string) {
       ...share.article,
       module: normalizeModuleKey(share.article.module),
     },
-    likeCount: share.reactions.filter((r) => r.reactionType === 'like').length,
-    heartCount: share.reactions.filter((r) => r.reactionType === 'heart').length,
+    likeCount: share.reactions.filter((reaction) => reaction.reactionType === 'like').length,
+    heartCount: share.reactions.filter((reaction) => reaction.reactionType === 'heart').length,
   };
 }
 
@@ -379,7 +466,9 @@ export async function createProcedureShare(formData: FormData) {
   const customerName = formData.get('customerName') as string;
   const customerEmail = formData.get('customerEmail') as string;
 
-  if (!articleId || !customerName) throw new Error('Thiếu thông tin chia sẻ quy trình');
+  if (!articleId || !customerName) {
+    throw new Error('Thiếu thông tin chia sẻ quy trình');
+  }
 
   const share = await prisma.procedureShare.create({
     data: {
@@ -397,14 +486,19 @@ export async function createProcedureShare(formData: FormData) {
 
 export async function markProcedureShareCompleted(formData: FormData) {
   const token = formData.get('token') as string;
-  if (!token) throw new Error('Thiếu mã chia sẻ');
+
+  if (!token) {
+    throw new Error('Thiếu mã chia sẻ');
+  }
 
   const existingShare = await prisma.procedureShare.findUnique({
     where: { token },
     select: { id: true, articleId: true, completedAt: true },
   });
 
-  if (!existingShare) throw new Error('Không tìm thấy quy trình đã chia sẻ');
+  if (!existingShare) {
+    throw new Error('Không tìm thấy quy trình đã chia sẻ');
+  }
 
   await prisma.procedureShare.update({
     where: { token },
@@ -422,19 +516,163 @@ export async function reactToProcedureShare(formData: FormData) {
   const token = formData.get('token') as string;
   const reactionType = formData.get('reactionType') as string;
 
-  if (!token || !['like', 'heart'].includes(reactionType)) throw new Error('Phản hồi không hợp lệ');
+  if (!token || !['like', 'heart'].includes(reactionType)) {
+    throw new Error('Phản hồi không hợp lệ');
+  }
 
   const share = await prisma.procedureShare.findUnique({
     where: { token },
     select: { id: true, articleId: true },
   });
 
-  if (!share) throw new Error('Không tìm thấy quy trình đã chia sẻ');
+  if (!share) {
+    throw new Error('Không tìm thấy quy trình đã chia sẻ');
+  }
 
   await prisma.procedureReaction.create({
-    data: { shareId: share.id, reactionType },
+    data: {
+      shareId: share.id,
+      reactionType,
+    },
   });
 
   revalidatePath(`/chia-se/${token}`);
   revalidatePath(`/kien-thuc/bai/${share.articleId}`);
 }
+
+// ─── Content Feedback (like/dislike) ────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = prisma as any;
+
+export type FeedbackStats = {
+  likeCount: number;
+  dislikeCount: number;
+  userReaction: 'like' | 'dislike' | null;
+};
+
+export async function getContentFeedback(
+  contentType: string,
+  contentId: string,
+): Promise<FeedbackStats> {
+  const currentUser = await getCurrentUser();
+  const userId = currentUser?.id ?? 'anonymous';
+
+  const [likeCount, dislikeCount, userRecord] = await Promise.all([
+    db.contentFeedback.count({
+      where: { contentType, contentId, reaction: 'like' },
+    }),
+    db.contentFeedback.count({
+      where: { contentType, contentId, reaction: 'dislike' },
+    }),
+    currentUser
+      ? db.contentFeedback.findUnique({
+          where: {
+            contentType_contentId_userId: { contentType, contentId, userId },
+          },
+        })
+      : null,
+  ]);
+
+  return {
+    likeCount,
+    dislikeCount,
+    userReaction: (userRecord?.reaction as 'like' | 'dislike' | null) ?? null,
+  };
+}
+
+export async function getContentFeedbackBatch(
+  contentType: string,
+  contentIds: string[],
+): Promise<Record<string, FeedbackStats>> {
+  if (contentIds.length === 0) return {};
+  const currentUser = await getCurrentUser();
+  const userId = currentUser?.id;
+
+  const [allFeedbacks, userFeedbacks] = await Promise.all([
+    db.contentFeedback.groupBy({
+      by: ['contentId', 'reaction'],
+      where: { contentType, contentId: { in: contentIds } },
+      _count: true,
+    }),
+    userId
+      ? db.contentFeedback.findMany({
+          where: { contentType, contentId: { in: contentIds }, userId },
+          select: { contentId: true, reaction: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userMap = Object.fromEntries((userFeedbacks as any[]).map((f: any) => [f.contentId, f.reaction]));
+
+  return Object.fromEntries(
+    contentIds.map((id) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const likes = (allFeedbacks as any[]).find((f: any) => f.contentId === id && f.reaction === 'like')?._count ?? 0;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dislikes = (allFeedbacks as any[]).find((f: any) => f.contentId === id && f.reaction === 'dislike')?._count ?? 0;
+      return [
+        id,
+        {
+          likeCount: likes,
+          dislikeCount: dislikes,
+          userReaction: (userMap[id] as 'like' | 'dislike' | null) ?? null,
+        },
+      ];
+    }),
+  );
+}
+
+export async function submitContentFeedback(formData: FormData): Promise<void> {
+  const currentUser = await requireUser();
+  const contentType = formData.get('contentType') as string;
+  const contentId = formData.get('contentId') as string;
+  const reaction = formData.get('reaction') as 'like' | 'dislike';
+  const comment = (formData.get('comment') as string | null) ?? undefined;
+
+  if (!contentType || !contentId || !['like', 'dislike'].includes(reaction)) {
+    throw new Error('Dữ liệu không hợp lệ');
+  }
+
+  const userId = currentUser.id;
+  const existing = await db.contentFeedback.findUnique({
+    where: { contentType_contentId_userId: { contentType, contentId, userId } },
+  });
+
+  if (existing) {
+    if (existing.reaction === reaction) {
+      // Toggle off (xoá vote)
+      await db.contentFeedback.delete({
+        where: { contentType_contentId_userId: { contentType, contentId, userId } },
+      });
+    } else {
+      // Đổi sang phản hồi ngược lại
+      await db.contentFeedback.update({
+        where: { contentType_contentId_userId: { contentType, contentId, userId } },
+        data: { reaction, comment, updatedAt: new Date() },
+      });
+    }
+  } else {
+    await db.contentFeedback.create({
+      data: { id: randomUUID(), contentType, contentId, userId, reaction, comment },
+    });
+  }
+
+  // Revalidate relevant pages
+  if (contentType === 'article') {
+    revalidatePath(`/kien-thuc/bai/${contentId}`);
+    revalidatePath('/kien-thuc');
+    revalidatePath('/search');
+  } else if (contentType === 'case') {
+    revalidatePath('/illumina/case');
+    revalidatePath('/vi-sinh/case');
+    revalidatePath('/sinh-hoc-phan-tu/case');
+    revalidatePath('/cepheid/case');
+  } else if (contentType === 'error-code') {
+    revalidatePath('/illumina/ma-loi');
+    revalidatePath('/vi-sinh/ma-loi');
+    revalidatePath('/sinh-hoc-phan-tu/ma-loi');
+    revalidatePath('/cepheid/ma-loi');
+  }
+}
+
