@@ -1,5 +1,6 @@
 import { deleteArticleImage, updateArticle, getArticleById } from '@/app/actions-kb';
 import { SubmitButton } from '@/app/components/ui/submit-button';
+import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
 import { ArrowLeft, ImagePlus, Save, Trash2 } from 'lucide-react';
 import { getModuleTheme, normalizeModuleKey } from '@/lib/module-theme';
 import Link from 'next/link';
@@ -81,16 +82,12 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           />
         </label>
 
-        <label className="block text-sm text-slate-300">
+        <div className="block text-sm text-slate-300">
           Nội Dung
-          <textarea
-            name="content"
-            required
-            rows={16}
-            defaultValue={article.content}
-            className={`mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 font-mono text-sm text-white outline-none transition ${moduleTheme.focusBorderClass}`}
-          />
-        </label>
+          <div className="mt-1">
+            <RichContentEditor name="content" defaultValue={article.content} rows={16} />
+          </div>
+        </div>
 
         {article.images && article.images.length > 0 && (
           <div className="block text-sm text-slate-300">
@@ -131,7 +128,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
             accept="image/*"
             name="imageFiles"
             multiple
-            className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700"
+            className={`mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700`}
           />
         </label>
 
