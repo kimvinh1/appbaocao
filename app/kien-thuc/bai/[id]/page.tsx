@@ -52,11 +52,19 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             </div>
 
             <div className="glass-panel rounded-2xl p-6">
-                <div className="space-y-4">
-                    {article.content.split('\n').map((line, i) => (
-                        line.trim() === '' ? <br key={i} /> : <p key={i} className="text-slate-200 leading-relaxed">{line}</p>
-                    ))}
-                </div>
+                {/* Render HTML (rich-text) or plain text depending on content format */}
+                {/^[\s]*<[a-zA-Z]/.test(article.content) ? (
+                    <div
+                        className="rich-content text-slate-200"
+                        dangerouslySetInnerHTML={{ __html: article.content }}
+                    />
+                ) : (
+                    <div className="space-y-4">
+                        {article.content.split('\n').map((line, i) =>
+                            line.trim() === '' ? <br key={i} /> : <p key={i} className="text-slate-200 leading-relaxed">{line}</p>
+                        )}
+                    </div>
+                )}
 
                 {article.images && article.images.length > 0 && (
                     <div className="mt-6">
