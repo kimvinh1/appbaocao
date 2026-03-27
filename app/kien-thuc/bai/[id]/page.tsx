@@ -1,9 +1,10 @@
-import { createProcedureShare, getArticleById, getProcedureSharesByArticle } from '@/app/actions-kb';
+import { createProcedureShare, getArticleById, getContentFeedback, getProcedureSharesByArticle } from '@/app/actions-kb';
 import { getCurrentUser } from '@/lib/auth';
 import { ArrowLeft, Calendar, Download, Heart, Share2, Tag, ThumbsUp, User } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getModuleTheme, normalizeModuleKey } from '@/lib/module-theme';
+import { FeedbackButtons } from '@/app/components/ui/feedback-buttons';
 
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -11,9 +12,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
     if (!article) notFound();
 
     const normalizedModule = normalizeModuleKey(article.module);
-    const [currentUser, shares] = await Promise.all([
+    const [currentUser, shares, feedback] = await Promise.all([
         getCurrentUser(),
         getProcedureSharesByArticle(article.id),
+        getContentFeedback('article', id),
     ]);
     const cfg = getModuleTheme(normalizedModule);
     const tags = article.tags ? article.tags.split(',').filter(Boolean) : [];
@@ -58,13 +60,13 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
                 {article.images && article.images.length > 0 && (
                     <div className="mt-6">
-                        <p className="mb-3 text-sm font-medium text-slate-300">\u1ea2nh \u0111\u00ednh k\u00e8m</p>
+                        <p className="mb-3 text-sm font-medium text-slate-300">Ảnh đính kèm</p>
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                             {article.images.map((img) => (
                                 <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
                                     <img
                                         src={img.imageUrl}
-                                        alt="\u1ea2nh \u0111\u00ednh k\u00e8m"
+                                        alt="Ảnh đính kèm"
                                         className="h-40 w-full rounded-xl object-cover border border-slate-700 hover:opacity-90 transition"
                                     />
                                 </a>
@@ -107,6 +109,22 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                         </a>
                     </div>
                 )}
+            </div>
+
+            {/* ── Đánh giá nội dung ── */}
+            <div className="glass-panel rounded-2xl px-6 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-slate-400">Tài liệu này có hữu ích không?</p>
+                    <FeedbackButtons
+                        contentType="article"
+                        contentId={article.id}
+                        likeCount={feedback.likeCount}
+                        dislikeCount={feedback.dislikeCount}
+                        userReaction={feedback.userReaction}
+                        showComment={true}
+                        size="md"
+                    />
+                </div>
             </div>
 
             {currentUser ? (
