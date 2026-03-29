@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/app/components/providers/theme-provider';
-import { Sidebar } from '@/app/components/layout/sidebar';
+import { AppShell } from '@/app/components/layout/app-shell';
 import { getCurrentUser } from '@/lib/auth';
 
 export const metadata: Metadata = {
@@ -18,20 +18,21 @@ export default async function RootLayout({
 
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className="bg-slate-50 text-slate-900 dark:bg-[#020617] dark:text-slate-200 transition-colors">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <div className={currentUser ? 'min-h-screen lg:grid lg:grid-cols-[268px_1fr]' : 'min-h-screen'}>
-            {currentUser ? (
-              <Sidebar
-                currentUser={{
-                  fullName: currentUser.fullName,
-                  email: currentUser.email,
-                  role: currentUser.role,
-                }}
-              />
-            ) : null}
-            <main className="p-4 sm:p-6 lg:p-8">{children}</main>
-          </div>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={false}>
+          {currentUser ? (
+            <AppShell
+              currentUser={{
+                fullName: currentUser.fullName,
+                email: currentUser.email,
+                role: currentUser.role,
+              }}
+            >
+              {children}
+            </AppShell>
+          ) : (
+            <main className="min-h-screen">{children}</main>
+          )}
         </ThemeProvider>
       </body>
     </html>

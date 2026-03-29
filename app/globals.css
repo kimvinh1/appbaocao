@@ -2,73 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── CSS Variables for Light / Dark theme ──────────────────────── */
 :root {
-  color-scheme: dark;
+  --bg-main: #f1f5f9;
+  --bg-sidebar: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-input: #f8fafc;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0ea5e9;
+  --accent-light: #bae6fd;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-sidebar: 2px 0 8px rgba(0,0,0,0.08);
+}
+
+.dark {
+  --bg-main: #020617;
+  --bg-sidebar: rgba(15, 23, 42, 0.95);
+  --bg-card: rgba(15, 23, 42, 0.7);
+  --bg-card-hover: rgba(30, 41, 59, 0.8);
+  --bg-input: rgba(30, 41, 59, 0.6);
+  --border-color: rgba(148, 163, 184, 0.15);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #22d3ee;
+  --accent-light: rgba(34, 211, 238, 0.2);
+  --shadow-card: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-sidebar: 2px 0 12px rgba(0,0,0,0.4);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────── */
+html {
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
   min-height: 100vh;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dark body {
   background:
-    radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.18), transparent 30%),
-    radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.18), transparent 35%),
+    radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.12), transparent 30%),
+    radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.12), transparent 35%),
     #020617;
 }
 
-.light body {
-  background:
-    radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.05), transparent 30%),
-    radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.05), transparent 35%),
-    #f8fafc;
+/* ─── Sidebar Panel ──────────────────────────────────────────────── */
+.glass-panel {
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sidebar);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dark .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.9);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-}
-.light .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
-.dark .table-shell {
+/* ─── Cards / Panels ─────────────────────────────────────────────── */
+.table-shell,
+.card-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.7);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
-}
-.light .table-shell {
-  border-radius: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  background: rgba(255, 255, 255, 0.9);
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
 }
 
-/* ── Rich content paper style (giống Word) ─────────────────────── */
+/* ──────────────────────────────────────────────────────────────────
+   RICH CONTENT: Khu vực soạn thảo và hiển thị bài viết
+   Giống trang giấy A4 – luôn nền trắng chữ đen bất kể Dark/Light
+────────────────────────────────────────────────────────────────── */
 .document-paper,
-.rich-content {
-  background-color: #ffffff;
-  color: #1e293b;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(148, 163, 184, 0.15);
-  padding: 2rem 1.5rem;
-  border-radius: 8px;
-  max-width: 1000px;
+.rich-editor-area {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  font-size: 16px;
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.8;
+  border-radius: 6px;
+  padding: 2.5rem 3rem;
+  max-width: 100%;
+  min-height: 400px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(0,0,0,0.06);
+  outline: none;
+  display: block;
   width: 100%;
-  margin: 0 auto;
-  line-height: 1.75;
 }
 
-@media (min-width: 640px) {
-  .document-paper,
-  .rich-content {
-    padding: 3rem 4.5rem;
-  }
+.document-paper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.rich-editor-area:focus {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12), inset 0 0 0 2px #0ea5e9;
 }
 
 .rich-editor-area:empty::before {
@@ -77,75 +114,69 @@ body {
   pointer-events: none;
 }
 
-.rich-content p {
-  margin-bottom: 0.75rem;
+/* ─── Rich Content Typography (viewer + editor) ─────────────────── */
+.rich-content,
+.rich-editor-area {
+  /* ensure light bg always */
+  background-color: #ffffff !important;
+  color: #1e293b !important;
 }
-.rich-content h1,
-.rich-content h2,
-.rich-content h3,
-.rich-content h4,
-.rich-content h5,
-.rich-content h6 {
-  font-weight: 600;
-  color: #0f172a;
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.35;
-}
-.rich-content h1 { font-size: 1.5rem; }
-.rich-content h2 { font-size: 1.25rem; }
-.rich-content h3 { font-size: 1.1rem; }
-.rich-content ul,
-.rich-content ol {
-  padding-left: 1.5rem;
-  margin-bottom: 0.75rem;
-}
-.rich-content ul { list-style: disc; }
-.rich-content ol { list-style: decimal; }
-.rich-content li { margin-bottom: 0.25rem; }
-.rich-content strong { font-weight: 700; color: #000000; }
-.rich-content em { font-style: italic; }
-.rich-content u { text-decoration: underline; }
-.rich-content img {
+
+.rich-content p,
+.rich-editor-area p { margin-bottom: 0.85rem; }
+
+.rich-content h1, .rich-editor-area h1 { font-size: 2rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0 0.5rem; line-height: 1.25; }
+.rich-content h2, .rich-editor-area h2 { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin: 1.25rem 0 0.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.25rem; }
+.rich-content h3, .rich-editor-area h3 { font-size: 1.2rem; font-weight: 600; color: #1e293b; margin: 1rem 0 0.4rem; }
+
+.rich-content ul, .rich-editor-area ul,
+.rich-content ol, .rich-editor-area ol { padding-left: 1.6rem; margin-bottom: 0.75rem; }
+.rich-content ul, .rich-editor-area ul { list-style: disc; }
+.rich-content ol, .rich-editor-area ol { list-style: decimal; }
+.rich-content li, .rich-editor-area li { margin-bottom: 0.3rem; color: #1e293b; }
+
+.rich-content strong, .rich-editor-area strong { font-weight: 700; color: #0f172a; }
+.rich-content em,     .rich-editor-area em     { font-style: italic; }
+.rich-content u,      .rich-editor-area u      { text-decoration: underline; }
+
+.rich-content img, .rich-editor-area img {
   max-width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: 6px;
   margin: 1rem 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   border: 1px solid #e2e8f0;
+  display: block;
 }
-.rich-content table {
+
+.rich-content table, .rich-editor-area table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
-.rich-content th,
-.rich-content td {
+.rich-content th, .rich-editor-area th,
+.rich-content td, .rich-editor-area td {
   border: 1px solid #cbd5e1;
-  padding: 0.5rem 0.75rem;
+  padding: 0.6rem 0.85rem;
   text-align: left;
   vertical-align: top;
+  color: #1e293b;
 }
-.rich-content th {
+.rich-content th, .rich-editor-area th {
   background: #f1f5f9;
   font-weight: 600;
   color: #0f172a;
 }
-.rich-content td {
+
+.rich-content a, .rich-editor-area a { color: #2563eb; text-decoration: underline; }
+
+.rich-content blockquote, .rich-editor-area blockquote {
+  border-left: 4px solid #0ea5e9;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: #f0f9ff;
+  border-radius: 0 6px 6px 0;
   color: #334155;
-}
-.rich-content a {
-  color: #2563eb;
-  text-decoration: underline;
-}
-.rich-content blockquote {
-  border-left: 3px solid #3b82f6;
-  padding-left: 1rem;
-  margin-left: 0;
-  color: #475569;
   font-style: italic;
-  background-color: #f8fafc;
-  padding: 0.5rem 1rem;
-  border-radius: 0 4px 4px 0;
 }

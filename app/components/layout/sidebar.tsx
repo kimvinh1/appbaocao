@@ -30,15 +30,15 @@ type SidebarProps = {
 
 export function Sidebar({ currentUser }: SidebarProps) {
     return (
-        <aside className="glass-panel border-b border-slate-200 dark:border-slate-700/60 px-4 py-6 lg:min-h-screen lg:border-b-0 lg:border-r lg:overflow-y-auto">
+        <aside className="glass-panel h-full lg:min-h-screen lg:overflow-y-auto flex flex-col px-4 py-6">
             {/* Brand */}
             <div className="mb-6 px-2">
-                <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">APP Team Portal</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-cyan-500 dark:text-cyan-300">APP Team Portal</p>
                 <h1 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">Hỗ Trợ Kỹ Thuật</h1>
                 <div className="mt-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-slate-100 dark:bg-slate-950/40 px-4 py-3">
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">{currentUser.fullName}</p>
-                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{currentUser.email}</p>
-                    <p className="mt-2 inline-flex rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{currentUser.email}</p>
+                    <p className="mt-2 inline-flex rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300">
                         {currentUser.role === 'admin' ? 'Admin' : 'Nhân viên'}
                     </p>
                 </div>
@@ -47,7 +47,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
             {/* Global Search Bar */}
             <SearchBar />
 
-            <nav className="space-y-1">
+            <nav className="flex-1 space-y-1 mt-1">
                 {/* Dashboard */}
                 <SidebarLink href="/" label="Tổng Quan" icon={LayoutDashboard} />
 
@@ -57,11 +57,10 @@ export function Sidebar({ currentUser }: SidebarProps) {
                 <SidebarGroup
                     label="Illumina"
                     icon={Dna}
-                    color="text-orange-300"
+                    color="text-orange-500 dark:text-orange-300"
                     defaultOpen={true}
                     items={[
                         { href: '/projects', label: 'Quản Lý Dự Án', icon: FolderKanban },
-                        
                         { href: '/illumina/ma-loi', label: 'Mã lỗi Illumina', icon: AlertTriangle },
                         { href: '/illumina/case', label: 'Case hỗ trợ', icon: TicketCheck },
                         { href: '/kien-thuc/illumina', label: 'Quy trình kỹ thuật', icon: FileText },
@@ -74,7 +73,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                 <SidebarGroup
                     label="Vi Sinh"
                     icon={Microscope}
-                    color="text-red-400"
+                    color="text-red-500 dark:text-red-400"
                     items={[
                         { href: '/vi-sinh/ma-loi', label: 'Mã lỗi Vi Sinh', icon: AlertTriangle },
                         { href: '/vi-sinh/case', label: 'Case hỗ trợ', icon: TicketCheck },
@@ -84,11 +83,11 @@ export function Sidebar({ currentUser }: SidebarProps) {
 
                 <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
 
-                {/* Sinh học phân tử */}
+                {/* Cepheid */}
                 <SidebarGroup
                     label="Cepheid"
                     icon={FlaskConical}
-                    color="text-cyan-300"
+                    color="text-cyan-500 dark:text-cyan-300"
                     items={[
                         { href: '/cepheid/ma-loi', label: 'Mã lỗi Cepheid', icon: AlertTriangle },
                         { href: '/cepheid/case', label: 'Case hỗ trợ', icon: TicketCheck },
@@ -99,8 +98,8 @@ export function Sidebar({ currentUser }: SidebarProps) {
                 <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
 
                 {/* Knowledge Base */}
-                <div className="pt-2">
-                    <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <div className="pt-1">
+                    <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         Quản Lý Chung
                     </p>
                     <SidebarLink href="/kien-thuc" label="Thư Viện Tài Liệu" icon={LibraryBig} />
@@ -108,22 +107,24 @@ export function Sidebar({ currentUser }: SidebarProps) {
                         <SidebarLink href="/quan-tri/nguoi-dung" label="Quản trị người dùng" icon={ShieldCheck} />
                     ) : null}
                 </div>
-
-                <div className="pt-4 mt-2 border-t border-slate-200 dark:border-slate-700/40">
-                    <div className="mb-3 px-2">
-                        <ThemeSwitcher />
-                    </div>
-                    <form action={logoutAction}>
-                        <button
-                            type="submit"
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-700 dark:text-slate-300 transition hover:bg-slate-200 dark:hover:bg-slate-200 dark:bg-slate-800/80 hover:text-slate-900 dark:hover:text-slate-900 dark:text-white"
-                        >
-                            <LogOut size={18} />
-                            <span>Đăng xuất</span>
-                        </button>
-                    </form>
-                </div>
             </nav>
+
+            {/* Bottom: Theme toggle + Logout */}
+            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700/40 space-y-1">
+                <ThemeSwitcher />
+                <form action={logoutAction}>
+                    <button
+                        type="submit"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors
+                            text-slate-600 dark:text-slate-300
+                            hover:bg-slate-100 dark:hover:bg-slate-800/80
+                            hover:text-slate-900 dark:hover:text-white"
+                    >
+                        <LogOut size={18} />
+                        <span>Đăng xuất</span>
+                    </button>
+                </form>
+            </div>
         </aside>
     );
 }
