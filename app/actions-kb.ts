@@ -102,7 +102,7 @@ export async function createArticle(formData: FormData) {
   const attachmentUrlInput = (formData.get('attachmentUrl') as string | null)?.trim() || null;
   const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
-  if (!module || !title || !content) throw new Error('Missing required fields');
+  if (!module || !title) throw new Error('Missing required fields: module and title');
 
   const attachmentUrl = attachmentUrlInput || null;
   const imageUrls = await Promise.all(
