@@ -14,7 +14,7 @@ type SidebarItem = {
 type SidebarGroupProps = {
     label: string;
     icon: LucideIcon;
-    color: string; // tailwind text color class, e.g. 'text-cyan-300'
+    color: string;
     items: SidebarItem[];
     defaultOpen?: boolean;
 };
@@ -26,20 +26,21 @@ export function SidebarGroup({ label, icon: GroupIcon, color, items, defaultOpen
         <div>
             <button
                 onClick={() => setOpen((v) => !v)}
-                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold transition hover:bg-slate-800/80"
+                className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-sm font-semibold transition-colors hover:bg-[var(--bg-hover)]"
             >
                 <span className={`flex items-center gap-2 ${color}`}>
-                    <GroupIcon size={16} />
+                    <GroupIcon size={15} />
                     {label}
                 </span>
                 <ChevronDown
                     size={14}
-                    className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                    className="text-[var(--text-muted)] transition-transform duration-200"
+                    style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
                 />
             </button>
 
             {open && (
-                <div className="ml-3 mt-1 space-y-1 border-l border-slate-700/60 pl-3">
+                <div className="ml-2 mt-0.5 space-y-0.5 border-l border-[var(--border)] pl-3">
                     {items.map((item) => (
                         <SidebarLink key={item.href} href={item.href} label={item.label} icon={item.icon} />
                     ))}

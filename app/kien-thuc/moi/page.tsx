@@ -34,7 +34,6 @@ export default function NewArticlePage() {
 
     function removeImagePreview(index: number) {
         setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-        // Reset the file input so it doesn't carry removed files
         const input = formRef.current?.querySelector<HTMLInputElement>('input[name="imageFiles"]');
         if (input) input.value = '';
     }
@@ -47,90 +46,118 @@ export default function NewArticlePage() {
     }
 
     return (
-        <div className="mx-auto max-w-2xl space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6">
+            {/* Header */}
             <div>
-                <Link href="/kien-thuc" className="flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-2 transition">
+                <Link
+                    href="/kien-thuc"
+                    className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] mb-3 transition-colors"
+                >
                     <ArrowLeft size={12} /> Thư Viện Tài Liệu
                 </Link>
-                <h2 className="text-2xl font-semibold text-white">Thêm Tài Liệu Mới</h2>
-                <p className="mt-1 text-sm text-slate-400">Soạn bài viết, hướng dẫn kỹ thuật hoặc quy trình chuẩn.</p>
+                <h1 className="page-title">Thêm Tài Liệu Mới</h1>
+                <p className="page-subtitle">Soạn bài viết, hướng dẫn kỹ thuật hoặc quy trình chuẩn.</p>
             </div>
 
-            <form ref={formRef} action={handleSubmit} className="glass-panel rounded-2xl p-6 space-y-4">
-                <label className="block text-sm text-slate-300">
-                    Mảng sản phẩm
-                    <select
-                        name="module"
-                        defaultValue={defaultModule}
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
-                    >
-                        {MODULES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                    </select>
-                </label>
+            {/* Form */}
+            <form ref={formRef} action={handleSubmit} className="space-y-5">
 
-                <label className="block text-sm text-slate-300">
-                    Loại tài liệu
-                    <select
-                        name="category"
-                        defaultValue="quy-trinh"
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
-                    >
-                        {ARTICLE_CATEGORIES.map((category) => <option key={category.value} value={category.value}>{category.label}</option>)}
-                    </select>
-                </label>
+                {/* Row: Module + Category */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label className="form-label">Mảng sản phẩm</label>
+                        <select
+                            name="module"
+                            defaultValue={defaultModule}
+                            className="input-field"
+                        >
+                            {MODULES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="form-label">Loại tài liệu</label>
+                        <select
+                            name="category"
+                            defaultValue="quy-trinh"
+                            className="input-field"
+                        >
+                            {ARTICLE_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                        </select>
+                    </div>
+                </div>
 
-                <label className="block text-sm text-slate-300">
-                    Tiêu Đề
+                {/* Title */}
+                <div>
+                    <label className="form-label">Tiêu Đề <span className="text-red-500">*</span></label>
                     <input
                         name="title"
                         required
                         placeholder="VD: Hướng dẫn xử lý lỗi E204 trên Vitek 2"
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
+                        className="input-field text-sm"
                     />
-                </label>
+                </div>
 
-                <label className="block text-sm text-slate-300">
-                    Tags <span className="text-slate-500">(phân cách bằng dấu phẩy)</span>
+                {/* Tags */}
+                <div>
+                    <label className="form-label">
+                        Tags <span className="text-[var(--text-muted)] font-normal">(phân cách bằng dấu phẩy)</span>
+                    </label>
                     <input
                         name="tags"
                         placeholder="VD: lỗi, Vitek2, vi sinh"
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
+                        className="input-field text-sm"
                     />
-                </label>
+                </div>
 
-                <label className="block text-sm text-slate-300">
-                    Link tài liệu / PDF <span className="text-slate-500">(Google Drive hoặc link công khai)</span>
+                {/* Attachment URL */}
+                <div>
+                    <label className="form-label">
+                        Link tài liệu / PDF{' '}
+                        <span className="text-[var(--text-muted)] font-normal">(Google Drive hoặc link công khai)</span>
+                    </label>
                     <input
                         type="url"
                         name="attachmentUrl"
                         placeholder="https://drive.google.com/file/d/..."
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
+                        className="input-field text-sm"
                     />
-                </label>
+                </div>
 
-                <div className="block text-sm text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                        <ImagePlus size={14} /> Ảnh đính kèm <span className="text-slate-500">(tối đa 5 ảnh)</span>
-                    </span>
+                {/* Image Upload */}
+                <div>
+                    <label className="form-label">
+                        <span className="flex items-center gap-1.5">
+                            <ImagePlus size={13} /> Ảnh đính kèm
+                            <span className="text-[var(--text-muted)] font-normal">(tối đa 5 ảnh)</span>
+                        </span>
+                    </label>
                     <input
                         type="file"
                         accept="image/*"
                         name="imageFiles"
                         multiple
                         onChange={handleImageChange}
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none focus:border-cyan-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700"
+                        className="input-field text-sm py-1.5 
+                            file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0
+                            file:text-xs file:font-semibold file:cursor-pointer
+                            file:bg-[var(--accent)] file:text-white
+                            hover:file:opacity-90"
                     />
                     {imagePreviews.length > 0 && (
-                        <div className="mt-3 grid grid-cols-3 gap-2">
+                        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
                             {imagePreviews.map((src, i) => (
-                                <div key={i} className="relative group">
-                                    <img src={src} alt="" className="h-28 w-full rounded-lg object-cover border border-slate-700" />
+                                <div key={i} className="relative group aspect-square">
+                                    <img
+                                        src={src}
+                                        alt=""
+                                        className="h-full w-full rounded-lg object-cover border border-[var(--border)]"
+                                    />
                                     <button
                                         type="button"
                                         onClick={() => removeImagePreview(i)}
-                                        className="absolute top-1 right-1 rounded-full bg-slate-900/80 p-0.5 text-slate-300 opacity-0 group-hover:opacity-100 transition hover:text-white"
+                                        className="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-white opacity-0 group-hover:opacity-100 transition"
                                     >
-                                        <X size={13} />
+                                        <X size={12} />
                                     </button>
                                 </div>
                             ))}
@@ -138,19 +165,21 @@ export default function NewArticlePage() {
                     )}
                 </div>
 
-                <div className="block text-sm text-slate-300">
-                    Nội Dung
-                    <div className="mt-1">
-                        <RichContentEditor name="content" rows={14} />
-                    </div>
+                {/* Rich text content */}
+                <div>
+                    <label className="form-label">Nội Dung</label>
+                    <RichContentEditor name="content" rows={18} />
                 </div>
 
-                <button
-                    type="submit"
-                    className="flex items-center gap-2 rounded-xl bg-cyan-500/20 px-5 py-2.5 text-sm font-medium text-cyan-300 ring-1 ring-cyan-400/40 transition hover:bg-cyan-500/30"
-                >
-                    <Save size={16} /> Lưu Tài Liệu
-                </button>
+                {/* Submit */}
+                <div className="flex items-center gap-3 pt-2">
+                    <button type="submit" className="btn-primary">
+                        <Save size={16} /> Lưu Tài Liệu
+                    </button>
+                    <Link href="/kien-thuc" className="btn-ghost">
+                        Hủy
+                    </Link>
+                </div>
             </form>
         </div>
     );

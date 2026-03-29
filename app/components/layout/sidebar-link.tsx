@@ -10,41 +10,29 @@ type SidebarLinkProps = {
   icon: LucideIcon;
 };
 
-function getActiveClass(href: string) {
-  if (href === '/projects' || href === '/logs' || href.startsWith('/illumina')) {
-    return 'bg-orange-500/20 text-orange-300 ring-1 ring-orange-400/40';
+function getActiveAccent(href: string) {
+  if (href === '/projects' || href.startsWith('/illumina') || href === '/logs') {
+    return 'text-orange-500 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 font-semibold';
   }
-
   if (href.startsWith('/vi-sinh') || href === '/kien-thuc/vi-sinh') {
-    return 'bg-red-500/20 text-red-400 ring-1 ring-red-400/40';
+    return 'text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-500/10 font-semibold';
   }
-
-  if (
-    href.startsWith('/sinh-hoc-phan-tu') ||
-    href.startsWith('/cepheid') ||
-    href === '/kien-thuc/sinh-hoc-phan-tu' ||
-    href === '/kien-thuc/cepheid'
-  ) {
-    return 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/40';
+  if (href.startsWith('/cepheid') || href === '/kien-thuc/cepheid' || href.startsWith('/sinh-hoc-phan-tu')) {
+    return 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 font-semibold';
   }
-
-  return 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/40';
+  return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 font-semibold';
 }
 
 export function SidebarLink({ href, label, icon: Icon }: SidebarLinkProps) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
 
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-        isActive
-          ? getActiveClass(href)
-          : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-      }`}
+      className={`nav-link ${isActive ? `active ${getActiveAccent(href)}` : ''}`}
     >
-      <Icon size={18} />
+      <Icon size={16} className="flex-shrink-0" />
       <span>{label}</span>
     </Link>
   );

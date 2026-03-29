@@ -1,18 +1,9 @@
 'use client';
 
 import {
-    Activity,
-    ShieldCheck,
-    Dna,
-    FolderKanban,
-    LayoutDashboard,
-    Microscope,
-    AlertTriangle,
-    FileText,
-    FlaskConical,
-    TicketCheck,
-    LibraryBig,
-    LogOut,
+    Dna, FolderKanban, LayoutDashboard, Microscope,
+    AlertTriangle, FileText, FlaskConical, TicketCheck,
+    LibraryBig, LogOut, ShieldCheck,
 } from 'lucide-react';
 import { SidebarLink } from './sidebar-link';
 import { SidebarGroup } from './sidebar-group';
@@ -29,35 +20,52 @@ type SidebarProps = {
 };
 
 export function Sidebar({ currentUser }: SidebarProps) {
+    const initials = currentUser.fullName
+        .split(' ')
+        .slice(-2)
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
+
     return (
-        <aside className="glass-panel h-full lg:min-h-screen lg:overflow-y-auto flex flex-col px-4 py-6">
-            {/* Brand */}
-            <div className="mb-6 px-2">
-                <p className="text-xs uppercase tracking-[0.2em] text-cyan-500 dark:text-cyan-300">APP Team Portal</p>
-                <h1 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">Hỗ Trợ Kỹ Thuật</h1>
-                <div className="mt-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-slate-100 dark:bg-slate-950/40 px-4 py-3">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{currentUser.fullName}</p>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{currentUser.email}</p>
-                    <p className="mt-2 inline-flex rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                        {currentUser.role === 'admin' ? 'Admin' : 'Nhân viên'}
-                    </p>
+        <aside className="glass-panel h-full lg:min-h-screen lg:overflow-y-auto flex flex-col w-[260px]">
+            {/* Brand header */}
+            <div className="px-4 pt-5 pb-4 border-b border-[var(--border)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--accent)]">APP Team Portal</p>
+                <h1 className="mt-0.5 text-[15px] font-bold text-[var(--text-primary)] tracking-tight">Hỗ Trợ Kỹ Thuật</h1>
+            </div>
+
+            {/* User card */}
+            <div className="px-4 py-3 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2.5">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold">
+                        {initials}
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{currentUser.fullName}</p>
+                        <p className="text-[11px] text-[var(--text-muted)] truncate">{currentUser.email}</p>
+                    </div>
+                    <span className="ml-auto flex-shrink-0 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-[var(--accent-light)] text-[var(--accent)]">
+                        {currentUser.role === 'admin' ? 'Admin' : 'Staff'}
+                    </span>
                 </div>
             </div>
 
-            {/* Global Search Bar */}
-            <SearchBar />
+            {/* Search */}
+            <div className="px-3 pt-3">
+                <SearchBar />
+            </div>
 
-            <nav className="flex-1 space-y-1 mt-1">
-                {/* Dashboard */}
+            {/* Navigation */}
+            <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4">
                 <SidebarLink href="/" label="Tổng Quan" icon={LayoutDashboard} />
 
-                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
+                <div className="my-2 border-t border-[var(--border)]" />
 
-                {/* Illumina */}
                 <SidebarGroup
                     label="Illumina"
                     icon={Dna}
-                    color="text-orange-500 dark:text-orange-300"
+                    color="text-orange-500 dark:text-orange-400"
                     defaultOpen={true}
                     items={[
                         { href: '/projects', label: 'Quản Lý Dự Án', icon: FolderKanban },
@@ -67,9 +75,8 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ]}
                 />
 
-                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
+                <div className="my-2 border-t border-[var(--border)]" />
 
-                {/* Vi sinh */}
                 <SidebarGroup
                     label="Vi Sinh"
                     icon={Microscope}
@@ -81,13 +88,12 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ]}
                 />
 
-                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
+                <div className="my-2 border-t border-[var(--border)]" />
 
-                {/* Cepheid */}
                 <SidebarGroup
                     label="Cepheid"
                     icon={FlaskConical}
-                    color="text-cyan-500 dark:text-cyan-300"
+                    color="text-cyan-600 dark:text-cyan-400"
                     items={[
                         { href: '/cepheid/ma-loi', label: 'Mã lỗi Cepheid', icon: AlertTriangle },
                         { href: '/cepheid/case', label: 'Case hỗ trợ', icon: TicketCheck },
@@ -95,32 +101,24 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ]}
                 />
 
-                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
+                <div className="my-2 border-t border-[var(--border)]" />
 
-                {/* Knowledge Base */}
-                <div className="pt-1">
-                    <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        Quản Lý Chung
-                    </p>
-                    <SidebarLink href="/kien-thuc" label="Thư Viện Tài Liệu" icon={LibraryBig} />
-                    {currentUser.role === 'admin' ? (
-                        <SidebarLink href="/quan-tri/nguoi-dung" label="Quản trị người dùng" icon={ShieldCheck} />
-                    ) : null}
-                </div>
+                <p className="section-label px-2.5 pt-1 pb-0.5">Quản Lý Chung</p>
+                <SidebarLink href="/kien-thuc" label="Thư Viện Tài Liệu" icon={LibraryBig} />
+                {currentUser.role === 'admin' && (
+                    <SidebarLink href="/quan-tri/nguoi-dung" label="Quản trị người dùng" icon={ShieldCheck} />
+                )}
             </nav>
 
-            {/* Bottom: Theme toggle + Logout */}
-            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700/40 space-y-1">
+            {/* Footer */}
+            <div className="px-3 py-3 border-t border-[var(--border)] space-y-0.5">
                 <ThemeSwitcher />
                 <form action={logoutAction}>
                     <button
                         type="submit"
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors
-                            text-slate-600 dark:text-slate-300
-                            hover:bg-slate-100 dark:hover:bg-slate-800/80
-                            hover:text-slate-900 dark:hover:text-white"
+                        className="nav-link w-full text-left"
                     >
-                        <LogOut size={18} />
+                        <LogOut size={16} className="flex-shrink-0" />
                         <span>Đăng xuất</span>
                     </button>
                 </form>
