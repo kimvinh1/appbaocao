@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { ImagePlus, Loader2 } from 'lucide-react';
+import { ImagePlus, Loader2, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 
 interface RichContentEditorProps {
     /** form field name - a hidden <input> syncs the HTML value */
@@ -123,7 +123,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
                     const url = await uploadFile(file);
                     setUploading(false);
                     if (url) {
-                        insertHtmlAtCursor(`<img src="${url}" alt="" style="max-width:100%;" />`);
+                        insertHtmlAtCursor(`<div style="text-align: center;"><img src="${url}" alt="" style="max-width:100%;" /></div><br>`);
                         sync();
                     }
                     return;
@@ -154,7 +154,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
             }
         },
         [insertHtmlAtCursor, sync, uploadDataUrl, uploadFile],
- À2 );
+    );
 
     // ââ 7. Handle drag-and-drop images âââââââââââââââââââââââââââââââââââââââ
     const handleDrop = useCallback(
@@ -166,7 +166,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
             for (const file of files) {
                 const url = await uploadFile(file);
                 if (url) {
-                    insertHtmlAtCursor(`<img src="${url}" alt="" style="max-width:100%;" />`);
+                    insertHtmlAtCursor(`<div style="text-align: center;"><img src="${url}" alt="" style="max-width:100%;" /></div><br>`);
                 }
             }
             setUploading(false);
@@ -210,6 +210,19 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
                     <span className="text-xs">1.</span>
                 </ToolbarButton>
                 <div className="mx-1 h-4 w-px bg-slate-600" />
+                <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('justifyLeft'); }} title="Căn trái">
+                    <AlignLeft size={13} />
+                </ToolbarButton>
+                <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('justifyCenter'); }} title="Căn giữa">
+                    <AlignCenter size={13} />
+                </ToolbarButton>
+                <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('justifyRight'); }} title="Căn phải">
+                    <AlignRight size={13} />
+                </ToolbarButton>
+                <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('justifyFull'); }} title="Căn đều">
+                    <AlignJustify size={13} />
+                </ToolbarButton>
+                <div className="mx-1 h-4 w-px bg-slate-600" />
                 {/* Image upload button */}
                 <label
                     className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-0.5 text-xs text-slate-300 hover:bg-slate-700 transition"
@@ -230,7 +243,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
                             for (const file of files) {
                                 const url = await uploadFile(file);
                                 if (url) {
-                                    insertHtmlAtCursor(`<img src="${url}" alt="" style="max-width:100%;" />`);
+                                    insertHtmlAtCursor(`<div style="text-align: center;"><img src="${url}" alt="" style="max-width:100%;" /></div><br>`);
                                 }
                             }
                             setUploading(false);
@@ -253,7 +266,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
                 onDragOver={(e) => e.preventDefault()}
                 className={
                     className ??
-                    'w-full rounded-b-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none transition focus:border-cyan-400 rich-editor-area'
+                    'document-paper rich-editor-area border-none outline-none transition'
                 }
                 style={{ minHeight, overflowY: 'auto', lineHeight: '1.7' }}
                 data-placeholder="Nháº­p ná»i dung hÆ°á»ng dáº«n, quy trÃ¬nh hoáº·c thÃ´ng tin ká»¹ thuáº­t táº¡i ÄÃ¢y..."
