@@ -99,12 +99,12 @@ export default function NewArticlePage() {
                 </label>
 
                 <label className="block text-sm text-slate-300">
-                    File PDF Đính Kèm
+                    Link tài liệu / PDF <span className="text-slate-500">(Google Drive hoặc link công khai)</span>
                     <input
-                        type="file"
-                        accept="application/pdf,.pdf"
-                        name="attachment"
-                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none focus:border-cyan-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700"
+                        type="url"
+                        name="attachmentUrl"
+                        placeholder="https://drive.google.com/file/d/..."
+                        className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-400"
                     />
                 </label>
 

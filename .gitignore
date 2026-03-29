@@ -30,3 +30,6 @@ out/
 .next/
 .next_stale*/
 out/
+.vercel
+.env*.local
+dev.db

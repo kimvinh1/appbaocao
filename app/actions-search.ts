@@ -50,6 +50,7 @@ export async function globalSearch(query: string): Promise<SearchResultItem[]> {
                 { customer: { contains: q } },
                 { instrument: { contains: q } },
                 { description: { contains: q } },
+                { content: { contains: q } },
                 { resolution: { contains: q } },
                 { issueType: { contains: q } },
             ],

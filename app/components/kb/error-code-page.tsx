@@ -22,6 +22,7 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
     const { module, title, description, instruments, colorClass, buttonBgClass, focusBorderClass } = props;
     const errorCodes = await getErrorCodes(module);
     const fieldClassName = `mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${focusBorderClass}`;
+    const fileFieldClassName = `mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-1.5 text-sm text-white outline-none ${focusBorderClass} file:mr-4 file:rounded file:border-0 file:bg-slate-800 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-300 hover:file:bg-slate-700`;
 
     return (
         <div className="space-y-6">
@@ -63,8 +64,8 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
                             <textarea name="solution" required rows={3} placeholder="Các bước xử lý cụ thể" className={fieldClassName} />
                         </label>
                         <label className="text-sm text-slate-300 md:col-span-1">
-                            Link Ảnh Minh Họa <span className="text-slate-500">(Tuỳ chọn)</span>
-                            <input type="url" name="imageUrl" placeholder="https://drive.google.com/..." className={fieldClassName} />
+                            Ảnh Minh Họa <span className="text-slate-500">(upload lên Vercel Blob)</span>
+                            <input type="file" accept="image/*" name="imageFile" className={fileFieldClassName} />
                         </label>
                         <label className="text-sm text-slate-300 md:col-span-1">
                             Mức Độ

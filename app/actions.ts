@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 
 function parseDateInput(value: FormDataEntryValue | null, fieldName: string): Date {
@@ -165,6 +166,18 @@ export async function updateProjectStatus(formData: FormData) {
 // Keep old updateProject for backward compat
 export async function updateProject(formData: FormData) {
   return updateProjectStatus(formData);
+}
+
+export async function deleteProject(formData: FormData) {
+  const id = parseRequiredString(formData.get('id'), 'Project ID');
+  
+  await prisma.project.delete({
+    where: { id },
+  });
+
+  revalidatePath('/');
+  revalidatePath('/projects');
+  redirect('/projects');
 }
 
 // ─── Activity Logs ────────────────────────────────────────────────────────────

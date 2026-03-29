@@ -117,6 +117,7 @@ model SupportCase {
   instrument  String
   issueType   String
   description String
+  content     String?
   resolution  String
   handler     String
   status      String   // open | resolved | escalated

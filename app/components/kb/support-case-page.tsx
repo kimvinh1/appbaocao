@@ -2,6 +2,7 @@ import { getSupportCases, createSupportCase, updateCaseStatus } from '@/app/acti
 import { TicketCheck, Plus } from 'lucide-react';
 import { SubmitButton } from '@/app/components/ui/submit-button';
 import { CaseImageGallery } from '@/app/components/kb/case-image-gallery';
+import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
 
 const STATUS_STYLE: Record<string, string> = {
     open: 'bg-orange-500/20 text-orange-300',
@@ -23,6 +24,24 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
     const { module, title, description, instruments, colorClass, buttonBgClass, focusBorderClass } = props;
     const cases = await getSupportCases(module);
     const fieldClassName = `mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${focusBorderClass}`;
+    const renderCaseContent = (content?: string | null, resolution?: string | null) => {
+        const value = (content?.trim() || resolution?.trim() || '');
+        if (!value) {
+            return null;
+        }
+
+        if (/^[\s]*<[a-zA-Z]/.test(value)) {
+            return <div className="rich-content mt-3 text-slate-200" dangerouslySetInnerHTML={{ __html: value }} />;
+        }
+
+        return (
+            <div className="mt-3 space-y-2">
+                {value.split('\n').map((line, index) =>
+                    line.trim() === '' ? <br key={index} /> : <p key={index} className="text-sm leading-relaxed text-slate-200">{line}</p>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="space-y-6">
@@ -58,12 +77,14 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                         </label>
 
                         <label className="text-sm text-slate-300 md:col-span-3">
-                            Mô Tả Vấn Đề
-                            <input name="description" required placeholder="Khách hàng báo lỗi gì, hiện tượng ra sao..." className={fieldClassName} />
+                            Tóm Tắt Case
+                            <input name="description" required placeholder="VD: NextSeq báo lỗi fluidics sau khi wash" className={fieldClassName} />
                         </label>
                         <label className="text-sm text-slate-300 md:col-span-3">
-                            Hướng Xử Lý / Kết Quả
-                            <input name="resolution" placeholder="Đã làm gì để khắc phục (hoặc để trống nếu đang xử lý)..." className={fieldClassName} />
+                            Nội Dung Case <span className="text-slate-500">(paste ảnh trực tiếp, ảnh sẽ tự upload lên Vercel Blob)</span>
+                            <div className="mt-1">
+                                <RichContentEditor name="content" rows={12} />
+                            </div>
                         </label>
 
                         <label className="text-sm text-slate-300">
@@ -89,15 +110,7 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                             </select>
                         </label>
                         <label className="text-sm text-slate-300 md:col-span-3">
-                            Link Ảnh 1 <span className="text-slate-500">(Tuỳ chọn – Google Drive)</span>
-                            <input type="url" name="imageUrl1" placeholder="https://drive.google.com/file/d/..." className={fieldClassName} />
-                        </label>
-                        <label className="text-sm text-slate-300 md:col-span-3">
-                            Link Ảnh 2 <span className="text-slate-500">(Tuỳ chọn)</span>
-                            <input type="url" name="imageUrl2" placeholder="https://drive.google.com/file/d/..." className={fieldClassName} />
-                        </label>
-                        <label className="text-sm text-slate-300 md:col-span-3">
-                            Link Tài Liệu Đính Kèm <span className="text-slate-500">(Tuỳ chọn – Google Drive)</span>
+                            Link Tài Liệu Đính Kèm <span className="text-slate-500">(Google Drive hoặc link web hãng)</span>
                             <input type="url" name="attachmentUrl" placeholder="https://drive.google.com/file/d/..." className={fieldClassName} />
                         </label>
 
@@ -137,17 +150,13 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                                         <p className="mt-1 text-xs">
                                             <span className="text-slate-400">{c.instrument}</span> • <span className="text-slate-500">{c.issueType}</span>
                                         </p>
-                                        {c.resolution && (
-                                            <p className="mt-2 text-xs text-emerald-400 bg-emerald-400/10 inline-block px-2 py-1 rounded">
-                                                ↳ {c.resolution}
-                                            </p>
-                                        )}
+                                        {renderCaseContent(c.content, c.resolution)}
                                         {c.imageUrls.length > 0 && (
                                             <CaseImageGallery imageUrls={c.imageUrls} title={c.description} />
                                         )}
                                         {c.attachmentUrl && (
-                                            <a href={c.attachmentUrl} target="_blank" rel="noopener noreferrer" className="mt-2 text-xs text-cyan-400 bg-cyan-400/10 inline-block px-2 py-1 rounded hover:underline ml-2">
-                                                📎 Mở PDF đính kèm
+                                            <a href={c.attachmentUrl} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs text-cyan-400 bg-cyan-400/10 inline-block px-2 py-1 rounded hover:underline">
+                                                📎 Mở tài liệu đính kèm
                                             </a>
                                         )}
                                     </td>

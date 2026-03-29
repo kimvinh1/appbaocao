@@ -1,10 +1,10 @@
-# Hướng dẫn Deploy v2 (Vercel + Turso – Miễn phí)
+# Hướng dẫn Deploy v2 (Vercel + Turso + Blob)
 
-## Thay đổi so với v1
-- Bỏ Supabase hoàn toàn
-- File đính kèm → nhập link Google Drive
-- Database → Turso (SQLite cloud, miễn phí)
-- Host → Vercel (miễn phí)
+## Kiến trúc hiện tại
+- Database → Turso (libSQL)
+- Ảnh upload → Vercel Blob
+- File đính kèm / PDF → nhập link Google Drive hoặc link công khai
+- Host → Vercel
 
 ---
 
@@ -41,7 +41,14 @@ npm run db:push
    - `DATABASE_URL` = giá trị Turso URL
    - `DATABASE_AUTH_TOKEN` = giá trị Turso token
    - `AUTH_SECRET` = chuỗi random 32 ký tự
-4. Deploy → Done!
+4. Tạo và link một Blob store cho project:
+
+```bash
+vercel blob create-store appbaocao-images
+vercel env pull .env.local
+```
+
+5. Deploy → Done!
 
 ---
 

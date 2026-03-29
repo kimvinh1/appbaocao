@@ -82,6 +82,17 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           />
         </label>
 
+        <label className="block text-sm text-slate-300">
+          Link tài liệu / PDF <span className="text-slate-500">(Google Drive hoặc link công khai)</span>
+          <input
+            name="attachmentUrl"
+            type="url"
+            defaultValue={article.attachmentUrl ?? ''}
+            placeholder="https://drive.google.com/file/d/..."
+            className={`mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${moduleTheme.focusBorderClass}`}
+          />
+        </label>
+
         <div className="block text-sm text-slate-300">
           Nội Dung
           <div className="mt-1">

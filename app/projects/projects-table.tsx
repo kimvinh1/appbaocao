@@ -43,6 +43,9 @@ export function ProjectsTable({ projects, statuses }: { projects: Project[]; sta
 
   const filtered = useMemo(() => {
     return projects.filter((p) => {
+      // Mặc định ẩn dự án Lưu Trữ khỏi chế độ xem tất cả
+      if (filterStatus === 'all' && p.status === 'Lưu trữ') return false;
+
       if (filterStatus !== 'all' && p.status !== filterStatus) return false;
       if (filterClient && !p.clientName.toLowerCase().includes(filterClient.toLowerCase())) return false;
       if (filterApp && !(p.appPerson ?? '').toLowerCase().includes(filterApp.toLowerCase())) return false;

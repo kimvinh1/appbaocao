@@ -3,7 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { supabase } from '@/lib/supabase';
+import { deleteBlobIfManaged, uploadFileToBlob } from '@/lib/blob';
 import { requireUser, getCurrentUser } from '@/lib/auth';
 import { normalizeModuleKey, resolveModuleAliases } from '@/lib/module-theme';
 
@@ -56,24 +56,8 @@ function getUploadedFiles(formData: FormData, fieldName: string) {
     .filter((file) => file.size > 0);
 }
 
-function isPdfFile(file: File) {
-  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-}
-
 function isImageFile(file: File) {
   return file.type.startsWith('image/');
-}
-
-function ensurePdfFile(file: File | null, label: string) {
-  if (!file || file.size === 0) {
-    return null;
-  }
-
-  if (!isPdfFile(file)) {
-    throw new Error(`${label} phải là file PDF`);
-  }
-
-  return file;
 }
 
 function ensureImageFiles(files: File[], maxCount: number, label: string) {
@@ -88,24 +72,6 @@ function ensureImageFiles(files: File[], maxCount: number, label: string) {
   }
 
   return files;
-}
-
-async function uploadFileToSupabase(file: File | null, folder = 'portal') {
-  if (!file || file.size === 0) return null;
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-  const { error } = await supabase.storage
-    .from('portal-files')
-    .upload(fileName, file);
-
-  if (error) throw new Error('Upload failed: ' + error.message);
-
-  const { data: publicUrlData } = supabase.storage
-    .from('portal-files')
-    .getPublicUrl(fileName);
-
-  return publicUrlData.publicUrl;
 }
 
 // ─── ARTICLES ───────────────────────────────────────────────────────────────
@@ -133,14 +99,14 @@ export async function createArticle(formData: FormData) {
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const tags = formData.get('tags') as string;
-  const attachment = ensurePdfFile(formData.get('attachment') as File | null, 'Tài liệu đính kèm');
+  const attachmentUrlInput = (formData.get('attachmentUrl') as string | null)?.trim() || null;
   const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
   if (!module || !title || !content) throw new Error('Missing required fields');
 
-  const attachmentUrl = await uploadFileToSupabase(attachment, 'articles');
+  const attachmentUrl = attachmentUrlInput || null;
   const imageUrls = await Promise.all(
-    imageFiles.map((f) => uploadFileToSupabase(f, 'articles/images'))
+    imageFiles.map((f) => uploadFileToBlob(f, 'articles/images'))
   );
 
   await prisma.article.create({
@@ -173,6 +139,7 @@ export async function updateArticle(formData: FormData) {
   const content = formData.get('content') as string;
   const tags = formData.get('tags') as string;
   const category = (formData.get('category') as string) || undefined;
+  const attachmentUrl = (formData.get('attachmentUrl') as string | null)?.trim() || null;
   const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
   if (!id || !title || !content) throw new Error('Missing required fields');
@@ -185,7 +152,7 @@ export async function updateArticle(formData: FormData) {
   if (!existingArticle) throw new Error('Article not found');
 
   const imageUrls = await Promise.all(
-    imageFiles.map((f) => uploadFileToSupabase(f, 'articles/images'))
+    imageFiles.map((f) => uploadFileToBlob(f, 'articles/images'))
   );
 
   const currentImages = await prisma.articleImage.findMany({
@@ -201,6 +168,7 @@ export async function updateArticle(formData: FormData) {
       title,
       content,
       tags: tags || '',
+      attachmentUrl,
       ...(category ? { category } : undefined),
       ...(imageUrls.length > 0
         ? {
@@ -223,12 +191,13 @@ export async function deleteArticleImage(formData: FormData) {
 
   const image = await prisma.articleImage.findUnique({
     where: { id: imageId },
-    select: { articleId: true, article: { select: { module: true } } },
+    select: { articleId: true, imageUrl: true, article: { select: { module: true } } },
   });
 
   if (!image) throw new Error('Image not found');
 
   await prisma.articleImage.delete({ where: { id: imageId } });
+  await deleteBlobIfManaged(image.imageUrl).catch(() => undefined);
 
   revalidateKnowledgeBase(image.article.module, image.articleId);
 }
@@ -239,12 +208,13 @@ export async function deleteArticle(formData: FormData) {
 
   const existingArticle = await prisma.article.findUnique({
     where: { id },
-    select: { module: true },
+    select: { module: true, images: { select: { imageUrl: true } } },
   });
 
   await prisma.article.delete({ where: { id } });
 
   if (existingArticle) {
+    await Promise.all(existingArticle.images.map((image) => deleteBlobIfManaged(image.imageUrl).catch(() => undefined)));
     revalidateKnowledgeBase(existingArticle.module, id);
     return;
   }
@@ -274,12 +244,12 @@ export async function createErrorCode(formData: FormData) {
   const solution = formData.get('solution') as string;
   const severity = formData.get('severity') as string;
   const imageFile = formData.get('imageFile') as File | null;
-  let imageUrl = formData.get('imageUrl') as string | null;
+  let imageUrl = (formData.get('imageUrl') as string | null)?.trim() || null;
 
   if (!code || !instrument || !description || !cause || !solution || !severity)
     throw new Error('All fields except module/imageUrl are required');
 
-  const uploadedImageUrl = await uploadFileToSupabase(imageFile, 'error-codes');
+  const uploadedImageUrl = await uploadFileToBlob(imageFile, 'error-codes');
   if (uploadedImageUrl) imageUrl = uploadedImageUrl;
 
   const targetModule = module || 'vi-sinh';
@@ -329,22 +299,26 @@ export async function createSupportCase(formData: FormData) {
   const instrument = formData.get('instrument') as string;
   const issueType = formData.get('issueType') as string;
   const description = formData.get('description') as string;
+  const content = (formData.get('content') as string | null)?.trim() || '';
   const resolution = formData.get('resolution') as string;
   const handler = formData.get('handler') as string;
   const status = formData.get('status') as string;
   const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 2, 'Ảnh case');
-  const attachment = ensurePdfFile(formData.get('attachment') as File | null, 'File đính kèm');
+  const attachmentUrl = (formData.get('attachmentUrl') as string | null)?.trim() || null;
 
   if (!module || !caseDateRaw || !customer || !instrument || !issueType || !description || !handler || !status)
     throw new Error('Missing required fields');
+
+  if (!content && !resolution) {
+    throw new Error('Nội dung case là bắt buộc');
+  }
 
   const caseDate = new Date(caseDateRaw);
   if (isNaN(caseDate.getTime())) throw new Error('Invalid date');
 
   const imageUrls = await Promise.all(
-    imageFiles.map((imageFile) => uploadFileToSupabase(imageFile, 'support-cases/images'))
+    imageFiles.map((imageFile) => uploadFileToBlob(imageFile, 'support-cases/images'))
   );
-  const attachmentUrl = await uploadFileToSupabase(attachment, 'support-cases/files');
 
   await prisma.supportCase.create({
     data: {
@@ -354,6 +328,7 @@ export async function createSupportCase(formData: FormData) {
       instrument,
       issueType,
       description,
+      content: content || null,
       resolution: resolution || '',
       handler,
       status,
@@ -675,4 +650,3 @@ export async function submitContentFeedback(formData: FormData): Promise<void> {
     revalidatePath('/cepheid/ma-loi');
   }
 }
-

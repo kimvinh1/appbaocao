@@ -4,6 +4,7 @@ import { getProjectById, updateProjectStatus } from '@/app/actions';
 import { SubmitButton } from '@/app/components/ui/submit-button';
 import { getCurrentUser } from '@/lib/auth';
 import { PROJECT_STATUSES, statusBadge } from '../page';
+import { DeleteProjectButton } from '../delete-project-button';
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -24,7 +25,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <div className="glass-panel rounded-2xl p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="font-mono text-lg font-bold text-cyan-300">{project.code}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="font-mono text-lg font-bold text-cyan-300">{project.code}</p>
+              <DeleteProjectButton projectId={project.id} />
+            </div>
             <p className="text-xl font-semibold text-white mt-1">{project.clientName}</p>
             <p className="text-sm text-slate-400 mt-1">{project.panelType}{project.instrument ? ` · ${project.instrument}` : ''}</p>
           </div>

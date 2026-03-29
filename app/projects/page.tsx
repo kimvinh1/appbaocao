@@ -10,9 +10,11 @@ export const PROJECT_STATUSES = [
   { value: 'Đã báo giá',         label: 'Đã báo giá',         color: 'bg-blue-700 text-blue-100' },
   { value: 'Chờ xác nhận',       label: 'Chờ xác nhận',       color: 'bg-yellow-700 text-yellow-100' },
   { value: 'Đang tiến hành',     label: 'Đang tiến hành',     color: 'bg-cyan-700 text-cyan-100' },
+  { value: 'Tạm dừng',           label: 'Tạm dừng',           color: 'bg-slate-500 text-slate-100 opacity-80' },
   { value: 'Chờ phản hồi khách', label: 'Chờ phản hồi khách', color: 'bg-orange-700 text-orange-100' },
   { value: 'Hoàn thành',         label: 'Hoàn thành',         color: 'bg-green-700 text-green-100' },
   { value: 'Đã hủy',             label: 'Đã hủy',             color: 'bg-red-900 text-red-300' },
+  { value: 'Lưu trữ',            label: 'Lưu trữ',            color: 'bg-neutral-800 text-neutral-400 border border-neutral-700' },
 ];
 
 export function statusBadge(value: string) {
@@ -31,9 +33,14 @@ export default async function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-white">Quản lý dự án</h2>
-        <p className="mt-1 text-sm text-slate-400">Theo dõi toàn bộ dự án — từ tiếp nhận đến hàn hành thành.</p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-white">Quản lý dự án</h2>
+          <p className="mt-1 text-sm text-slate-400">Theo dõi toàn bộ dự án — từ tiếp nhận đến hoàn thành.</p>
+        </div>
+        <Link href="/projects/reports" className="inline-flex items-center gap-2 rounded-xl bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/20 transition">
+          Thống kê Báo cáo
+        </Link>
       </div>
 
       {/* ── Create form ── */}

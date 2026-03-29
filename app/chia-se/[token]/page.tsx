@@ -50,11 +50,18 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
       </div>
 
       <section className="glass-panel rounded-2xl p-6">
-        <div className="space-y-4">
-          {share.article.content.split('\n').map((line, index) => (
-            line.trim() === '' ? <br key={index} /> : <p key={index} className="text-slate-200 leading-relaxed">{line}</p>
-          ))}
-        </div>
+        {/^[\s]*<[a-zA-Z]/.test(share.article.content) ? (
+          <div
+            className="rich-content text-slate-200"
+            dangerouslySetInnerHTML={{ __html: share.article.content }}
+          />
+        ) : (
+          <div className="space-y-4">
+            {share.article.content.split('\n').map((line, index) => (
+              line.trim() === '' ? <br key={index} /> : <p key={index} className="text-slate-200 leading-relaxed">{line}</p>
+            ))}
+          </div>
+        )}
         {share.article.images && share.article.images.length > 0 && (
           <div className="mt-6">
             <p className="mb-3 text-sm font-medium text-slate-300">Ảnh đính kèm</p>

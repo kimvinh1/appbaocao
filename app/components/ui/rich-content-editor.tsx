@@ -19,7 +19,7 @@ interface RichContentEditorProps {
  *
  * Supports:
  *  - Plain typing and basic keyboard shortcuts (Ctrl+B/I/U from browser default)
- *  - Paste from Word (images are uploaded to Supabase, text/structure preserved)
+ *  - Paste from Word (images are uploaded to Vercel Blob, text/structure preserved)
  *  - Paste of copied images from clipboard
  *  - Drag-and-drop image insertion
  *  - Syncs innerHTML to a hidden <input name={name}> for form submission
@@ -55,7 +55,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
         }
     }, []);
 
-    // ââ 3. Upload a single base64 data-URL to Supabase âââââââââââââââââââââââ
+    // ââ 3. Upload a single base64 data-URL to Vercel Blob âââââââââââââââââââ
     const uploadDataUrl = useCallback(async (dataUrl: string): Promise<string | null> => {
         try {
             const res = await fetch('/api/upload-inline-image', {
@@ -298,7 +298,7 @@ function escapeHtml(str: string): string {
  * Clean up Word/browser clipboard HTML:
  *  - Remove Word-specific XML/conditional comments
  *  - Strip dangerous tags (script, style, etc.)
- *  - Upload base64 images to Supabase and replace src
+ *  - Upload base64 images to Vercel Blob and replace src
  *  - Keep structural tags: p, br, strong, em, u, ul, ol, li, h1-h6, table, img
  */
 async function processWordHtml(
