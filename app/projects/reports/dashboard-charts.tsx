@@ -14,7 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { PROJECT_STATUSES } from '../page';
+import { PROJECT_STATUSES } from '../constants';
 
 type Project = {
   id: string;
@@ -124,7 +124,7 @@ export function DashboardCharts({ projects }: { projects: Project[] }) {
                 outerRadius={100}
                 paddingAngle={2}
                 dataKey="value"
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
                 labelLine={false}
               >
                 {statusData.map((entry, index) => (

@@ -8,11 +8,11 @@ type Project = {
   id: string;
   code: string;
   clientName: string;
-  instrument: string;
+  instrument: string | null;
   panelType: string;
   status: string;
-  salesPerson?: string;
-  appPerson?: string;
+  salesPerson?: string | null;
+  appPerson?: string | null;
   createdAt: Date;
   projectLogs: {
     id: string;

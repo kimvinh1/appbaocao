@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { getProjectById, updateProjectStatus } from '@/app/actions';
 import { SubmitButton } from '@/app/components/ui/submit-button';
 import { getCurrentUser } from '@/lib/auth';
-import { PROJECT_STATUSES, statusBadge } from '../page';
+import { PROJECT_STATUSES, statusBadge } from '../constants';
 import { DeleteProjectButton } from '../delete-project-button';
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
