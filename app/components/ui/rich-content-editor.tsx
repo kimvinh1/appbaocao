@@ -192,8 +192,39 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
             )}
 
             {/* Toolbar */}
-            <div className="flex items-center gap-1 rounded-t-lg border border-b-0 border-slate-600 bg-slate-800/60 px-2 py-1.5">
-                <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('bold'); }} title="Bold (Ctrl+B)">
+            <div className="flex flex-wrap items-center gap-1 rounded-t-lg border border-b-0 border-slate-600 bg-slate-800/60 px-2 py-1.5 overflow-x-auto">
+                {/* Dropdown for Headings */}
+                <select 
+                    className="bg-transparent text-xs text-slate-300 outline-none hover:bg-slate-700 p-1 rounded cursor-pointer"
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (!val) return;
+                        // For paragraphs, standard p block. Otherwise H1, H2, H3
+                        document.execCommand('formatBlock', false, val);
+                        e.target.value = ''; // reset to placeholder
+                    }}
+                    title="Cỡ chữ / Tiêu đề"
+                >
+                    <option value="" className="bg-slate-800 text-slate-300" disabled selected>Kiểu Chữ</option>
+                    <option value="H1" className="bg-slate-800 text-slate-300 text-lg font-bold">Tiêu đề lớn 1</option>
+                    <option value="H2" className="bg-slate-800 text-slate-300 text-base font-bold">Tiêu đề vừa 2</option>
+                    <option value="H3" className="bg-slate-800 text-slate-300 text-sm font-bold">Tiêu đề nhỏ 3</option>
+                    <option value="P" className="bg-slate-800 text-slate-300">Văn bản thường</option>
+                </select>
+                <div className="mx-1 h-4 w-px bg-slate-600" />
+                
+                {/* Color picker */}
+                <label className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-slate-300 hover:bg-slate-700 transition cursor-pointer" title="Màu chữ">
+                    <span className="text-xs font-bold underline decoration-red-500">A</span>
+                    <input 
+                        type="color" 
+                        className="w-4 h-4 border-none bg-transparent cursor-pointer"
+                        onChange={(e) => document.execCommand('foreColor', false, e.target.value)}
+                    />
+                </label>
+                <div className="mx-1 h-4 w-px bg-slate-600" />
+
+                <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('bold'); }} title="In đậm (Ctrl+B)">
                     <strong className="text-xs">B</strong>
                 </ToolbarButton>
                 <ToolbarButton onMouseDown={(e) => { e.preventDefault(); document.execCommand('italic'); }} title="Italic (Ctrl+I)">

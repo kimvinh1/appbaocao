@@ -8,25 +8,46 @@
 
 body {
   min-height: 100vh;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.dark body {
   background:
     radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.18), transparent 30%),
     radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.18), transparent 35%),
     #020617;
-  color: #e2e8f0;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
-.glass-panel {
+.light body {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.05), transparent 30%),
+    radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.05), transparent 35%),
+    #f8fafc;
+}
+
+.dark .glass-panel {
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(148, 163, 184, 0.15);
 }
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
 
-.table-shell {
+.dark .table-shell {
   border-radius: 0.75rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(15, 23, 42, 0.7);
   overflow: hidden;
+}
+.light .table-shell {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Rich content paper style (giống Word) ─────────────────────── */
@@ -37,7 +58,7 @@ body {
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(148, 163, 184, 0.15);
   padding: 2rem 1.5rem;
   border-radius: 8px;
-  max-width: 850px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
   line-height: 1.75;

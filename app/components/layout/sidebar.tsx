@@ -18,6 +18,7 @@ import { SidebarLink } from './sidebar-link';
 import { SidebarGroup } from './sidebar-group';
 import { SearchBar } from './search-bar';
 import { logoutAction } from '@/app/actions-auth';
+import { ThemeSwitcher } from '@/app/components/ui/theme-switcher';
 
 type SidebarProps = {
     currentUser: {
@@ -29,15 +30,15 @@ type SidebarProps = {
 
 export function Sidebar({ currentUser }: SidebarProps) {
     return (
-        <aside className="glass-panel border-b border-slate-700/60 px-4 py-6 lg:min-h-screen lg:border-b-0 lg:border-r lg:overflow-y-auto">
+        <aside className="glass-panel border-b border-slate-200 dark:border-slate-700/60 px-4 py-6 lg:min-h-screen lg:border-b-0 lg:border-r lg:overflow-y-auto">
             {/* Brand */}
             <div className="mb-6 px-2">
                 <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">APP Team Portal</p>
-                <h1 className="mt-1 text-lg font-semibold text-white">Hỗ Trợ Kỹ Thuật</h1>
-                <div className="mt-4 rounded-2xl border border-slate-700/60 bg-slate-950/40 px-4 py-3">
-                    <p className="text-sm font-semibold text-white">{currentUser.fullName}</p>
-                    <p className="mt-1 text-xs text-slate-400">{currentUser.email}</p>
-                    <p className="mt-2 inline-flex rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-300">
+                <h1 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">Hỗ Trợ Kỹ Thuật</h1>
+                <div className="mt-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-slate-100 dark:bg-slate-950/40 px-4 py-3">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{currentUser.fullName}</p>
+                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{currentUser.email}</p>
+                    <p className="mt-2 inline-flex rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-700 dark:text-slate-300">
                         {currentUser.role === 'admin' ? 'Admin' : 'Nhân viên'}
                     </p>
                 </div>
@@ -50,7 +51,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                 {/* Dashboard */}
                 <SidebarLink href="/" label="Tổng Quan" icon={LayoutDashboard} />
 
-                <div className="my-3 border-t border-slate-700/40" />
+                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
 
                 {/* Illumina */}
                 <SidebarGroup
@@ -67,7 +68,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ]}
                 />
 
-                <div className="my-3 border-t border-slate-700/40" />
+                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
 
                 {/* Vi sinh */}
                 <SidebarGroup
@@ -81,7 +82,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ]}
                 />
 
-                <div className="my-3 border-t border-slate-700/40" />
+                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
 
                 {/* Sinh học phân tử */}
                 <SidebarGroup
@@ -95,7 +96,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ]}
                 />
 
-                <div className="my-3 border-t border-slate-700/40" />
+                <div className="my-3 border-t border-slate-200 dark:border-slate-700/40" />
 
                 {/* Knowledge Base */}
                 <div className="pt-2">
@@ -108,11 +109,14 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     ) : null}
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-4 mt-2 border-t border-slate-200 dark:border-slate-700/40">
+                    <div className="mb-3 px-2">
+                        <ThemeSwitcher />
+                    </div>
                     <form action={logoutAction}>
                         <button
                             type="submit"
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800/80 hover:text-white"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-700 dark:text-slate-300 transition hover:bg-slate-200 dark:hover:bg-slate-200 dark:bg-slate-800/80 hover:text-slate-900 dark:hover:text-slate-900 dark:text-white"
                         >
                             <LogOut size={18} />
                             <span>Đăng xuất</span>
