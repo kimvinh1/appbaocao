@@ -226,7 +226,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
                 {/* Image upload button */}
                 <label
                     className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-0.5 text-xs text-slate-300 hover:bg-slate-700 transition"
-                    title="ChÃ¨n áº£nh tá»« file"
+                    title="Chèn ảnh từ file"
                 >
                     <ImagePlus size={13} />
                     <input
@@ -266,7 +266,7 @@ export function RichContentEditor({ name, defaultValue, className, rows = 14 }: 
                 onDragOver={(e) => e.preventDefault()}
                 className={
                     className ??
-                    'document-paper rich-editor-area border-none outline-none transition'
+                    'document-paper rich-editor-area border-none outline-none transition text-base'
                 }
                 style={{ minHeight, overflowY: 'auto', lineHeight: '1.7' }}
                 data-placeholder="Nháº­p ná»i dung hÆ°á»ng dáº«n, quy trÃ¬nh hoáº·c thÃ´ng tin ká»¹ thuáº­t táº¡i ÄÃ¢y..."
