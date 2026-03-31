@@ -1,431 +1,357 @@
 'use client';
 
-import { useRef, useEffect, useCallback, useState } from 'react';
-import { ImagePlus, Loader2, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
+import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
+import type { NodeViewProps } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import ImageExt from '@tiptap/extension-image';
+import Highlight from '@tiptap/extension-highlight';
+import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import { useRef, useCallback, useState, useEffect } from 'react';
+import {
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough,
+  AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  List, ListOrdered, Link2, LinkOff, ImagePlus, Undo2, Redo2,
+  Highlighter, Loader2, Quote, Minus,
+} from 'lucide-react';
+
+// ── Custom ResizableImage NodeView ────────────────────────────────────────────
+
+const IMAGE_WIDTHS = ['25%', '50%', '75%', '100%'];
+
+function ImageNodeView({ node, updateAttributes, selected }: NodeViewProps) {
+  const { src, alt, width = '100%' } = node.attrs as { src: string; alt: string; width: string };
+
+  return (
+    <NodeViewWrapper className="tiptap-image-wrapper" style={{ display: 'block', textAlign: 'center', margin: '1.25rem 0' }}>
+      <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%' }}>
+        <img
+          src={src}
+          alt={alt || ''}
+          style={{
+            width,
+            maxWidth: '100%',
+            height: 'auto',
+            display: 'block',
+            margin: '0 auto',
+            borderRadius: '8px',
+            border: '1px solid #e4e4e7',
+            boxShadow: selected
+              ? '0 0 0 3px #06b6d4, 0 2px 8px rgba(0,0,0,0.12)'
+              : '0 2px 8px rgba(0,0,0,0.10)',
+            transition: 'box-shadow 0.15s',
+          }}
+        />
+        {selected && (
+          <div style={{
+            position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)',
+            display: 'flex', alignItems: 'center', gap: '3px',
+            background: 'rgba(15,23,42,0.92)', borderRadius: '8px', padding: '4px 8px',
+            backdropFilter: 'blur(4px)', zIndex: 10, whiteSpace: 'nowrap',
+          }}>
+            <span style={{ fontSize: '10px', color: '#94a3b8', marginRight: '2px' }}>Kích thước:</span>
+            {IMAGE_WIDTHS.map((w) => (
+              <button
+                key={w}
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); updateAttributes({ width: w }); }}
+                style={{
+                  background: width === w ? '#06b6d4' : 'transparent',
+                  color: width === w ? '#fff' : '#cbd5e1',
+                  border: 'none', borderRadius: '4px',
+                  padding: '2px 7px', fontSize: '11px', fontWeight: 500, cursor: 'pointer',
+                }}
+              >
+                {w}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </NodeViewWrapper>
+  );
+}
+
+const ResizableImage = ImageExt.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: '100%',
+        renderHTML: (attrs) => ({ width: attrs.width }),
+        parseHTML: (el) => el.getAttribute('width') || '100%',
+      },
+    };
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageNodeView);
+  },
+});
+
+// ── Props ────────────────────────────────────────────────────────────────────
 
 interface RichContentEditorProps {
-    /** form field name - a hidden <input> syncs the HTML value */
-    name: string;
-    /** initial HTML (or plain-text) content */
-    defaultValue?: string;
-    /** optional class overrides for the editable area */
-    className?: string;
-    /** minimum visible rows (approximate) */
-    rows?: number;
+  name: string;
+  defaultValue?: string;
+  className?: string;
+  rows?: number;
 }
 
-export function RichContentEditor({ name, defaultValue, className, rows = 18 }: RichContentEditorProps) {
-    const editorRef = useRef<HTMLDivElement>(null);
-    const hiddenRef = useRef<HTMLInputElement>(null);
-    const savedRangeRef = useRef<Range | null>(null);
-    const [uploading, setUploading] = useState(false);
+// ── Main Component ────────────────────────────────────────────────────────────
 
-    // ── Save / restore cursor position (needed when file dialog steals focus)
-    const saveSelection = useCallback(() => {
-        const sel = window.getSelection();
-        if (sel && sel.rangeCount > 0) {
-            savedRangeRef.current = sel.getRangeAt(0).cloneRange();
-        }
-    }, []);
+export function RichContentEditor({ name, defaultValue, rows = 18 }: RichContentEditorProps) {
+  const hiddenRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [showLinkInput, setShowLinkInput] = useState(false);
 
-    const restoreSelection = useCallback(() => {
-        const range = savedRangeRef.current;
-        if (!range) return;
-        const sel = window.getSelection();
-        if (!sel) return;
-        sel.removeAllRanges();
-        sel.addRange(range);
-    }, []);
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      ResizableImage.configure({ inline: false }),
+      Highlight.configure({ multicolor: true }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Underline,
+      Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer' } }),
+      Placeholder.configure({ placeholder: 'Nhập nội dung hướng dẫn, quy trình hoặc thông tin kỹ thuật tại đây...' }),
+    ],
+    content: defaultValue || '',
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      if (hiddenRef.current) hiddenRef.current.value = editor.getHTML();
+    },
+    editorProps: {
+      attributes: { class: 'tiptap-prose focus:outline-none' },
+      handleDrop: (_view, event, _slice, moved) => {
+        if (moved) return false;
+        const files = Array.from(event.dataTransfer?.files ?? []).filter((f) => f.type.startsWith('image/'));
+        if (!files.length) return false;
+        event.preventDefault();
+        void handleImageFiles(files);
+        return true;
+      },
+      handlePaste: (_view, event) => {
+        const items = Array.from(event.clipboardData?.items ?? []);
+        const imgItem = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
+        if (!imgItem) return false;
+        const file = imgItem.getAsFile();
+        if (!file) return false;
+        event.preventDefault();
+        void handleImageFiles([file]);
+        return true;
+      },
+    },
+  });
 
-    // ── 1. Set initial content once ──────────────────────────────────────────
-    useEffect(() => {
-        const el = editorRef.current;
-        if (!el) return;
-        if (!defaultValue) return;
-        const isHtml = /^[\s]*<[a-zA-Z]/.test(defaultValue);
-        if (isHtml) {
-            el.innerHTML = defaultValue;
-        } else {
-            el.innerHTML = defaultValue
-                .split('\n')
-                .map((line) => (line.trim() === '' ? '<br>' : `<p>${escapeHtml(line)}</p>`))
-                .join('');
-        }
-        if (hiddenRef.current) hiddenRef.current.value = el.innerHTML;
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (hiddenRef.current && editor) hiddenRef.current.value = editor.getHTML();
+  }, [editor]);
 
-    // ── 2. Keep hidden input in sync ─────────────────────────────────────────
-    const sync = useCallback(() => {
-        if (hiddenRef.current && editorRef.current) {
-            hiddenRef.current.value = editorRef.current.innerHTML;
-        }
-    }, []);
+  // ── Upload ────────────────────────────────────────────────────────────────
 
-    // ── 3. Upload base64 data-URL to Vercel Blob ──────────────────────────────
-    const uploadDataUrl = useCallback(async (dataUrl: string): Promise<string | null> => {
+  const uploadFile = useCallback(async (file: File): Promise<string | null> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
         try {
-            const res = await fetch('/api/upload-inline-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dataUrl }),
-            });
-            if (!res.ok) return null;
-            const json = await res.json();
-            return json.url ?? null;
-        } catch {
-            return null;
-        }
-    }, []);
+          const res = await fetch('/api/upload-inline-image', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dataUrl: reader.result }),
+          });
+          const json = await res.json();
+          resolve(json.url ?? null);
+        } catch { resolve(null); }
+      };
+      reader.readAsDataURL(file);
+    });
+  }, []);
 
-    // ── 4. Upload a File/Blob and return public URL ───────────────────────────
-    const uploadFile = useCallback(async (file: File): Promise<string | null> => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = async () => {
-                const url = await uploadDataUrl(reader.result as string);
-                resolve(url);
-            };
-            reader.readAsDataURL(file);
-        });
-    }, [uploadDataUrl]);
+  const handleImageFiles = useCallback(async (files: File[]) => {
+    if (!editor) return;
+    setUploading(true);
+    for (const file of files) {
+      const url = await uploadFile(file);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (url) editor.chain().focus().setImage({ src: url } as any).run();
+    }
+    setUploading(false);
+  }, [editor, uploadFile]);
 
-    // ── 5. Insert HTML at cursor (uses savedRange if selection is lost) ────────
-    const insertHtmlAtCursor = useCallback((html: string) => {
-        // Try live selection first, fall back to saved range
-        let sel = window.getSelection();
-        let range: Range | null = null;
+  const applyLink = useCallback(() => {
+    if (!editor) return;
+    const url = linkUrl.trim();
+    if (!url) { editor.chain().focus().unsetLink().run(); }
+    else {
+      const href = url.startsWith('http') ? url : `https://${url}`;
+      editor.chain().focus().setLink({ href }).run();
+    }
+    setShowLinkInput(false);
+    setLinkUrl('');
+  }, [editor, linkUrl]);
 
-        if (sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode ?? null)) {
-            range = sel.getRangeAt(0);
-        } else if (savedRangeRef.current) {
-            range = savedRangeRef.current;
-            sel = window.getSelection();
-            if (sel) {
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
-        }
+  const minHeight = `${rows * 1.75}rem`;
 
-        if (!range) {
-            // Last resort: append to end of editor
-            if (editorRef.current) {
-                editorRef.current.focus();
-                const newRange = document.createRange();
-                newRange.selectNodeContents(editorRef.current);
-                newRange.collapse(false);
-                const s = window.getSelection();
-                if (s) { s.removeAllRanges(); s.addRange(newRange); }
-                range = newRange;
-            } else return;
-        }
+  if (!editor) {
+    return <div style={{ minHeight }} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white" />;
+  }
 
-        range.deleteContents();
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        const frag = document.createDocumentFragment();
-        let lastNode: Node | null = null;
-        while (temp.firstChild) {
-            lastNode = frag.appendChild(temp.firstChild);
-        }
-        range.insertNode(frag);
-        if (lastNode) {
-            const r2 = range.cloneRange();
-            r2.setStartAfter(lastNode);
-            r2.collapse(true);
-            const s = window.getSelection();
-            if (s) { s.removeAllRanges(); s.addRange(r2); }
-            savedRangeRef.current = r2.cloneRange();
-        }
-    }, []);
+  return (
+    <div className="relative rounded-xl border border-slate-200 dark:border-slate-700 overflow-visible shadow-sm">
+      <input type="hidden" name={name} ref={hiddenRef} defaultValue={defaultValue ?? ''} />
 
-    // ── 6. Handle Paste ───────────────────────────────────────────────────────
-    const handlePaste = useCallback(
-        async (e: React.ClipboardEvent<HTMLDivElement>) => {
-            e.preventDefault();
-            const cd = e.clipboardData;
-
-            // 6a. Image file directly (screenshot)
-            const imageFile = Array.from(cd.items).find(
-                (item) => item.kind === 'file' && item.type.startsWith('image/')
-            );
-            if (imageFile) {
-                const file = imageFile.getAsFile();
-                if (file) {
-                    setUploading(true);
-                    const url = await uploadFile(file);
-                    setUploading(false);
-                    if (url) {
-                        insertHtmlAtCursor(`<div style="text-align: center;"><img src="${url}" alt="" style="max-width:100%;" /></div><br>`);
-                        sync();
-                    }
-                    return;
-                }
-            }
-
-            // 6b. HTML paste (Word, browser)
-            const htmlData = cd.getData('text/html');
-            if (htmlData) {
-                setUploading(true);
-                const cleaned = await processWordHtml(htmlData, uploadDataUrl);
-                setUploading(false);
-                insertHtmlAtCursor(cleaned);
-                sync();
-                return;
-            }
-
-            // 6c. Plain text fallback
-            const text = cd.getData('text/plain');
-            if (text) {
-                const html = text
-                    .split('\n')
-                    .map((line) => (line.trim() === '' ? '<br>' : `<p>${escapeHtml(line)}</p>`))
-                    .join('');
-                insertHtmlAtCursor(html);
-                sync();
-            }
-        },
-        [insertHtmlAtCursor, sync, uploadDataUrl, uploadFile],
-    );
-
-    // ── 7. Handle drag-and-drop images ───────────────────────────────────────
-    const handleDrop = useCallback(
-        async (e: React.DragEvent<HTMLDivElement>) => {
-            const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
-            if (files.length === 0) return;
-            e.preventDefault();
-            setUploading(true);
-            for (const file of files) {
-                const url = await uploadFile(file);
-                if (url) {
-                    insertHtmlAtCursor(`<div style="text-align: center;"><img src="${url}" alt="" style="max-width:100%;" /></div><br>`);
-                }
-            }
-            setUploading(false);
-            sync();
-        },
-        [insertHtmlAtCursor, sync, uploadFile],
-    );
-
-    const minHeight = `${rows * 1.75}rem`;
-
-    return (
-        <div className="relative rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden shadow-sm">
-            {/* Hidden input carries the HTML content on form submit */}
-            <input type="hidden" name={name} ref={hiddenRef} defaultValue={defaultValue ?? ''} />
-
-            {/* Upload overlay */}
-            {uploading && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80 dark:bg-slate-900/70 backdrop-blur-sm">
-                    <span className="flex items-center gap-2 text-sm text-cyan-600 dark:text-cyan-300">
-                        <Loader2 size={16} className="animate-spin" /> Đang tải ảnh lên...
-                    </span>
-                </div>
-            )}
-
-            {/* ── Toolbar ── */}
-            <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 px-2 py-1.5">
-
-                {/* Kiểu chữ heading */}
-                <select
-                    className="bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-xs rounded px-1.5 py-1 cursor-pointer outline-none mr-1"
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        if (!val) return;
-                        document.execCommand('formatBlock', false, val);
-                        e.target.value = '';
-                    }}
-                    title="Kiểu tiêu đề"
-                >
-                    <option value="" disabled selected>Kiểu Chữ</option>
-                    <option value="H1">Tiêu đề 1 (H1)</option>
-                    <option value="H2">Tiêu đề 2 (H2)</option>
-                    <option value="H3">Tiêu đề 3 (H3)</option>
-                    <option value="P">Văn bản thường</option>
-                </select>
-
-                <Sep />
-
-                {/* Màu chữ */}
-                <label
-                    className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
-                    title="Màu chữ"
-                >
-                    <span className="font-bold" style={{ color: '#e53e3e', textDecoration: 'underline', textDecorationColor: '#e53e3e' }}>A</span>
-                    <input
-                        type="color"
-                        className="w-5 h-5 cursor-pointer border-none bg-transparent p-0"
-                        defaultValue="#000000"
-                        onChange={(e) => document.execCommand('foreColor', false, e.target.value)}
-                    />
-                </label>
-
-                <Sep />
-
-                {/* Bold / Italic / Underline */}
-                <Btn cmd="bold" title="In đậm (Ctrl+B)"><strong>B</strong></Btn>
-                <Btn cmd="italic" title="Nghiêng (Ctrl+I)"><em>I</em></Btn>
-                <Btn cmd="underline" title="Gạch dưới (Ctrl+U)"><span className="underline">U</span></Btn>
-
-                <Sep />
-
-                {/* Danh sách */}
-                <Btn cmd="insertUnorderedList" title="Danh sách gạch đầu dòng">
-                    <span>• —</span>
-                </Btn>
-                <Btn cmd="insertOrderedList" title="Danh sách đánh số">
-                    <span>1.</span>
-                </Btn>
-
-                <Sep />
-
-                {/* Căn lề */}
-                <Btn cmd="justifyLeft" title="Căn trái"><AlignLeft size={14} /></Btn>
-                <Btn cmd="justifyCenter" title="Căn giữa"><AlignCenter size={14} /></Btn>
-                <Btn cmd="justifyRight" title="Căn phải"><AlignRight size={14} /></Btn>
-                <Btn cmd="justifyFull" title="Căn đều"><AlignJustify size={14} /></Btn>
-
-                <Sep />
-
-                {/* Chèn ảnh từ file */}
-                <label
-                    className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-                    title="Chèn ảnh từ file"
-                    onMouseDown={() => saveSelection()}  // save cursor before file dialog opens
-                >
-                    <ImagePlus size={14} />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="sr-only"
-                        onChange={async (e) => {
-                            const files = Array.from(e.target.files ?? []);
-                            if (!files.length) return;
-                            restoreSelection(); // restore cursor pos before inserting
-                            setUploading(true);
-                            for (const file of files) {
-                                const url = await uploadFile(file);
-                                if (url) {
-                                    insertHtmlAtCursor(`<div style="text-align: center;"><img src="${url}" alt="" style="max-width:100%;" /></div><br>`);
-                                }
-                            }
-                            setUploading(false);
-                            sync();
-                            e.target.value = '';
-                        }}
-                    />
-                </label>
-
-                <span className="ml-auto text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">
-                    Ctrl+V để dán từ Word (kèm ảnh)
-                </span>
-            </div>
-
-            {/* ── Editable area ── */}
-            <div
-                ref={editorRef}
-                contentEditable
-                suppressContentEditableWarning
-                onInput={sync}
-                onKeyUp={saveSelection}
-                onMouseUp={saveSelection}
-                onPaste={handlePaste}
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                className={className ?? 'rich-editor-area'}
-                style={{ minHeight, overflowY: 'auto' }}
-                data-placeholder="Nhập nội dung hướng dẫn, quy trình hoặc thông tin kỹ thuật tại đây..."
-            />
+      {uploading && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/80 dark:bg-slate-900/70 backdrop-blur-sm rounded-xl">
+          <span className="flex items-center gap-2 text-sm text-cyan-600">
+            <Loader2 size={16} className="animate-spin" /> Đang tải ảnh lên...
+          </span>
         </div>
-    );
+      )}
+
+      {/* ── Toolbar ── */}
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded-t-xl sticky top-0 z-10">
+
+        {/* Paragraph style */}
+        <select
+          value={
+            editor.isActive('heading', { level: 1 }) ? 'h1'
+              : editor.isActive('heading', { level: 2 }) ? 'h2'
+              : editor.isActive('heading', { level: 3 }) ? 'h3'
+              : 'p'
+          }
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v === 'p') editor.chain().focus().setParagraph().run();
+            else editor.chain().focus().toggleHeading({ level: parseInt(v[1]) as 1 | 2 | 3 }).run();
+          }}
+          className="bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-xs rounded px-1.5 py-1 cursor-pointer outline-none"
+        >
+          <option value="p">Văn bản</option>
+          <option value="h1">Tiêu đề 1</option>
+          <option value="h2">Tiêu đề 2</option>
+          <option value="h3">Tiêu đề 3</option>
+        </select>
+
+        <Sep />
+        <TBtn active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Đậm (Ctrl+B)"><Bold size={13} /></TBtn>
+        <TBtn active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Nghiêng (Ctrl+I)"><Italic size={13} /></TBtn>
+        <TBtn active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Gạch chân (Ctrl+U)"><UnderlineIcon size={13} /></TBtn>
+        <TBtn active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()} title="Gạch ngang"><Strikethrough size={13} /></TBtn>
+
+        <Sep />
+
+        {/* Highlight với color picker */}
+        <label
+          className={`flex h-7 items-center gap-1 rounded px-1.5 cursor-pointer text-xs transition hover:bg-slate-200 dark:hover:bg-slate-700 ${editor.isActive('highlight') ? 'bg-yellow-100 dark:bg-yellow-500/20' : ''}`}
+          title="Màu nền chữ (Highlight)"
+        >
+          <Highlighter size={13} className={editor.isActive('highlight') ? 'text-yellow-500' : 'text-slate-600 dark:text-slate-300'} />
+          <input
+            type="color"
+            className="w-4 h-4 rounded cursor-pointer border-none bg-transparent p-0"
+            defaultValue="#fef08a"
+            onChange={(e) => editor.chain().focus().setHighlight({ color: e.target.value }).run()}
+          />
+        </label>
+
+        <Sep />
+
+        <TBtn active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Căn trái"><AlignLeft size={13} /></TBtn>
+        <TBtn active={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Căn giữa"><AlignCenter size={13} /></TBtn>
+        <TBtn active={editor.isActive({ textAlign: 'right' })} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Căn phải"><AlignRight size={13} /></TBtn>
+        <TBtn active={editor.isActive({ textAlign: 'justify' })} onClick={() => editor.chain().focus().setTextAlign('justify').run()} title="Căn đều"><AlignJustify size={13} /></TBtn>
+
+        <Sep />
+
+        <TBtn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Danh sách gạch đầu dòng"><List size={13} /></TBtn>
+        <TBtn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Danh sách đánh số"><ListOrdered size={13} /></TBtn>
+        <TBtn active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Trích dẫn"><Quote size={13} /></TBtn>
+
+        <Sep />
+
+        {/* Link */}
+        <div className="relative">
+          <TBtn
+            active={editor.isActive('link')}
+            onClick={() => {
+              if (editor.isActive('link')) { editor.chain().focus().unsetLink().run(); }
+              else { setLinkUrl(editor.getAttributes('link').href || ''); setShowLinkInput((v) => !v); }
+            }}
+            title={editor.isActive('link') ? 'Gỡ link' : 'Thêm link'}
+          >
+            {editor.isActive('link') ? <LinkOff size={13} /> : <Link2 size={13} />}
+          </TBtn>
+          {showLinkInput && (
+            <div className="absolute top-full left-0 mt-1 z-50 flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl p-2 min-w-[260px]">
+              <input
+                autoFocus
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') applyLink(); if (e.key === 'Escape') setShowLinkInput(false); }}
+                placeholder="https://..."
+                className="flex-1 text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white outline-none focus:border-cyan-400"
+              />
+              <button type="button" onClick={applyLink} className="rounded bg-cyan-500 px-2.5 py-1 text-xs text-white hover:bg-cyan-600 transition">OK</button>
+            </div>
+          )}
+        </div>
+
+        {/* Image */}
+        <label className="flex h-7 items-center cursor-pointer rounded px-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Chèn ảnh (hoặc kéo thả / dán)">
+          <ImagePlus size={13} />
+          <input type="file" accept="image/*" multiple className="sr-only"
+            onChange={(e) => { const files = Array.from(e.target.files ?? []); if (files.length) void handleImageFiles(files); e.target.value = ''; }} />
+        </label>
+
+        <TBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Đường kẻ phân cách"><Minus size={13} /></TBtn>
+
+        <Sep />
+
+        <TBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Hoàn tác (Ctrl+Z)"><Undo2 size={13} /></TBtn>
+        <TBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại (Ctrl+Y)"><Redo2 size={13} /></TBtn>
+
+        <span className="ml-auto hidden sm:block text-[10px] text-slate-400 dark:text-slate-500 pr-1 shrink-0">
+          Ctrl+V ảnh · Kéo thả ảnh vào
+        </span>
+      </div>
+
+      {/* ── Editor area ── */}
+      <EditorContent editor={editor} className="tiptap-content-area" style={{ minHeight }} />
+    </div>
+  );
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Helper sub-components ─────────────────────────────────────────────────────
 
 function Sep() {
-    return <div className="mx-0.5 h-5 w-px bg-slate-300 dark:bg-slate-600" />;
+  return <div className="mx-0.5 h-5 w-px bg-slate-300 dark:bg-slate-600 shrink-0" />;
 }
 
-function Btn({
-    children,
-    cmd,
-    title,
+function TBtn({
+  children, onClick, active, disabled, title,
 }: {
-    children: React.ReactNode;
-    cmd: string;
-    title?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+  active?: boolean;
+  disabled?: boolean;
+  title?: string;
 }) {
-    return (
-        <button
-            type="button"
-            onMouseDown={(e) => { e.preventDefault(); document.execCommand(cmd); }}
-            title={title}
-            className="flex h-7 min-w-[1.75rem] items-center justify-center rounded px-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-        >
-            {children}
-        </button>
-    );
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function escapeHtml(str: string): string {
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
-
-async function processWordHtml(
-    html: string,
-    uploadDataUrl: (url: string) => Promise<string | null>,
-): Promise<string> {
-    let cleaned = html
-        .replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '')
-        .replace(/<xml[\s\S]*?<\/xml>/gi, '')
-        .replace(/<o:[\s\S]*?<\/o:[^>]+>/gi, '')
-        .replace(/<w:[\s\S]*?<\/w:[^>]+>/gi, '');
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(cleaned, 'text/html');
-
-    doc.querySelectorAll('script, style, meta, link, head').forEach((el) => el.remove());
-
-    const images = Array.from(doc.querySelectorAll('img'));
-    await Promise.all(
-        images.map(async (img) => {
-            if (img.src.startsWith('data:')) {
-                const url = await uploadDataUrl(img.src);
-                if (url) {
-                    img.src = url;
-                    img.style.maxWidth = '100%';
-                } else {
-                    img.style.maxWidth = '100%';
-                }
-            }
-            Array.from(img.attributes).forEach((attr) => {
-                if (!['src', 'alt', 'width', 'height', 'style'].includes(attr.name)) {
-                    img.removeAttribute(attr.name);
-                }
-            });
-        }),
-    );
-
-    doc.querySelectorAll('[style]').forEach((el) => {
-        const style = el.getAttribute('style') ?? '';
-        const fixed = style
-            .split(';')
-            .filter((rule) => !rule.trim().toLowerCase().startsWith('mso-'))
-            .join(';');
-        if (fixed.trim()) {
-            el.setAttribute('style', fixed);
-        } else {
-            el.removeAttribute('style');
-        }
-    });
-
-    doc.querySelectorAll('[class]').forEach((el) => el.removeAttribute('class'));
-
-    return doc.body.innerHTML;
+  return (
+    <button
+      type="button"
+      onMouseDown={(e) => { e.preventDefault(); onClick?.(); }}
+      title={title}
+      disabled={disabled}
+      className={[
+        'flex h-7 min-w-[1.75rem] items-center justify-center rounded px-1.5 text-xs transition shrink-0',
+        active ? 'bg-slate-200 dark:bg-slate-600 text-slate-900 dark:text-white'
+               : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700',
+        disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer',
+      ].join(' ')}
+    >
+      {children}
+    </button>
+  );
 }
