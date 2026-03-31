@@ -1,5 +1,6 @@
-import { getProcedureShareByToken, markProcedureShareCompleted, reactToProcedureShare } from '@/app/actions-kb';
-import { Download, Heart, CheckCircle2, ThumbsUp, UserRoundCheck } from 'lucide-react';
+import { getProcedureShareByToken } from '@/app/actions-kb';
+import { ShareInteractionPanel } from '@/app/components/ui/share-interaction-panel';
+import { Download, UserRoundCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getModuleTheme } from '@/lib/module-theme';
 
@@ -14,7 +15,8 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
   const theme = getModuleTheme(share.article.module);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
+      {/* Header */}
       <div className="glass-panel rounded-[2rem] p-8">
         <p className={`text-sm font-medium uppercase tracking-[0.22em] ${theme.textClass}`}>
           Quy trình chia sẻ cho khách hàng
@@ -49,7 +51,8 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
         </div>
       </div>
 
-      <section className="glass-panel rounded-2xl p-6">
+      {/* Nội dung bài viết */}
+      <section className="glass-panel rounded-2xl p-6 lg:p-8">
         {/^[\s]*<[a-zA-Z]/.test(share.article.content) ? (
           <div
             className="rich-content text-slate-200"
@@ -80,14 +83,15 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
         )}
       </section>
 
+      {/* Phản hồi thực hiện */}
       <section className="glass-panel rounded-2xl p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
               <UserRoundCheck size={18} className={theme.textClass} /> Phản hồi thực hiện
             </h2>
             <p className="mt-1 text-sm text-slate-400">
-              Sau khi làm xong quy trình, khách hàng có thể xác nhận hoàn tất và gửi phản hồi cảm nhận.
+              Sau khi làm xong, xác nhận hoàn tất và để lại cảm nhận của bạn.
             </p>
           </div>
           <span className={`rounded-full px-3 py-1 text-xs font-medium ${share.status === 'completed' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-800 text-slate-300'}`}>
@@ -95,39 +99,21 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
           </span>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-3">
-          <form action={markProcedureShareCompleted}>
-            <input type="hidden" name="token" value={share.token} />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 px-4 py-2.5 text-sm font-medium text-emerald-300 ring-1 ring-emerald-400/25 transition hover:bg-emerald-500/25"
-            >
-              <CheckCircle2 size={16} /> Tôi đã làm xong
-            </button>
-          </form>
+        {/* Hiển thị comment cũ nếu đã có */}
+        {'customerComment' in share && share.customerComment && (
+          <div className="mb-4 rounded-xl border border-slate-700/60 bg-slate-950/40 p-4 text-sm text-slate-300 italic">
+            &ldquo;{share.customerComment}&rdquo;
+          </div>
+        )}
 
-          <form action={reactToProcedureShare}>
-            <input type="hidden" name="token" value={share.token} />
-            <input type="hidden" name="reactionType" value="like" />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-cyan-500/15 px-4 py-2.5 text-sm font-medium text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/25"
-            >
-              <ThumbsUp size={16} /> Hữu ích ({share.likeCount})
-            </button>
-          </form>
-
-          <form action={reactToProcedureShare}>
-            <input type="hidden" name="token" value={share.token} />
-            <input type="hidden" name="reactionType" value="heart" />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-pink-500/15 px-4 py-2.5 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition hover:bg-pink-500/25"
-            >
-              <Heart size={16} /> Rất hiệu quả ({share.heartCount})
-            </button>
-          </form>
-        </div>
+        <ShareInteractionPanel
+          token={share.token}
+          initialStatus={share.status}
+          initialLikeCount={share.likeCount}
+          initialHeartCount={share.heartCount}
+          themeTextClass={theme.textClass}
+          themeButtonClass={theme.buttonClass}
+        />
       </section>
     </div>
   );

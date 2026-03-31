@@ -461,6 +461,7 @@ export async function createProcedureShare(formData: FormData) {
 
 export async function markProcedureShareCompleted(formData: FormData) {
   const token = formData.get('token') as string;
+  const customerComment = (formData.get('customerComment') as string) || null;
 
   if (!token) {
     throw new Error('Thiếu mã chia sẻ');
@@ -480,11 +481,24 @@ export async function markProcedureShareCompleted(formData: FormData) {
     data: {
       status: 'completed',
       completedAt: existingShare.completedAt ?? new Date(),
+      customerComment: customerComment ?? undefined,
     },
   });
 
   revalidatePath(`/chia-se/${token}`);
   revalidatePath(`/kien-thuc/bai/${existingShare.articleId}`);
+}
+
+export async function deleteProcedureShare(formData: FormData) {
+  await requireUser();
+  const shareId = formData.get('shareId') as string;
+  const articleId = formData.get('articleId') as string;
+
+  if (!shareId) throw new Error('Thiếu ID chia sẻ');
+
+  await prisma.procedureShare.delete({ where: { id: shareId } });
+
+  revalidatePath(`/kien-thuc/bai/${articleId}`);
 }
 
 export async function reactToProcedureShare(formData: FormData) {

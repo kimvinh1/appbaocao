@@ -31,7 +31,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <Link
           href={`/kien-thuc/bai/${id}`}

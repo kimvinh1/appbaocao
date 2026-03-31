@@ -51,6 +51,108 @@ function getCategoryLabel(category: string) {
   }
 }
 
+// ── HTML → structured blocks ──────────────────────────────────────────────────
+
+type ContentBlock =
+  | { type: 'h1' | 'h2' | 'h3'; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'listItem'; text: string; bullet: string }
+  | { type: 'spacer' };
+
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#\d+;/g, '');
+}
+
+function innerText(html: string): string {
+  return decodeEntities(html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+}
+
+function htmlToBlocks(html: string): ContentBlock[] {
+  const blocks: ContentBlock[] = [];
+
+  // Normalize: remove script/style
+  const cleaned = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '');
+
+  // Split by block-level elements
+  const blockPattern =
+    /(<h[1-3][^>]*>[\s\S]*?<\/h[1-3]>|<li[^>]*>[\s\S]*?<\/li>|<p[^>]*>[\s\S]*?<\/p>|<div[^>]*>[\s\S]*?<\/div>|<br\s*\/?>)/gi;
+
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  const re = new RegExp(blockPattern.source, 'gi');
+
+  while ((match = re.exec(cleaned)) !== null) {
+    // Any text between block elements
+    const before = cleaned.slice(lastIndex, match.index).replace(/<[^>]+>/g, '').trim();
+    if (before) {
+      const text = decodeEntities(before.replace(/\s+/g, ' ').trim());
+      if (text) blocks.push({ type: 'paragraph', text });
+    }
+
+    const tag = match[0];
+    const tagNameMatch = tag.match(/^<(h[1-3]|li|p|div|br)/i);
+    const tagName = tagNameMatch?.[1]?.toLowerCase() ?? '';
+
+    if (tagName === 'h1') {
+      const text = innerText(tag);
+      if (text) blocks.push({ type: 'h1', text });
+    } else if (tagName === 'h2') {
+      const text = innerText(tag);
+      if (text) blocks.push({ type: 'h2', text });
+    } else if (tagName === 'h3') {
+      const text = innerText(tag);
+      if (text) blocks.push({ type: 'h3', text });
+    } else if (tagName === 'li') {
+      const text = innerText(tag);
+      if (text) blocks.push({ type: 'listItem', text, bullet: '•' });
+    } else if (tagName === 'p' || tagName === 'div') {
+      const text = innerText(tag);
+      if (text) blocks.push({ type: 'paragraph', text });
+      else blocks.push({ type: 'spacer' });
+    } else if (tagName === 'br') {
+      blocks.push({ type: 'spacer' });
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Remaining text
+  const tail = cleaned.slice(lastIndex).replace(/<[^>]+>/g, '').trim();
+  if (tail) {
+    const text = decodeEntities(tail.replace(/\s+/g, ' ').trim());
+    if (text) blocks.push({ type: 'paragraph', text });
+  }
+
+  // Deduplicate consecutive spacers
+  return blocks.filter((b, i) => {
+    if (b.type === 'spacer' && i > 0 && blocks[i - 1].type === 'spacer') return false;
+    return true;
+  });
+}
+
+function contentToBlocks(content: string): ContentBlock[] {
+  const isHtml = /^[\s]*<[a-zA-Z]/.test(content);
+  if (isHtml) {
+    return htmlToBlocks(content);
+  }
+  // Plain text
+  return content.split('\n').map((line) =>
+    line.trim() === '' ? ({ type: 'spacer' } as ContentBlock) : ({ type: 'paragraph', text: line.trim() } as ContentBlock)
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function getModuleAccent(module: string): RGB {
   switch (normalizeModuleKey(module)) {
     case 'illumina':
@@ -240,16 +342,66 @@ export async function buildArticlePdf(article: ArticlePdfSource) {
     state.y -= 6;
   }
 
-  for (const rawLine of article.content.split('\n')) {
-    if (!rawLine.trim()) {
+  // ── Render content (HTML or plain text) ──────────────────────────────────
+  const blocks = contentToBlocks(article.content);
+
+  for (const block of blocks) {
+    if (block.type === 'spacer') {
       state.y -= 8;
       continue;
     }
 
-    drawWrappedParagraph(state, pdfDoc, bodyFont, rawLine, {
-      size: 12,
+    if (block.type === 'h1') {
+      state.y -= 4;
+      drawWrappedParagraph(state, pdfDoc, bodyFont, block.text, {
+        size: 17,
+        color: textColor,
+        lineHeight: 24,
+        maxWidth: contentWidth,
+        gapAfter: 6,
+      });
+      continue;
+    }
+
+    if (block.type === 'h2') {
+      state.y -= 4;
+      drawWrappedParagraph(state, pdfDoc, bodyFont, block.text, {
+        size: 14,
+        color: textColor,
+        lineHeight: 20,
+        maxWidth: contentWidth,
+        gapAfter: 4,
+      });
+      continue;
+    }
+
+    if (block.type === 'h3') {
+      drawWrappedParagraph(state, pdfDoc, bodyFont, block.text, {
+        size: 12,
+        color: accentColor,
+        lineHeight: 18,
+        maxWidth: contentWidth,
+        gapAfter: 4,
+      });
+      continue;
+    }
+
+    if (block.type === 'listItem') {
+      drawWrappedParagraph(state, pdfDoc, bodyFont, `${block.bullet}  ${block.text}`, {
+        size: 11,
+        color: textColor,
+        lineHeight: 17,
+        maxWidth: contentWidth - 12,
+        gapAfter: 2,
+      });
+      continue;
+    }
+
+    // paragraph
+    drawWrappedParagraph(state, pdfDoc, bodyFont, block.text, {
+      size: 11,
       color: textColor,
-      lineHeight: 18,
+      lineHeight: 17,
       maxWidth: contentWidth,
       gapAfter: 4,
     });

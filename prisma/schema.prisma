@@ -177,9 +177,10 @@ model ProcedureShare {
   token         String              @unique
   customerName  String
   customerEmail String?
-  status        String              @default("pending") // pending | completed
-  sharedAt      DateTime            @default(now())
-  completedAt   DateTime?
+  status           String              @default("pending") // pending | completed
+  sharedAt         DateTime            @default(now())
+  completedAt      DateTime?
+  customerComment  String?
   articleId     String
   sharedById    String?
 

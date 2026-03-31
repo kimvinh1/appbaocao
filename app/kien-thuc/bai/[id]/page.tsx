@@ -1,6 +1,6 @@
-import { createProcedureShare, getArticleById, getContentFeedback, getProcedureSharesByArticle } from '@/app/actions-kb';
+import { createProcedureShare, deleteProcedureShare, getArticleById, getContentFeedback, getProcedureSharesByArticle } from '@/app/actions-kb';
 import { getCurrentUser } from '@/lib/auth';
-import { ArrowLeft, Calendar, Download, Heart, Share2, Tag, ThumbsUp, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Heart, MessageSquare, Share2, Tag, ThumbsUp, Trash2, User } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getModuleTheme, normalizeModuleKey } from '@/lib/module-theme';
@@ -21,7 +21,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
     const tags = article.tags ? article.tags.split(',').filter(Boolean) : [];
 
     return (
-        <div className="mx-auto max-w-3xl space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6">
             <div>
                 <Link
                     href={`/kien-thuc/${normalizedModule}`}
@@ -183,7 +183,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                             shares.map((share) => (
                                 <div key={share.id} className="rounded-2xl border border-slate-700/60 bg-slate-950/40 p-4">
                                     <div className="flex flex-wrap items-start justify-between gap-3">
-                                        <div>
+                                        <div className="min-w-0 flex-1">
                                             <p className="font-medium text-white">{share.customerName}</p>
                                             <p className="mt-1 text-xs text-slate-400">
                                                 {share.customerEmail || 'Không có email'} · Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
@@ -196,13 +196,34 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                             >
                                                 Mở link chia sẻ
                                             </a>
+                                            {'customerComment' in share && share.customerComment && (
+                                                <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-400 italic">
+                                                    <MessageSquare size={12} className="mt-0.5 shrink-0" />
+                                                    &ldquo;{share.customerComment}&rdquo;
+                                                </p>
+                                            )}
                                         </div>
-                                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
-                                            <span className="rounded-full bg-slate-800 px-2 py-1">
+                                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                                            <span className={`rounded-full px-2 py-1 ${share.status === 'completed' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-800'}`}>
                                                 {share.status === 'completed' ? 'Đã hoàn tất' : 'Chưa hoàn tất'}
                                             </span>
                                             <span className="inline-flex items-center gap-1"><ThumbsUp size={12} /> {share.likeCount}</span>
                                             <span className="inline-flex items-center gap-1"><Heart size={12} /> {share.heartCount}</span>
+                                            {/* Nút xóa/thu hồi link */}
+                                            <form action={deleteProcedureShare}>
+                                                <input type="hidden" name="shareId" value={share.id} />
+                                                <input type="hidden" name="articleId" value={article.id} />
+                                                <button
+                                                    type="submit"
+                                                    title="Thu hồi link chia sẻ"
+                                                    className="rounded-lg bg-red-500/10 p-1.5 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500/20 transition"
+                                                    onClick={(e) => {
+                                                        if (!confirm('Thu hồi link chia sẻ này? Khách hàng sẽ không truy cập được nữa.')) e.preventDefault();
+                                                    }}
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
