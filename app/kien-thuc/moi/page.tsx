@@ -38,7 +38,9 @@ export default function NewArticlePage() {
         if (input) input.value = '';
     }
 
-    async function handleSubmit(formData: FormData) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         await createArticle(formData);
         formRef.current?.reset();
         setImagePreviews([]);
@@ -60,7 +62,7 @@ export default function NewArticlePage() {
             </div>
 
             {/* Form */}
-            <form ref={formRef} action={handleSubmit} className="space-y-5">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
 
                 {/* Row: Module + Category */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
