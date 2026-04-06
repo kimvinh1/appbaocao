@@ -5,6 +5,7 @@ import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
 import { ImagePlus, Save, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { ARTICLE_CATEGORY_OPTIONS } from '@/lib/knowledge-center';
 
 interface ArticleImage {
     id: string;
@@ -25,13 +26,6 @@ interface ModuleTheme {
     focusBorderClass: string;
     buttonClass: string;
 }
-
-const ARTICLE_CATEGORIES = [
-    { value: 'quy-trinh', label: 'Quy trình / SOP' },
-    { value: 'huong-dan', label: 'Hướng dẫn sử dụng' },
-    { value: 'troubleshooting', label: 'Xử lý sự cố' },
-    { value: 'faq', label: 'Câu hỏi thường gặp' },
-];
 
 export function EditArticleForm({ article, moduleTheme }: { article: ArticleData; moduleTheme: ModuleTheme }) {
     const router = useRouter();
@@ -76,7 +70,7 @@ export function EditArticleForm({ article, moduleTheme }: { article: ArticleData
                     defaultValue={article.category}
                     className={`mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${moduleTheme.focusBorderClass}`}
                 >
-                    {ARTICLE_CATEGORIES.map((category) => (
+                    {ARTICLE_CATEGORY_OPTIONS.map((category) => (
                         <option key={category.value} value={category.value}>
                             {category.label}
                         </option>

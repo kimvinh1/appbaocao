@@ -2,7 +2,7 @@
 
 import {
     Dna, FolderKanban, LayoutDashboard, Microscope,
-    AlertTriangle, FileText, FlaskConical, TicketCheck,
+    FileText, FlaskConical,
     LibraryBig, LogOut, ShieldCheck,
 } from 'lucide-react';
 import { SidebarLink } from './sidebar-link';
@@ -69,9 +69,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     defaultOpen={true}
                     items={[
                         { href: '/projects', label: 'Quản Lý Dự Án', icon: FolderKanban },
-                        { href: '/illumina/ma-loi', label: 'Mã lỗi Illumina', icon: AlertTriangle },
-                        { href: '/illumina/case', label: 'Case hỗ trợ', icon: TicketCheck },
-                        { href: '/kien-thuc/illumina', label: 'Quy trình kỹ thuật', icon: FileText },
+                        { href: '/kien-thuc/illumina', label: 'Tri thức & mã lỗi', icon: FileText },
                     ]}
                 />
 
@@ -82,9 +80,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     icon={Microscope}
                     color="text-red-500 dark:text-red-400"
                     items={[
-                        { href: '/vi-sinh/ma-loi', label: 'Mã lỗi Vi Sinh', icon: AlertTriangle },
-                        { href: '/vi-sinh/case', label: 'Case hỗ trợ', icon: TicketCheck },
-                        { href: '/kien-thuc/vi-sinh', label: 'Quy trình kỹ thuật', icon: FileText },
+                        { href: '/kien-thuc/vi-sinh', label: 'Tri thức & mã lỗi', icon: FileText },
                     ]}
                 />
 
@@ -95,9 +91,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     icon={FlaskConical}
                     color="text-cyan-600 dark:text-cyan-400"
                     items={[
-                        { href: '/cepheid/ma-loi', label: 'Mã lỗi Cepheid', icon: AlertTriangle },
-                        { href: '/cepheid/case', label: 'Case hỗ trợ', icon: TicketCheck },
-                        { href: '/kien-thuc/cepheid', label: 'Quy trình kỹ thuật', icon: FileText },
+                        { href: '/kien-thuc/cepheid', label: 'Tri thức & mã lỗi', icon: FileText },
                     ]}
                 />
 

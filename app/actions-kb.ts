@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { deleteBlobIfManaged, uploadFileToBlob } from '@/lib/blob';
 import { requireKnowledgeEditor, requireUser, getCurrentUser } from '@/lib/auth';
 import { normalizeModuleKey, resolveModuleAliases } from '@/lib/module-theme';
+import { normalizeArticleCategory } from '@/lib/knowledge-center';
 
 function revalidateKnowledgeBase(module: string, articleId?: string) {
   const normalizedModule = normalizeModuleKey(module);
@@ -25,6 +26,7 @@ function revalidateModulePages(module: string) {
   const normalizedModule = normalizeModuleKey(module);
   revalidatePath('/');
   revalidatePath('/search');
+  revalidatePath(`/kien-thuc/${normalizedModule}`);
   revalidatePath(`/${normalizedModule}/ma-loi`);
   revalidatePath(`/${normalizedModule}/case`);
   revalidatePath('/cepheid/ma-loi');
@@ -120,7 +122,7 @@ export async function incrementArticleView(articleId: string) {
 export async function createArticle(formData: FormData) {
   const user = await requireKnowledgeEditor();
   const module = normalizeModuleKey(formData.get('module') as string);
-  const category = (formData.get('category') as string) || 'quy-trinh';
+  const category = normalizeArticleCategory((formData.get('category') as string) || 'quy-trinh');
   const title = formData.get('title') as string;
   const content = normalizeRichTextContent(formData.get('content') as string);
   const tags = formData.get('tags') as string;
@@ -164,7 +166,7 @@ export async function updateArticle(formData: FormData) {
   const title = formData.get('title') as string;
   const content = normalizeRichTextContent(formData.get('content') as string);
   const tags = formData.get('tags') as string;
-  const category = (formData.get('category') as string) || undefined;
+  const category = formData.get('category') ? normalizeArticleCategory(formData.get('category') as string) : undefined;
   const attachmentUrl = (formData.get('attachmentUrl') as string | null)?.trim() || null;
   const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
@@ -400,12 +402,13 @@ export async function updateCaseStatus(formData: FormData) {
 export async function getDashboardStats() {
   const totalArticles = await prisma.article.count();
   const totalProjects = await prisma.project.count();
-  const totalSupportCases = await prisma.supportCase.count();
+  const totalProcedureShares = await prisma.procedureShare.count();
+  const totalErrorCodes = await prisma.errorCode.count();
   const totalUsers = await prisma.user.count({
     where: { isActive: true },
   });
 
-  return { totalArticles, totalProjects, totalSupportCases, totalUsers };
+  return { totalArticles, totalProjects, totalProcedureShares, totalErrorCodes, totalUsers };
 }
 
 export async function getProcedureSharesByArticle(articleId: string) {
@@ -737,15 +740,13 @@ export async function submitContentFeedback(formData: FormData): Promise<void> {
     revalidatePath('/kien-thuc');
     revalidatePath('/search');
   } else if (contentType === 'case') {
-    revalidatePath('/illumina/case');
-    revalidatePath('/vi-sinh/case');
-    revalidatePath('/sinh-hoc-phan-tu/case');
-    revalidatePath('/cepheid/case');
+    revalidatePath('/kien-thuc/illumina');
+    revalidatePath('/kien-thuc/vi-sinh');
+    revalidatePath('/kien-thuc/cepheid');
   } else if (contentType === 'error-code') {
-    revalidatePath('/illumina/ma-loi');
-    revalidatePath('/vi-sinh/ma-loi');
-    revalidatePath('/sinh-hoc-phan-tu/ma-loi');
-    revalidatePath('/cepheid/ma-loi');
+    revalidatePath('/kien-thuc/illumina');
+    revalidatePath('/kien-thuc/vi-sinh');
+    revalidatePath('/kien-thuc/cepheid');
   }
 }
 

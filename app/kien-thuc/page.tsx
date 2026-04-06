@@ -2,6 +2,7 @@ import { getArticles } from '@/app/actions-kb';
 import { BookOpen, FileText, Microscope, Dna, FlaskConical, Plus, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { MODULE_THEMES, normalizeModuleKey } from '@/lib/module-theme';
+import { getArticleCategoryLabel } from '@/lib/knowledge-center';
 
 const MODULE_CONFIG = {
     illumina: { ...MODULE_THEMES.illumina, color: MODULE_THEMES.illumina.textClass, bg: MODULE_THEMES.illumina.badgeClass, icon: Dna },
@@ -26,7 +27,7 @@ export default async function KienThucPage() {
                     <h2 className="text-2xl font-semibold text-white flex items-center gap-2">
                         <BookOpen size={22} className="text-cyan-300" /> Thư Viện Tài Liệu
                     </h2>
-                    <p className="mt-1 text-sm text-slate-400">Tất cả tài liệu kỹ thuật, hướng dẫn và quy trình.</p>
+                    <p className="mt-1 text-sm text-slate-400">Tất cả quy trình, case xử lý sự cố và tài liệu dùng để chia sẻ cho khách hàng.</p>
                 </div>
                 <Link
                     href="/kien-thuc/moi"
@@ -90,7 +91,7 @@ export default async function KienThucPage() {
                                     </div>
                                     <p className="font-semibold text-white truncate">{article.title}</p>
                                     <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500">
-                                        {article.category === 'quy-trinh' ? 'Quy trình / SOP' : article.category === 'huong-dan' ? 'Hướng dẫn sử dụng' : article.category === 'troubleshooting' ? 'Xử lý sự cố' : 'FAQ'}
+                                        {getArticleCategoryLabel(article.category)}
                                     </p>
                                     <p className="text-xs text-slate-400 mt-1">
                                         {article.author} · {new Date(article.updatedAt).toLocaleDateString('vi-VN')}

@@ -5,7 +5,7 @@ import { normalizeModuleKey } from '@/lib/module-theme';
 
 export type SearchResultItem = {
     id: string;
-    type: 'article' | 'error_code' | 'support_case';
+    type: 'article' | 'error_code';
     title: string;
     description: string;
     module: string;
@@ -43,21 +43,6 @@ export async function globalSearch(query: string): Promise<SearchResultItem[]> {
         take: 20,
     });
 
-    // Search Support Cases
-    const cases = await prisma.supportCase.findMany({
-        where: {
-            OR: [
-                { customer: { contains: q } },
-                { instrument: { contains: q } },
-                { description: { contains: q } },
-                { content: { contains: q } },
-                { resolution: { contains: q } },
-                { issueType: { contains: q } },
-            ],
-        },
-        take: 20,
-    });
-
     const results: SearchResultItem[] = [
         ...articles.map((a) => ({
             id: a.id,
@@ -73,15 +58,7 @@ export async function globalSearch(query: string): Promise<SearchResultItem[]> {
             title: `${e.code} (${e.instrument})`,
             description: e.description,
             module: normalizeModuleKey(e.module),
-            link: `/${normalizeModuleKey(e.module)}/ma-loi`,
-        })),
-        ...cases.map((c) => ({
-            id: c.id,
-            type: 'support_case' as const,
-            title: `Case hỗ trợ: ${c.customer} - ${c.instrument}`,
-            description: c.description,
-            module: normalizeModuleKey(c.module),
-            link: `/${normalizeModuleKey(c.module)}/case`,
+            link: `/kien-thuc/${normalizeModuleKey(e.module)}#ma-loi`,
         })),
     ];
 

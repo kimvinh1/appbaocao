@@ -1,4 +1,4 @@
-import { FolderKanban, Users, FileText, TicketCheck, TrendingUp } from 'lucide-react';
+import { FolderKanban, Users, FileText, Share2, AlertTriangle, TrendingUp } from 'lucide-react';
 import { getActivityLogs } from '@/app/actions';
 import { getDashboardStats } from '@/app/actions-kb';
 import { ExportLogsButton } from '@/app/components/dashboard/export-logs-button';
@@ -7,7 +7,7 @@ import { LogsByCategoryChart } from '@/app/components/dashboard/logs-by-category
 export default async function DashboardPage() {
   const [logs, stats] = await Promise.all([getActivityLogs(), getDashboardStats()]);
 
-  const { totalUsers, totalArticles, totalProjects, totalSupportCases } = stats;
+  const { totalUsers, totalArticles, totalProjects, totalProcedureShares, totalErrorCodes } = stats;
 
   const logsByCategoryMap = logs.reduce<Record<string, number>>((acc, log) => {
     acc[log.category] = (acc[log.category] ?? 0) + 1;
@@ -31,7 +31,8 @@ export default async function DashboardPage() {
     { label: 'Người Dùng', value: totalUsers, icon: Users, color: 'text-violet-500 dark:text-violet-400', bg: 'bg-violet-50 dark:bg-violet-500/10' },
     { label: 'Tổng Tài Liệu', value: totalArticles, icon: FileText, color: 'text-blue-500 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-500/10' },
     { label: 'Tổng Dự Án', value: totalProjects, icon: FolderKanban, color: 'text-orange-500 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-    { label: 'Tổng Case Hỗ Trợ', value: totalSupportCases, icon: TicketCheck, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+    { label: 'Mã Lỗi', value: totalErrorCodes, icon: AlertTriangle, color: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10' },
+    { label: 'Link Chia Sẻ', value: totalProcedureShares, icon: Share2, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
   ];
 
   return (
@@ -43,7 +44,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {statItems.map(({ label, value, icon: Icon, color, bg }) => (
           <div key={label} className="stat-card">
             <div className="flex items-center justify-between">

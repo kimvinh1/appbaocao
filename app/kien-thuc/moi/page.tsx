@@ -6,18 +6,12 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
+import { ARTICLE_CATEGORY_OPTIONS } from '@/lib/knowledge-center';
 
 const MODULES = [
     { value: 'illumina', label: 'Illumina' },
     { value: 'vi-sinh', label: 'Vi Sinh' },
     { value: 'cepheid', label: 'Cepheid' },
-];
-
-const ARTICLE_CATEGORIES = [
-    { value: 'quy-trinh', label: 'Quy trình / SOP' },
-    { value: 'huong-dan', label: 'Hướng dẫn sử dụng' },
-    { value: 'troubleshooting', label: 'Xử lý sự cố' },
-    { value: 'faq', label: 'Câu hỏi thường gặp' },
 ];
 
 export default function NewArticlePage() {
@@ -95,7 +89,7 @@ export default function NewArticlePage() {
                             defaultValue="quy-trinh"
                             className="input-field"
                         >
-                            {ARTICLE_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                            {ARTICLE_CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
                     </div>
                 </div>
@@ -181,7 +175,7 @@ export default function NewArticlePage() {
 
                 {/* Rich text content */}
                 <div>
-                    <label className="form-label">Nội Dung</label>
+                    <label className="form-label">Nội dung</label>
                     <RichContentEditor name="content" rows={18} storageKey="new-article" />
                 </div>
 

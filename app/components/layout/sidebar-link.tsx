@@ -11,7 +11,7 @@ type SidebarLinkProps = {
 };
 
 function getActiveAccent(href: string) {
-  if (href === '/projects' || href.startsWith('/illumina') || href === '/logs') {
+  if (href === '/projects' || href.startsWith('/illumina') || href === '/kien-thuc/illumina' || href === '/logs') {
     return 'text-orange-500 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 font-semibold';
   }
   if (href.startsWith('/vi-sinh') || href === '/kien-thuc/vi-sinh') {

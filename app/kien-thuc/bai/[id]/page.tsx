@@ -20,13 +20,7 @@ import { ViewTracker } from '@/app/components/ui/view-tracker';
 import { CopyLinkButton } from '@/app/components/ui/copy-link-button';
 import { ArticleToc } from '@/app/components/ui/article-toc';
 import { extractTocAndAddIds } from '@/lib/html-toc';
-
-const CATEGORY_LABEL: Record<string, string> = {
-    'quy-trinh': 'Quy trình / SOP',
-    'huong-dan': 'Hướng dẫn sử dụng',
-    'troubleshooting': 'Xử lý sự cố',
-    'faq': 'FAQ',
-};
+import { getArticleCategoryLabel } from '@/lib/knowledge-center';
 
 const SHARE_STATUS_META: Record<string, string> = {
     pending: 'bg-slate-800 text-slate-300',
@@ -115,7 +109,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                     </span>
                     <span className={`font-semibold ${cfg.textClass}`}>{cfg.label}</span>
                     <span className="rounded-full bg-slate-800/80 px-2 py-0.5 uppercase tracking-wide text-slate-300">
-                        {CATEGORY_LABEL[article.category] ?? article.category}
+                        {getArticleCategoryLabel(article.category)}
                     </span>
                 </div>
                 {tags.length > 0 && (
@@ -130,16 +124,18 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* ── Nội dung bài ── */}
-            <div className="glass-panel rounded-2xl p-6">
+            <div className="glass-panel rounded-2xl p-5 sm:p-6">
                 {isHtml ? (
-                    <div
-                        className="rich-content text-slate-200"
-                        dangerouslySetInnerHTML={{ __html: enrichedHtml }}
-                    />
+                    <div className="document-paper">
+                        <div
+                            className="rich-content"
+                            dangerouslySetInnerHTML={{ __html: enrichedHtml }}
+                        />
+                    </div>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="document-paper space-y-4">
                         {article.content.split('\n').map((line, i) =>
-                            line.trim() === '' ? <br key={i} /> : <p key={i} className="text-slate-200 leading-relaxed">{line}</p>
+                            line.trim() === '' ? <br key={i} /> : <p key={i} className="leading-relaxed">{line}</p>
                         )}
                     </div>
                 )}

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { PDFDocument, rgb, type PDFFont, type PDFPage, type RGB } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { normalizeModuleKey } from '@/lib/module-theme';
+import { getArticleCategoryLabel } from '@/lib/knowledge-center';
 
 const PAGE_SIZE: [number, number] = [595.28, 841.89];
 const PAGE_MARGIN = 56;
@@ -39,16 +40,7 @@ function slugify(input: string) {
 }
 
 function getCategoryLabel(category: string) {
-  switch (category) {
-    case 'quy-trinh':
-      return 'Quy trình / SOP';
-    case 'huong-dan':
-      return 'Hướng dẫn sử dụng';
-    case 'troubleshooting':
-      return 'Xử lý sự cố';
-    default:
-      return 'FAQ';
-  }
+  return getArticleCategoryLabel(category);
 }
 
 // ── HTML → structured blocks ──────────────────────────────────────────────────

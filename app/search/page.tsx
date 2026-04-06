@@ -1,5 +1,5 @@
 import { globalSearch } from '@/app/actions-search';
-import { Search, FileText, AlertTriangle, TicketCheck } from 'lucide-react';
+import { Search, FileText, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { getModuleTheme } from '@/lib/module-theme';
 
@@ -19,8 +19,6 @@ export default async function SearchPage({
                 return { icon: <FileText size={16} />, color: 'text-blue-400', label: 'Tài liệu' };
             case 'error_code':
                 return { icon: <AlertTriangle size={16} />, color: 'text-orange-400', label: 'Mã lỗi' };
-            case 'support_case':
-                return { icon: <TicketCheck size={16} />, color: 'text-emerald-400', label: 'Case hỗ trợ' };
             default:
                 return { icon: <FileText size={16} />, color: 'text-slate-400', label: 'Khác' };
         }
