@@ -612,7 +612,6 @@ export async function reactToProcedureShare(formData: FormData) {
     },
   });
 
-  revalidatePath(`/chia-se/${token}`);
   revalidatePath(`/kien-thuc/bai/${share.articleId}`);
 }
 

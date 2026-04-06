@@ -120,6 +120,8 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
                   <img
                     src={img.imageUrl}
                     alt="Ảnh đính kèm"
+                    loading="lazy"
+                    decoding="async"
                     className="h-40 w-full rounded-xl object-cover border border-slate-700 hover:opacity-90 transition"
                   />
                 </a>

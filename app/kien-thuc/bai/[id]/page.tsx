@@ -20,6 +20,7 @@ import { ViewTracker } from '@/app/components/ui/view-tracker';
 import { CopyLinkButton } from '@/app/components/ui/copy-link-button';
 import { ArticleToc } from '@/app/components/ui/article-toc';
 import { ConfirmSubmitButton } from '@/app/components/ui/confirm-submit-button';
+import { RevokeShareButton } from '@/app/components/ui/revoke-share-button';
 import { extractTocAndAddIds } from '@/lib/html-toc';
 import { getArticleCategoryLabel } from '@/lib/knowledge-center';
 
@@ -338,17 +339,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                             <span className="inline-flex items-center gap-1"><ThumbsUp size={12} /> {share.likeCount}</span>
                                             <span className="inline-flex items-center gap-1"><Heart size={12} /> {share.heartCount}</span>
                                             {share.status !== 'revoked' ? (
-                                                <form action={deleteProcedureShare}>
-                                                    <input type="hidden" name="shareId" value={share.id} />
-                                                    <input type="hidden" name="articleId" value={article.id} />
-                                                    <ConfirmSubmitButton
-                                                        title="Thu hồi link chia sẻ"
-                                                        className="rounded-lg bg-red-500/10 p-1.5 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500/20 transition"
-                                                        message="Thu hồi link chia sẻ này? Khách hàng sẽ không truy cập được nữa."
-                                                    >
-                                                        <Trash2 size={13} />
-                                                    </ConfirmSubmitButton>
-                                                </form>
+                                                <RevokeShareButton shareId={share.id} articleId={article.id} />
                                             ) : null}
                                         </div>
                                     </div>
