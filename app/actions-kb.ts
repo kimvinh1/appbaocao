@@ -22,17 +22,17 @@ function revalidateKnowledgeBase(module: string, articleId?: string) {
   }
 }
 
+const ALL_MODULES = ['illumina', 'vi-sinh', 'cepheid', 'sinh-hoc-phan-tu'] as const;
+
 function revalidateModulePages(module: string) {
   const normalizedModule = normalizeModuleKey(module);
   revalidatePath('/');
   revalidatePath('/search');
   revalidatePath(`/kien-thuc/${normalizedModule}`);
-  revalidatePath(`/${normalizedModule}/ma-loi`);
-  revalidatePath(`/${normalizedModule}/case`);
-  revalidatePath('/cepheid/ma-loi');
-  revalidatePath('/cepheid/case');
-  revalidatePath('/sinh-hoc-phan-tu/ma-loi');
-  revalidatePath('/sinh-hoc-phan-tu/case');
+  for (const m of ALL_MODULES) {
+    revalidatePath(`/${m}/ma-loi`);
+    revalidatePath(`/${m}/case`);
+  }
 }
 
 function getModuleFilter(module?: string) {
@@ -97,6 +97,18 @@ export async function getArticles(module?: string) {
   return prisma.article.findMany({
     where: module ? { module: getModuleFilter(module) } : undefined,
     orderBy: [{ updatedAt: 'desc' }],
+    select: {
+      id: true,
+      module: true,
+      title: true,
+      category: true,
+      tags: true,
+      author: true,
+      viewCount: true,
+      attachmentUrl: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 }
 
@@ -400,13 +412,14 @@ export async function updateCaseStatus(formData: FormData) {
 // ─── DASHBOARD STATS ──────────────────────────────────────────────────────────
 
 export async function getDashboardStats() {
-  const totalArticles = await prisma.article.count();
-  const totalProjects = await prisma.project.count();
-  const totalProcedureShares = await prisma.procedureShare.count();
-  const totalErrorCodes = await prisma.errorCode.count();
-  const totalUsers = await prisma.user.count({
-    where: { isActive: true },
-  });
+  const [totalArticles, totalProjects, totalProcedureShares, totalErrorCodes, totalUsers] =
+    await Promise.all([
+      prisma.article.count(),
+      prisma.project.count(),
+      prisma.procedureShare.count(),
+      prisma.errorCode.count(),
+      prisma.user.count({ where: { isActive: true } }),
+    ]);
 
   return { totalArticles, totalProjects, totalProcedureShares, totalErrorCodes, totalUsers };
 }

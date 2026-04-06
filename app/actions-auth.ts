@@ -136,7 +136,17 @@ export async function deleteUserAction(formData: FormData) {
 
   const userId = getRequiredString(formData.get('userId'), 'ID người dùng');
 
+  // Bảo vệ: không cho xóa admin cuối cùng
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+  if (user?.role === 'admin') {
+    const adminCount = await prisma.user.count({ where: { role: 'admin', isActive: true } });
+    if (adminCount <= 1) {
+      throw new Error('Không thể xoá admin cuối cùng của hệ thống');
+    }
+  }
+
   await prisma.user.delete({ where: { id: userId } });
 
   redirect('/quan-tri/nguoi-dung');
 }
+

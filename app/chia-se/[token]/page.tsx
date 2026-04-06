@@ -66,11 +66,11 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
           Quy trình chia sẻ cho khách hàng
         </p>
         <h1 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-white">{share.article.title}</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-300">
+        <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
           Khách hàng: <span className="font-medium text-gray-900 dark:text-white">{share.customerName}</span>
-          {(share as any).customerPhone ? ` · ${(share as any).customerPhone}` : ''}
+          {share.customerPhone ? ` · ${share.customerPhone}` : ''}
         </p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author} · Mảng {theme.label}
         </p>
       </div>
