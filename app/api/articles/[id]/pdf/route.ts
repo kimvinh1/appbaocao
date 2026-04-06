@@ -16,6 +16,12 @@ export async function GET(
   const { id } = await params;
   const article = await prisma.article.findUnique({
     where: { id },
+    include: {
+      images: {
+        select: { imageUrl: true },
+        orderBy: { sortOrder: 'asc' },
+      },
+    },
   });
 
   if (!article) {

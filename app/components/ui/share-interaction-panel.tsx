@@ -77,14 +77,14 @@ export function ShareInteractionPanel({
           <button
             onClick={() => handleReact('like')}
             disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-cyan-500/15 px-4 py-2.5 text-sm font-medium text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/25 disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500/15 px-4 py-2.5 text-sm font-medium text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/25 disabled:opacity-60 sm:w-auto"
           >
             <ThumbsUp size={16} /> Hữu ích ({likeCount})
           </button>
           <button
             onClick={() => handleReact('heart')}
             disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-pink-500/15 px-4 py-2.5 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition hover:bg-pink-500/25 disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-pink-500/15 px-4 py-2.5 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition hover:bg-pink-500/25 disabled:opacity-60 sm:w-auto"
           >
             <Heart size={16} /> Rất hiệu quả ({heartCount})
           </button>
@@ -116,21 +116,21 @@ export function ShareInteractionPanel({
         <button
           onClick={handleComplete}
           disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 px-4 py-2.5 text-sm font-medium text-emerald-300 ring-1 ring-emerald-400/25 transition hover:bg-emerald-500/25 disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500/15 px-4 py-2.5 text-sm font-medium text-emerald-300 ring-1 ring-emerald-400/25 transition hover:bg-emerald-500/25 disabled:opacity-60 sm:w-auto"
         >
           <CheckCircle2 size={16} /> {isPending ? 'Đang ghi nhận...' : 'Tôi đã làm xong'}
         </button>
         <button
           onClick={() => handleReact('like')}
           disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-xl bg-cyan-500/15 px-4 py-2.5 text-sm font-medium text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/25 disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500/15 px-4 py-2.5 text-sm font-medium text-cyan-300 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/25 disabled:opacity-60 sm:w-auto"
         >
           <ThumbsUp size={16} /> Hữu ích ({likeCount})
         </button>
         <button
           onClick={() => handleReact('heart')}
           disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-xl bg-pink-500/15 px-4 py-2.5 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition hover:bg-pink-500/25 disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-pink-500/15 px-4 py-2.5 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition hover:bg-pink-500/25 disabled:opacity-60 sm:w-auto"
         >
           <Heart size={16} /> Rất hiệu quả ({heartCount})
         </button>

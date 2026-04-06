@@ -4,9 +4,19 @@ import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from
 import type { NodeViewProps } from '@tiptap/react';
 import type { Editor as TiptapEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import CharacterCount from '@tiptap/extension-character-count';
+import Dropcursor from '@tiptap/extension-dropcursor';
+import Gapcursor from '@tiptap/extension-gapcursor';
 import ImageExt from '@tiptap/extension-image';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
+import { Table } from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
+import Typography from '@tiptap/extension-typography';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -127,9 +137,19 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
   const editor = useEditor({
     extensions: [
       StarterKit,
+      CharacterCount.configure({ limit: 50000 }),
+      Dropcursor.configure({ color: '#0ea5e9', width: 3 }),
+      Gapcursor,
       ResizableImage.configure({ inline: false }),
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      Typography,
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer' } }),
       Placeholder.configure({ placeholder: 'Nhập nội dung hướng dẫn, quy trình hoặc thông tin kỹ thuật tại đây...' }),
@@ -283,6 +303,28 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
     setLinkUrl('');
   }, [editor, linkUrl]);
 
+  const insertTemplateBlock = useCallback((type: 'note' | 'warning' | 'steps') => {
+    if (!editor) return;
+
+    if (type === 'note') {
+      editor.chain().focus().insertContent(
+        '<blockquote data-callout="note"><p><strong>Lưu ý:</strong> Điền thông tin quan trọng tại đây.</p></blockquote><p></p>',
+      ).run();
+      return;
+    }
+
+    if (type === 'warning') {
+      editor.chain().focus().insertContent(
+        '<blockquote data-callout="warning"><p><strong>Cảnh báo:</strong> Mô tả rủi ro hoặc điểm cần kiểm tra kỹ.</p></blockquote><p></p>',
+      ).run();
+      return;
+    }
+
+    editor.chain().focus().insertContent(
+      '<h3>Bước thực hiện</h3><ol><li>Chuẩn bị mẫu / thiết bị.</li><li>Thực hiện thao tác chính.</li><li>Kiểm tra kết quả và xác nhận hoàn tất.</li></ol><p></p>',
+    ).run();
+  }, [editor]);
+
   const minHeight = `${rows * 1.75}rem`;
 
   if (!editor) {
@@ -358,6 +400,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
 
         <TBtn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Danh sách gạch đầu dòng"><List size={13} /></TBtn>
         <TBtn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Danh sách đánh số"><ListOrdered size={13} /></TBtn>
+        <TBtn active={editor.isActive('taskList')} onClick={() => editor.chain().focus().toggleTaskList().run()} title="Checklist">CV</TBtn>
         <TBtn active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Trích dẫn"><Quote size={13} /></TBtn>
 
         <Sep />
@@ -398,6 +441,20 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
         </label>
 
         <TBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Đường kẻ phân cách"><Minus size={13} /></TBtn>
+        <TBtn onClick={() => insertTemplateBlock('note')} title="Chèn khối lưu ý">Lưu ý</TBtn>
+        <TBtn onClick={() => insertTemplateBlock('warning')} title="Chèn khối cảnh báo">Cảnh báo</TBtn>
+        <TBtn onClick={() => insertTemplateBlock('steps')} title="Chèn các bước mẫu">Bước</TBtn>
+
+        <Sep />
+
+        <TBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Chèn bảng">Bảng</TBtn>
+        {editor.isActive('table') ? (
+          <>
+            <TBtn onClick={() => editor.chain().focus().addRowAfter().run()} title="Thêm hàng">+H</TBtn>
+            <TBtn onClick={() => editor.chain().focus().addColumnAfter().run()} title="Thêm cột">+C</TBtn>
+            <TBtn onClick={() => editor.chain().focus().deleteTable().run()} title="Xóa bảng">X Bảng</TBtn>
+          </>
+        ) : null}
 
         <Sep />
 
@@ -405,6 +462,9 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
         <TBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại (Ctrl+Y)"><Redo2 size={13} /></TBtn>
 
         <span className="ml-auto hidden sm:flex items-center gap-2 pr-1 shrink-0">
+          <span className="text-[10px] text-slate-400 dark:text-slate-500">
+            {editor.storage.characterCount.characters()} ký tự
+          </span>
           {storageKey && savedAt ? (
             <span className="text-[10px] text-emerald-500 dark:text-emerald-400 flex items-center gap-1">
               ✓ Đã lưu lúc {savedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}

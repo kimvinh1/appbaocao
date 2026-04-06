@@ -17,10 +17,10 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
   const isCompleted = share.status === 'completed';
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-4 sm:space-y-6">
 
       {/* ── Progress Steps ── */}
-      <div className="glass-panel rounded-2xl px-6 py-4">
+      <div className="glass-panel rounded-2xl px-4 py-4 sm:px-6">
         <ol className="flex items-center gap-0 text-xs text-slate-400">
           {/* Bước 1 */}
           <li className="flex items-center gap-2 flex-1">
@@ -61,7 +61,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
       </div>
 
       {/* Header */}
-      <div className="glass-panel rounded-[2rem] p-8">
+      <div className="glass-panel rounded-[2rem] p-5 sm:p-8">
         <p className={`text-sm font-medium uppercase tracking-[0.22em] ${theme.textClass}`}>
           Quy trình chia sẻ cho khách hàng
         </p>
@@ -73,12 +73,12 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
         <p className="mt-1 text-sm text-slate-400">
           Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author} · Mảng {theme.label}
         </p>
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <a
             href={`/api/chia-se/${share.token}/pdf`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2.5 text-sm font-medium text-white ring-1 ring-slate-700 transition hover:bg-white/10"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2.5 text-sm font-medium text-white ring-1 ring-slate-700 transition hover:bg-white/10 sm:w-auto"
           >
             <Download size={16} /> Tải PDF quy trình
           </a>
@@ -87,7 +87,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
               href={share.article.attachmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition ${theme.buttonClass}`}
+              className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition sm:w-auto ${theme.buttonClass}`}
             >
               <Download size={16} /> Mở PDF đính kèm
             </a>
@@ -96,23 +96,25 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
       </div>
 
       {/* Nội dung bài viết */}
-      <section className="glass-panel rounded-2xl p-6 lg:p-8">
+      <section className="glass-panel rounded-2xl p-4 sm:p-6 lg:p-8">
         {/^[\s]*<[a-zA-Z]/.test(share.article.content) ? (
-          <div
-            className="rich-content text-slate-200"
-            dangerouslySetInnerHTML={{ __html: share.article.content }}
-          />
+          <div className="document-paper">
+            <div
+              className="rich-content"
+              dangerouslySetInnerHTML={{ __html: share.article.content }}
+            />
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="document-paper space-y-4">
             {share.article.content.split('\n').map((line, index) => (
-              line.trim() === '' ? <br key={index} /> : <p key={index} className="text-slate-200 leading-relaxed">{line}</p>
+              line.trim() === '' ? <br key={index} /> : <p key={index} className="leading-relaxed">{line}</p>
             ))}
           </div>
         )}
         {share.article.images && share.article.images.length > 0 && (
           <div className="mt-6">
             <p className="mb-3 text-sm font-medium text-slate-300">Ảnh đính kèm</p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {share.article.images.map((img) => (
                 <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
                   <img
@@ -128,7 +130,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
       </section>
 
       {/* Phản hồi thực hiện */}
-      <section className="glass-panel rounded-2xl p-6">
+      <section className="glass-panel rounded-2xl p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-semibold text-white">

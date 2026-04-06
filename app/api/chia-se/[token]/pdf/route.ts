@@ -10,7 +10,14 @@ export async function GET(
   const share = await prisma.procedureShare.findUnique({
     where: { token },
     include: {
-      article: true,
+      article: {
+        include: {
+          images: {
+            select: { imageUrl: true },
+            orderBy: { sortOrder: 'asc' },
+          },
+        },
+      },
     },
   });
 

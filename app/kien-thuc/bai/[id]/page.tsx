@@ -144,7 +144,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 {article.images && article.images.length > 0 && (
                     <div className="mt-6">
                         <p className="mb-3 text-sm font-medium text-slate-300">Ảnh đính kèm</p>
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {article.images.map((img) => (
                                 <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
                                     <img
