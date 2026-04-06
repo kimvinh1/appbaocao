@@ -1,5 +1,5 @@
 export const PROJECT_STATUSES = [
-  { value: 'Tiếp nhận',          label: 'Tiếp nhận',          color: 'bg-slate-600 text-slate-200' },
+  { value: 'Tiếp nhận',          label: 'Tiếp nhận',          color: 'bg-slate-600 text-slate-800 dark:text-slate-200' },
   { value: 'Đã báo giá',         label: 'Đã báo giá',         color: 'bg-blue-700 text-blue-100' },
   { value: 'Chờ xác nhận',       label: 'Chờ xác nhận',       color: 'bg-yellow-700 text-yellow-100' },
   { value: 'Đang tiến hành',     label: 'Đang tiến hành',     color: 'bg-cyan-700 text-cyan-100' },
@@ -12,6 +12,6 @@ export const PROJECT_STATUSES = [
 
 export function statusBadge(value: string) {
   const found = PROJECT_STATUSES.find((s) => s.value === value);
-  const color = found?.color ?? 'bg-slate-600 text-slate-200';
+  const color = found?.color ?? 'bg-slate-600 text-slate-800 dark:text-slate-200';
   return `inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${color}`;
 }

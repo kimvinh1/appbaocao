@@ -34,7 +34,7 @@ export function ExportLogsButton({ logs }: ExportLogsButtonProps) {
       type="button"
       onClick={onExport}
       disabled={!logs.length}
-      className="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/80 px-4 py-2 text-sm font-medium text-slate-100 transition hover:border-cyan-400 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+      className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/80 px-4 py-2 text-sm font-medium text-slate-100 transition hover:border-cyan-400 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <Download size={16} />
       Xuất nhật ký (.xlsx)

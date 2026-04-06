@@ -43,7 +43,7 @@ export function ArticleToc({ headings }: ArticleTocProps) {
       {/* Desktop: sticky sidebar bên phải — hiển thị ở màn hình ≥ xl */}
       <aside className="hidden xl:block fixed right-6 top-24 w-56 z-20">
         <div className="glass-panel rounded-xl px-4 py-3 text-sm">
-          <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
             <List size={12} /> Mục lục
           </p>
           <nav className="space-y-1">
@@ -61,7 +61,7 @@ export function ArticleToc({ headings }: ArticleTocProps) {
                   h.level === 3 ? 'pl-4' : '',
                   activeId === h.id
                     ? 'bg-cyan-500/15 text-cyan-300 font-medium'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60',
+                    : 'text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-slate-200 hover:bg-slate-800/60',
                 ].join(' ')}
                 title={h.text}
               >
@@ -77,15 +77,15 @@ export function ArticleToc({ headings }: ArticleTocProps) {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm text-slate-300 hover:text-white transition"
+          className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:text-white transition"
         >
           <span className="flex items-center gap-1.5 font-medium">
             <List size={14} /> Mục lục ({headings.length} mục)
           </span>
-          <span className={`text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
+          <span className={`text-slate-600 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
         </button>
         {open && (
-          <nav className="border-t border-slate-700/50 px-4 py-3 space-y-1">
+          <nav className="border-t border-slate-300/50 dark:border-slate-700/50 px-4 py-3 space-y-1">
             {headings.map((h) => (
               <a
                 key={h.id}
@@ -98,7 +98,7 @@ export function ArticleToc({ headings }: ArticleTocProps) {
                 className={[
                   'block text-sm py-1 transition-colors',
                   h.level === 3 ? 'pl-4 text-xs' : '',
-                  activeId === h.id ? 'text-cyan-300 font-medium' : 'text-slate-400 hover:text-slate-200',
+                  activeId === h.id ? 'text-cyan-300 font-medium' : 'text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-slate-200',
                 ].join(' ')}
               >
                 {h.level === 2 ? '· ' : '  – '}{h.text}

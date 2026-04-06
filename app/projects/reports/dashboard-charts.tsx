@@ -97,8 +97,8 @@ export function DashboardCharts({ projects }: { projects: Project[] }) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="rounded-lg border border-slate-700 bg-slate-800 p-3 shadow-xl">
-          <p className="font-semibold text-slate-200">{label || payload[0].name}</p>
+        <div className="rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-3 shadow-xl">
+          <p className="font-semibold text-slate-800 dark:text-slate-200">{label || payload[0].name}</p>
           <p className="text-cyan-400 mt-1">
             Số lượng: <span className="font-bold">{payload[0].value}</span>
           </p>
