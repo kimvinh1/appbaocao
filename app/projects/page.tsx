@@ -19,8 +19,8 @@ export default async function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-white">Quản lý dự án</h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">Theo dõi toàn bộ dự án — từ tiếp nhận đến hoàn thành.</p>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Quản lý dự án</h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Theo dõi toàn bộ dự án — từ tiếp nhận đến hoàn thành.</p>
         </div>
         <Link href="/projects/reports" className="inline-flex items-center gap-2 rounded-xl bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/20 transition">
           Thống kê Báo cáo
@@ -29,7 +29,7 @@ export default async function ProjectsPage() {
 
       {/* ── Create form ── */}
       <section className="glass-panel rounded-2xl p-5">
-        <h3 className="mb-4 text-base font-semibold text-white">Tạo dự án mới</h3>
+        <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Tạo dự án mới</h3>
         <form action={createProject} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <input type="hidden" name="updatedBy" value={user.fullName} />
 

@@ -20,12 +20,12 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
       <div>
         <Link
           href={`/kien-thuc/bai/${id}`}
-          className="mb-2 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 transition hover:text-white"
+          className="mb-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 transition hover:text-gray-900 dark:text-white"
         >
           <ArrowLeft size={12} /> Quay lại bài viết
         </Link>
-        <h2 className="text-2xl font-semibold text-white">Chỉnh Sửa Tài Liệu</h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Chỉnh Sửa Tài Liệu</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Cập nhật tiêu đề, tags và nội dung bài viết hiện tại.
         </p>
       </div>

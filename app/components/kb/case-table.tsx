@@ -68,7 +68,7 @@ function SortBtn({ field, current, dir, onClick }: { field: SortField; current: 
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center gap-0.5 hover:text-white transition"
+      className="inline-flex items-center gap-0.5 hover:text-gray-900 dark:text-white transition"
     >
       {field === 'caseDate' ? 'Ngày / Khách' : 'Trạng Thái'}
       {active ? (
@@ -142,7 +142,7 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
           <option value="escalated">Leo thang</option>
         </select>
         {hasFilter && (
-          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span>{filtered.length} / {cases.length} case</span>
             <button
               onClick={clearFilters}
@@ -157,7 +157,7 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
       {/* ── Table ── */}
       <div className="glass-panel overflow-x-auto rounded-2xl">
         <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-          <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-xs uppercase text-slate-600 dark:text-slate-500 dark:text-slate-400">
+          <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-xs uppercase text-slate-500 dark:text-slate-400">
             <tr>
               <th className="px-5 py-4 font-medium cursor-pointer">
                 <SortBtn field="caseDate" current={sortField} dir={sortDir} onClick={() => toggleSort('caseDate')} />
@@ -180,13 +180,13 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
               filtered.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-800/40 transition">
                   <td className="px-5 py-4 align-top">
-                    <p className="font-medium text-white">{new Date(c.caseDate).toLocaleDateString('vi-VN')}</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">{c.customer}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{new Date(c.caseDate).toLocaleDateString('vi-VN')}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{c.customer}</p>
                   </td>
                   <td className="px-5 py-4">
-                    <p className="font-medium text-white">{c.description}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{c.description}</p>
                     <p className="mt-1 text-xs">
-                      <span className="text-slate-600 dark:text-slate-500 dark:text-slate-400">{c.instrument}</span> • <span className="text-slate-600 dark:text-slate-500">{c.issueType}</span>
+                      <span className="text-slate-500 dark:text-slate-400">{c.instrument}</span> • <span className="text-slate-600 dark:text-slate-500">{c.issueType}</span>
                     </p>
                     {renderContent(c.content, c.resolution)}
                     {c.imageUrls.length > 0 && (

@@ -14,12 +14,12 @@ export default async function LogsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-white">Nhật ký công việc</h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">Ghi nhận khối lượng công việc hằng ngày và liên kết với dự án.</p>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Nhật ký công việc</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Ghi nhận khối lượng công việc hằng ngày và liên kết với dự án.</p>
       </div>
 
       <section className="glass-panel rounded-2xl p-5">
-        <h3 className="mb-4 text-lg font-semibold text-white">Thêm nhật ký mới</h3>
+        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Thêm nhật ký mới</h3>
 
         <form action={createActivityLog} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <label className="text-sm text-slate-700 dark:text-slate-300">
@@ -105,7 +105,7 @@ export default async function LogsPage() {
 
       <section className="table-shell">
         <table className="min-w-full text-sm">
-          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-500 dark:text-slate-400">
+          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
             <tr>
               <th className="px-4 py-3">Ngày</th>
               <th className="px-4 py-3">Nhân sự</th>
@@ -119,7 +119,7 @@ export default async function LogsPage() {
             {logs.map((log) => (
               <tr key={log.id} className="border-t border-slate-200/80 dark:border-slate-800/80">
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{new Date(log.logDate).toLocaleDateString()}</td>
-                <td className="px-4 py-3 text-white">{log.teamMember}</td>
+                <td className="px-4 py-3 text-gray-900 dark:text-white">{log.teamMember}</td>
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{LOG_CATEGORIES.find((category) => category.value === log.category)?.label ?? log.category}</td>
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{log.durationHours.toFixed(1)}</td>
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{log.project?.code ?? 'Không có'}</td>
@@ -129,7 +129,7 @@ export default async function LogsPage() {
 
             {!logs.length && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
                   Chưa có nhật ký công việc nào. Hãy thêm bản ghi đầu tiên bằng biểu mẫu bên trên.
                 </td>
               </tr>

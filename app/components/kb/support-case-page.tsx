@@ -22,10 +22,10 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className={`text-2xl font-semibold text-white flex items-center gap-2`}>
+                <h2 className={`text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2`}>
                     <TicketCheck size={22} className={colorClass} /> {title}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">{description}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
             </div>
 
             <details className="glass-panel rounded-2xl group">

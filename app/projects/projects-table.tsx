@@ -79,10 +79,10 @@ export function ProjectsTable({ projects, statuses }: { projects: Project[]; sta
       {/* Filter bar */}
       <div className="glass-panel rounded-2xl p-4">
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <Search size={14} className="text-slate-600 dark:text-slate-500 dark:text-slate-400" />
+          <Search size={14} className="text-slate-500 dark:text-slate-400" />
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Lọc dự án</span>
           {hasFilter && (
-            <button onClick={clearFilters} className="ml-auto flex items-center gap-1 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-white transition">
+            <button onClick={clearFilters} className="ml-auto flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:text-white transition">
               <X size={12} /> Xoá bộ lọc
             </button>
           )}
@@ -123,7 +123,7 @@ export function ProjectsTable({ projects, statuses }: { projects: Project[]; sta
       {/* Table */}
       <div className="table-shell">
         <table className="min-w-full text-sm">
-          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-500 dark:text-slate-400">
+          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
             <tr>
               <th className="px-4 py-3">Mã dự án</th>
               <th className="px-4 py-3">Khách hàng</th>
@@ -143,10 +143,10 @@ export function ProjectsTable({ projects, statuses }: { projects: Project[]; sta
               return (
                 <tr key={project.id} className="border-t border-slate-200/80 dark:border-slate-800/80 hover:bg-slate-800/30">
                   <td className="px-4 py-3 font-mono font-medium text-cyan-300">{project.code}</td>
-                  <td className="px-4 py-3 text-white">{project.clientName}</td>
+                  <td className="px-4 py-3 text-gray-900 dark:text-white">{project.clientName}</td>
                   <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{project.instrument || '—'}</td>
                   <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{project.panelType}</td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-500 dark:text-slate-400 text-xs">
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">
                     {new Date(project.createdAt).toLocaleDateString('vi-VN')}
                   </td>
                   <td className="px-4 py-3">
@@ -154,7 +154,7 @@ export function ProjectsTable({ projects, statuses }: { projects: Project[]; sta
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300">{project.salesPerson || '—'}</td>
                   <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300">{project.appPerson || '—'}</td>
-                  <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 max-w-[180px]">
+                  <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 max-w-[180px]">
                     {lastLog ? (
                       <div>
                         <span className="text-slate-700 dark:text-slate-300">{lastLog.updatedBy}</span>
@@ -176,7 +176,7 @@ export function ProjectsTable({ projects, statuses }: { projects: Project[]; sta
             })}
             {!filtered.length && (
               <tr>
-                <td colSpan={10} className="px-4 py-10 text-center text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                <td colSpan={10} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
                   {hasFilter ? 'Không có dự án nào khớp với bộ lọc.' : 'Chưa có dự án nào.'}
                 </td>
               </tr>

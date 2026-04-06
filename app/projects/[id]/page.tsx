@@ -17,7 +17,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Back */}
-      <Link href="/projects" className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-cyan-300 transition">
+      <Link href="/projects" className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-cyan-300 transition">
         ← Danh sách dự án
       </Link>
 
@@ -29,8 +29,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <p className="font-mono text-lg font-bold text-cyan-300">{project.code}</p>
               <DeleteProjectButton projectId={project.id} />
             </div>
-            <p className="text-xl font-semibold text-white mt-1">{project.clientName}</p>
-            <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">{project.panelType}{project.instrument ? ` · ${project.instrument}` : ''}</p>
+            <p className="text-xl font-semibold text-gray-900 dark:text-white mt-1">{project.clientName}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{project.panelType}{project.instrument ? ` · ${project.instrument}` : ''}</p>
           </div>
           <span className={statusBadge(project.status)}>{project.status}</span>
         </div>
@@ -63,7 +63,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
       {/* Update form */}
       <section className="glass-panel rounded-2xl p-5">
-        <h3 className="mb-4 text-base font-semibold text-white">Thêm cập nhật mới</h3>
+        <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Thêm cập nhật mới</h3>
         <form action={updateProjectStatus} className="space-y-3">
           <input type="hidden" name="id" value={project.id} />
           <input type="hidden" name="updatedBy" value={user.fullName} />
@@ -93,7 +93,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
       {/* Timeline */}
       <section className="glass-panel rounded-2xl p-5">
-        <h3 className="mb-4 text-base font-semibold text-white">
+        <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
           Lịch sử dự án
           <span className="ml-2 text-xs text-slate-600 dark:text-slate-500 font-normal">({project.projectLogs.length} bản ghi)</span>
         </h3>
@@ -107,7 +107,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 <div className="absolute -left-1.5 h-3 w-3 rounded-full border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800" />
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <span className={statusBadge(log.status)}>{log.status}</span>
-                  <span className="text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {new Date(log.createdAt).toLocaleString('vi-VN', {
                       day: '2-digit', month: '2-digit', year: 'numeric',
                       hour: '2-digit', minute: '2-digit',

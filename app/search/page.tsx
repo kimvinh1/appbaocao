@@ -20,17 +20,17 @@ export default async function SearchPage({
             case 'error_code':
                 return { icon: <AlertTriangle size={16} />, color: 'text-orange-400', label: 'Mã lỗi' };
             default:
-                return { icon: <FileText size={16} />, color: 'text-slate-600 dark:text-slate-500 dark:text-slate-400', label: 'Khác' };
+                return { icon: <FileText size={16} />, color: 'text-slate-500 dark:text-slate-400', label: 'Khác' };
         }
     };
 
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-semibold text-white flex items-center gap-2">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <Search size={22} className="text-cyan-400" /> Kết quả tìm kiếm
                 </h2>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {query ? `Đang tìm kiếm cho từ khóa: "${query}"` : 'Nhập từ khóa vào ô tìm kiếm ở bên trái.'}
                 </p>
             </div>
@@ -38,8 +38,8 @@ export default async function SearchPage({
             {query && results.length === 0 && (
                 <div className="glass-panel p-10 text-center rounded-2xl">
                     <Search size={40} className="mx-auto text-slate-600 mb-4" />
-                    <h3 className="text-lg font-medium text-white">Không tìm thấy kết quả</h3>
-                    <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">Thử lại với từ khóa khác, có thể ngắn hơn hoặc chung chung hơn.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Không tìm thấy kết quả</h3>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">Thử lại với từ khóa khác, có thể ngắn hơn hoặc chung chung hơn.</p>
                 </div>
             )}
 
@@ -64,7 +64,7 @@ export default async function SearchPage({
                                             <h3 className="text-base font-semibold text-cyan-50 group-hover:text-cyan-400 transition-colors">
                                                 {item.title}
                                             </h3>
-                                            <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
                                                 {item.description}
                                             </p>
                                         </div>

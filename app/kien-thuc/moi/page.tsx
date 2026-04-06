@@ -148,7 +148,7 @@ export default function NewArticlePage() {
                         className="input-field text-sm py-1.5 
                             file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0
                             file:text-xs file:font-semibold file:cursor-pointer
-                            file:bg-[var(--accent)] file:text-white
+                            file:bg-[var(--accent)] file:text-gray-900 dark:text-white
                             hover:file:opacity-90"
                     />
                     {imagePreviews.length > 0 && (
@@ -163,7 +163,7 @@ export default function NewArticlePage() {
                                     <button
                                         type="button"
                                         onClick={() => removeImagePreview(i)}
-                                        className="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-white opacity-0 group-hover:opacity-100 transition"
+                                        className="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-gray-900 dark:text-white opacity-0 group-hover:opacity-100 transition"
                                     >
                                         <X size={12} />
                                     </button>

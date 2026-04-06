@@ -94,12 +94,12 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             <div>
                 <Link
                     href={`/kien-thuc/${normalizedModule}`}
-                    className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-white mb-3 transition w-fit"
+                    className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:text-white mb-3 transition w-fit"
                 >
                     <ArrowLeft size={12} /> {cfg.label}
                 </Link>
-                <h1 className="text-3xl font-bold text-white leading-snug">{article.title}</h1>
-                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-snug">{article.title}</h1>
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1"><User size={12} /> {article.author}</span>
                     <span className="flex items-center gap-1">
                         <Calendar size={12} />
@@ -117,7 +117,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 {tags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                         {tags.map((tag) => (
-                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700">
+                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700">
                                 <Tag size={10} /> {tag.trim()}
                             </span>
                         ))}
@@ -175,7 +175,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                 href={`/api/articles/${article.id}/pdf`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-white ring-1 ring-slate-200 dark:ring-slate-700 transition hover:bg-white/10"
+                                className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-gray-900 dark:text-white ring-1 ring-slate-200 dark:ring-slate-700 transition hover:bg-white/10"
                             >
                                 <Download size={15} /> Xuất PDF
                             </a>
@@ -187,7 +187,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                             href={`/api/articles/${article.id}/pdf`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-white ring-1 ring-slate-200 dark:ring-slate-700 transition hover:bg-white/10"
+                            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-gray-900 dark:text-white ring-1 ring-slate-200 dark:ring-slate-700 transition hover:bg-white/10"
                         >
                             <Download size={15} /> Xuất PDF
                         </a>
@@ -198,7 +198,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             {/* ── Đánh giá nội dung ── */}
             <div className="glass-panel rounded-2xl px-6 py-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">Tài liệu này có hữu ích không?</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Tài liệu này có hữu ích không?</p>
                     <FeedbackButtons
                         contentType="article"
                         contentId={article.id}
@@ -237,10 +237,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 <section className="glass-panel rounded-2xl p-6">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
                                 <Share2 size={18} className={cfg.textClass} /> Chia sẻ quy trình cho khách hàng
                             </h2>
-                            <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                 Tạo link riêng cho khách hàng. Khi khách hàng hoàn tất và phản hồi, hệ thống sẽ cộng thống kê hiệu quả.
                             </p>
                         </div>
@@ -276,14 +276,14 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
                     <div className="mt-6 space-y-3">
                         {shares.length === 0 ? (
-                            <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">Chưa có lượt chia sẻ nào cho tài liệu này.</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Chưa có lượt chia sẻ nào cho tài liệu này.</p>
                         ) : (
                             shares.map((share) => (
                                 <div key={share.id} className="rounded-2xl border border-slate-300/60 dark:border-slate-700/60 bg-slate-50/40 dark:bg-slate-950/40 p-4">
                                     <div className="flex flex-wrap items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-white">{share.customerName}</p>
-                                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                                            <p className="font-medium text-gray-900 dark:text-white">{share.customerName}</p>
+                                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                                 {share.customerPhone || 'Không có sđt'} · Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
                                             </p>
                                             <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-500">
@@ -309,7 +309,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                                 </p>
                                             )}
                                             {'customerComment' in share && share.customerComment && (
-                                                <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 italic">
+                                                <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400 italic">
                                                     <MessageSquare size={12} className="mt-0.5 shrink-0" />
                                                     &ldquo;{share.customerComment}&rdquo;
                                                 </p>
@@ -325,7 +325,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                                                 <p className="text-[11px] text-slate-600 dark:text-slate-500">{formatDateTime(event.createdAt)}</p>
                                                             </div>
                                                             {event.comment ? (
-                                                                <p className="mt-1 text-xs italic text-slate-600 dark:text-slate-500 dark:text-slate-400">&ldquo;{event.comment}&rdquo;</p>
+                                                                <p className="mt-1 text-xs italic text-slate-500 dark:text-slate-400">&ldquo;{event.comment}&rdquo;</p>
                                                             ) : null}
                                                         </div>
                                                     ))}
@@ -353,7 +353,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             {/* ── Bài liên quan ── */}
             {relatedArticles.length > 0 && (
                 <section className="space-y-3">
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bài liên quan</h3>
+                    <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bài liên quan</h3>
                     <div className="grid gap-3 sm:grid-cols-3">
                         {relatedArticles.map((rel) => {
                             const relTheme = getModuleTheme(normalizeModuleKey(rel.module));
@@ -366,7 +366,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                     <p className={`text-[10px] font-medium uppercase tracking-wide mb-1 ${relTheme.textClass}`}>
                                         {getArticleCategoryLabel(rel.category)}
                                     </p>
-                                    <p className="text-sm font-medium text-white group-hover:text-cyan-300 transition line-clamp-2 leading-snug">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-cyan-300 transition line-clamp-2 leading-snug">
                                         {rel.title}
                                     </p>
                                     <p className="mt-2 text-xs text-slate-600 dark:text-slate-500">

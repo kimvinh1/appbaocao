@@ -21,7 +21,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
 
       {/* ── Progress Steps ── */}
       <div className="glass-panel rounded-2xl px-4 py-4 sm:px-6">
-        <ol className="flex items-center gap-0 text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400">
+        <ol className="flex items-center gap-0 text-xs text-slate-500 dark:text-slate-400">
           {/* Bước 1 */}
           <li className="flex items-center gap-2 flex-1">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/40">
@@ -65,12 +65,12 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
         <p className={`text-sm font-medium uppercase tracking-[0.22em] ${theme.textClass}`}>
           Quy trình chia sẻ cho khách hàng
         </p>
-        <h1 className="mt-3 text-3xl font-semibold text-white">{share.article.title}</h1>
+        <h1 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-white">{share.article.title}</h1>
         <p className="mt-3 text-sm leading-7 text-slate-300">
-          Khách hàng: <span className="font-medium text-white">{share.customerName}</span>
+          Khách hàng: <span className="font-medium text-gray-900 dark:text-white">{share.customerName}</span>
           {(share as any).customerPhone ? ` · ${(share as any).customerPhone}` : ''}
         </p>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author} · Mảng {theme.label}
         </p>
       </div>
@@ -115,10 +115,10 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
       <section className="glass-panel rounded-2xl p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
               <UserRoundCheck size={18} className={theme.textClass} /> Phản hồi thực hiện
             </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Sau khi làm xong, xác nhận hoàn tất và để lại cảm nhận của bạn.
             </p>
           </div>

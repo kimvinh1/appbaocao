@@ -38,7 +38,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
             {/* User card */}
             <div className="px-4 py-3 border-b border-[var(--border)]">
                 <div className="flex items-center gap-2.5">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-gray-900 dark:text-white text-xs font-bold">
                         {initials}
                     </div>
                     <div className="min-w-0">

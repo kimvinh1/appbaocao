@@ -22,10 +22,10 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className={`text-2xl font-semibold text-white flex items-center gap-2`}>
+                <h2 className={`text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2`}>
                     <AlertTriangle size={22} className={colorClass} /> {title}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">{description}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
             </div>
 
             {/* Add Error Code Form */}
@@ -83,7 +83,7 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
             {/* Error Code List — client component với filter/search */}
             {errorCodes.length === 0 ? (
                 <div className="glass-panel rounded-2xl px-8 py-16 text-center">
-                    <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400">Chưa có mã lỗi nào. Thêm mã lỗi đầu tiên ở form trên.</p>
+                    <p className="text-slate-500 dark:text-slate-400">Chưa có mã lỗi nào. Thêm mã lỗi đầu tiên ở form trên.</p>
                 </div>
             ) : (
                 <ErrorCodeList errorCodes={errorCodes} instruments={instruments} colorClass={colorClass} />

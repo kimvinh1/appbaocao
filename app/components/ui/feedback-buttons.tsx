@@ -116,7 +116,7 @@ export function FeedbackButtons({
             ${
               optimistic.userReaction === 'like'
                 ? 'bg-emerald-500/20 text-emerald-300 ring-emerald-500/40'
-                : 'bg-slate-100/60 dark:bg-slate-800/60 text-slate-600 dark:text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-700 hover:bg-emerald-500/10 hover:text-emerald-300 hover:ring-emerald-500/30'
+                : 'bg-slate-100/60 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-700 hover:bg-emerald-500/10 hover:text-emerald-300 hover:ring-emerald-500/30'
             }`}
         >
           <ThumbsUp size={iconSize} />
@@ -132,7 +132,7 @@ export function FeedbackButtons({
             ${
               optimistic.userReaction === 'dislike'
                 ? 'bg-red-500/20 text-red-300 ring-red-500/40'
-                : 'bg-slate-100/60 dark:bg-slate-800/60 text-slate-600 dark:text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-700 hover:bg-red-500/10 hover:text-red-300 hover:ring-red-500/30'
+                : 'bg-slate-100/60 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-700 hover:bg-red-500/10 hover:text-red-300 hover:ring-red-500/30'
             }`}
         >
           <ThumbsDown size={iconSize} />
@@ -170,7 +170,7 @@ export function FeedbackButtons({
       {showCommentBox && (
         <div className="mt-2 rounded-xl border border-slate-300/60 dark:border-slate-700/60 bg-slate-50/60 dark:bg-slate-950/60 p-3 space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-600 dark:text-slate-500 dark:text-slate-400 font-medium">Góp ý để cải thiện nội dung</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Góp ý để cải thiện nội dung</p>
             <button
               onClick={() => {
                 setShowCommentBox(false);

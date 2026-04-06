@@ -112,7 +112,7 @@ export function DashboardCharts({ projects }: { projects: Project[] }) {
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Chart: Trạng thái */}
       <div className="glass-panel p-5 rounded-2xl flex flex-col h-[400px]">
-        <h3 className="text-white font-semibold mb-6">Tỷ lệ Trạng thái Dự án</h3>
+        <h3 className="text-gray-900 dark:text-white font-semibold mb-6">Tỷ lệ Trạng thái Dự án</h3>
         <div className="flex-1 min-h-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -139,7 +139,7 @@ export function DashboardCharts({ projects }: { projects: Project[] }) {
 
       {/* Chart: Theo tháng */}
       <div className="glass-panel p-5 rounded-2xl flex flex-col h-[400px]">
-        <h3 className="text-white font-semibold mb-6">Sản lượng Dự án theo Tháng</h3>
+        <h3 className="text-gray-900 dark:text-white font-semibold mb-6">Sản lượng Dự án theo Tháng</h3>
         <div className="flex-1 min-h-0">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -155,7 +155,7 @@ export function DashboardCharts({ projects }: { projects: Project[] }) {
 
       {/* Chart: KPI App */}
       <div className="glass-panel p-5 rounded-2xl flex flex-col h-[400px] lg:col-span-2">
-        <h3 className="text-white font-semibold mb-6">Khối lượng công việc theo APP (Dự án Active)</h3>
+        <h3 className="text-gray-900 dark:text-white font-semibold mb-6">Khối lượng công việc theo APP (Dự án Active)</h3>
         <div className="flex-1 min-h-0">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={appData} layout="vertical" margin={{ top: 0, right: 20, left: 60, bottom: 0 }}>
