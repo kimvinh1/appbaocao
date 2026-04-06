@@ -375,7 +375,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                     className="glass-panel rounded-xl p-4 hover:bg-slate-800/60 transition group block"
                                 >
                                     <p className={`text-[10px] font-medium uppercase tracking-wide mb-1 ${relTheme.textClass}`}>
-                                        {CATEGORY_LABEL[rel.category] ?? rel.category}
+                                        {getArticleCategoryLabel(rel.category)}
                                     </p>
                                     <p className="text-sm font-medium text-white group-hover:text-cyan-300 transition line-clamp-2 leading-snug">
                                         {rel.title}
