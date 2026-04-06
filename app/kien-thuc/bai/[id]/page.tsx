@@ -90,33 +90,39 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             {headings.length >= 2 && <ArticleToc headings={headings} />}
 
             {/* ── Header ── */}
-            <div>
+            <div className="space-y-3">
                 <Link
                     href={`/kien-thuc/${normalizedModule}`}
-                    className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-600 hover:text-gray-900 dark:text-white mb-3 transition w-fit"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition w-fit"
                 >
-                    <ArrowLeft size={12} /> {cfg.label}
+                    <ArrowLeft size={14} /> {cfg.label}
                 </Link>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-snug">{article.title}</h1>
-                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-600">
-                    <span className="flex items-center gap-1"><User size={12} /> {article.author}</span>
-                    <span className="flex items-center gap-1">
-                        <Calendar size={12} />
-                        {new Date(article.updatedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">{article.title}</h1>
+
+                {/* Meta bar */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-slate-600 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5 font-medium">
+                        <User size={13} className="text-slate-500" /> {article.author}
                     </span>
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1.5">
+                        <Calendar size={13} /> Cập nhật {new Date(article.updatedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </span>
+                    <span className="flex items-center gap-1.5">
                         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        <Eye size={12} /> {(article as any).viewCount ?? 0} lượt xem
+                        <Eye size={13} /> {(article as any).viewCount ?? 0} lượt xem
                     </span>
-                    <span className={`font-semibold ${cfg.textClass}`}>{cfg.label}</span>
-                    <span className="rounded-full bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 uppercase tracking-wide text-slate-700 dark:text-slate-300">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.bgClass ?? ''} ${cfg.textClass}`}>
+                        {cfg.label}
+                    </span>
+                    <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                         {getArticleCategoryLabel(article.category)}
                     </span>
                 </div>
+
                 {tags.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                         {tags.map((tag) => (
-                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-600 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700">
+                            <span key={tag} className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                                 <Tag size={10} /> {tag.trim()}
                             </span>
                         ))}
@@ -125,7 +131,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* ── Nội dung bài ── */}
-            <div className="glass-panel rounded-2xl p-5 sm:p-6">
+            <div className="glass-panel rounded-2xl overflow-hidden">
                 {isHtml ? (
                     <div className="document-paper">
                         <div

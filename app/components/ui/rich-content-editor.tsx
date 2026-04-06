@@ -26,9 +26,10 @@ const AUTOSAVE_DELAY = 3000; // ms sau lần gõ cuối mới lưu
 const STORAGE_PREFIX = 'tiptap-draft-';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  AlignLeft, AlignCenter, AlignRight,
   List, ListOrdered, Link2, Link2Off, ImagePlus, Undo2, Redo2,
-  Highlighter, Loader2, Quote, Minus,
+  Highlighter, Loader2, Quote, Minus, Code,
+  CheckSquare, Grid3x3,
 } from 'lucide-react';
 
 // ── Custom ResizableImage NodeView ────────────────────────────────────────────
@@ -394,14 +395,24 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
         <TBtn active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Căn trái"><AlignLeft size={13} /></TBtn>
         <TBtn active={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Căn giữa"><AlignCenter size={13} /></TBtn>
         <TBtn active={editor.isActive({ textAlign: 'right' })} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Căn phải"><AlignRight size={13} /></TBtn>
-        <TBtn active={editor.isActive({ textAlign: 'justify' })} onClick={() => editor.chain().focus().setTextAlign('justify').run()} title="Căn đều"><AlignJustify size={13} /></TBtn>
 
         <Sep />
 
-        <TBtn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Danh sách gạch đầu dòng"><List size={13} /></TBtn>
-        <TBtn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Danh sách đánh số"><ListOrdered size={13} /></TBtn>
-        <TBtn active={editor.isActive('taskList')} onClick={() => editor.chain().focus().toggleTaskList().run()} title="Checklist">CV</TBtn>
-        <TBtn active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Trích dẫn"><Quote size={13} /></TBtn>
+        <TBtn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Danh sách (-)">
+          <List size={13} />
+        </TBtn>
+        <TBtn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Danh sách số (Ctrl+9)">
+          <ListOrdered size={13} />
+        </TBtn>
+        <TBtn active={editor.isActive('taskList')} onClick={() => editor.chain().focus().toggleTaskList()} title="Checklist">
+          <CheckSquare size={13} />
+        </TBtn>
+        <TBtn active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Trích dẫn">
+          <Quote size={13} />
+        </TBtn>
+        <TBtn active={editor.isActive('code')} onClick={() => editor.chain().focus().toggleCode().run()} title="Code inline">
+          <Code size={13} />
+        </TBtn>
 
         <Sep />
 
@@ -440,14 +451,20 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
             onChange={(e) => { const files = Array.from(e.target.files ?? []); if (files.length) void handleImageFiles(files); e.target.value = ''; }} />
         </label>
 
-        <TBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Đường kẻ phân cách"><Minus size={13} /></TBtn>
-        <TBtn onClick={() => insertTemplateBlock('note')} title="Chèn khối lưu ý">Lưu ý</TBtn>
-        <TBtn onClick={() => insertTemplateBlock('warning')} title="Chèn khối cảnh báo">Cảnh báo</TBtn>
-        <TBtn onClick={() => insertTemplateBlock('steps')} title="Chèn các bước mẫu">Bước</TBtn>
+        <Sep />
+
+        {/* Template blocks — grouped */}
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 px-1 hidden sm:block">Template:</span>
+        <TBtn onClick={() => insertTemplateBlock('note')} title="Chèn khối 💡 Lưu ý">💡</TBtn>
+        <TBtn onClick={() => insertTemplateBlock('warning')} title="Chèn khối ⚠️ Cảnh báo">⚠️</TBtn>
+        <TBtn onClick={() => insertTemplateBlock('steps')} title="Chèn khối các bước hoàn chỉnh">📋 Bước</TBtn>
 
         <Sep />
 
-        <TBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Chèn bảng">Bảng</TBtn>
+        {/* Table */}
+        <TBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Chèn bảng">
+          <Grid3x3 size={13} />
+        </TBtn>
         {editor.isActive('table') ? (
           <>
             <TBtn onClick={() => editor.chain().focus().addRowAfter().run()} title="Thêm hàng">+H</TBtn>
@@ -455,7 +472,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
             <TBtn onClick={() => editor.chain().focus().deleteTable().run()} title="Xóa bảng">X Bảng</TBtn>
           </>
         ) : null}
-
+        <TBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Đường kẻ ngang"><Minus size={13} /></TBtn>
         <Sep />
 
         <TBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Hoàn tác (Ctrl+Z)"><Undo2 size={13} /></TBtn>

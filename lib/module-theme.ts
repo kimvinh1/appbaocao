@@ -1,28 +1,32 @@
 export const MODULE_THEMES = {
   illumina: {
     label: 'Illumina',
-    textClass: 'text-orange-300',
+    textClass: 'text-orange-600 dark:text-orange-300',
+    bgClass: 'bg-orange-100 dark:bg-orange-500/20',
     badgeClass: 'bg-orange-500/10 border-orange-500/30',
     buttonClass: 'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 ring-orange-400/40',
     focusBorderClass: 'focus:border-orange-400',
   },
   'vi-sinh': {
     label: 'Vi Sinh',
-    textClass: 'text-red-400',
+    textClass: 'text-red-600 dark:text-red-400',
+    bgClass: 'bg-red-100 dark:bg-red-500/20',
     badgeClass: 'bg-red-500/10 border-red-500/30',
     buttonClass: 'bg-red-500/20 text-red-400 hover:bg-red-500/30 ring-red-400/40',
     focusBorderClass: 'focus:border-red-400',
   },
   cepheid: {
     label: 'Cepheid',
-    textClass: 'text-cyan-300',
+    textClass: 'text-cyan-700 dark:text-cyan-300',
+    bgClass: 'bg-cyan-100 dark:bg-cyan-500/20',
     badgeClass: 'bg-cyan-500/10 border-cyan-500/30',
     buttonClass: 'bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 ring-cyan-400/40',
     focusBorderClass: 'focus:border-cyan-400',
   },
   'sinh-hoc-phan-tu': {
     label: 'Cepheid',
-    textClass: 'text-cyan-300',
+    textClass: 'text-cyan-700 dark:text-cyan-300',
+    bgClass: 'bg-cyan-100 dark:bg-cyan-500/20',
     badgeClass: 'bg-cyan-500/10 border-cyan-500/30',
     buttonClass: 'bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 ring-cyan-400/40',
     focusBorderClass: 'focus:border-cyan-400',
@@ -33,7 +37,8 @@ export type ModuleKey = keyof typeof MODULE_THEMES;
 
 const FALLBACK_MODULE_THEME = {
   label: 'Khác',
-  textClass: 'text-slate-300',
+  textClass: 'text-slate-600 dark:text-slate-300',
+  bgClass: 'bg-slate-100 dark:bg-slate-800',
   badgeClass: 'bg-slate-800/50 border-slate-700',
   buttonClass: 'bg-slate-800 text-slate-300 hover:bg-slate-700 ring-slate-600',
   focusBorderClass: 'focus:border-slate-500',
