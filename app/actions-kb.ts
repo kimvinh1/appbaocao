@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { deleteBlobIfManaged, uploadFileToBlob } from '@/lib/blob';
-import { requireUser, getCurrentUser } from '@/lib/auth';
+import { requireKnowledgeEditor, requireUser, getCurrentUser } from '@/lib/auth';
 import { normalizeModuleKey, resolveModuleAliases } from '@/lib/module-theme';
 
 function revalidateKnowledgeBase(module: string, articleId?: string) {
@@ -92,8 +92,18 @@ export async function getArticleById(id: string) {
   });
 }
 
+// Tăng lượt xem (gọi từ client component, không cần auth)
+// Dùng $executeRaw vì Prisma client cần được regenerate sau khi thêm viewCount vào schema
+export async function incrementArticleView(articleId: string) {
+  try {
+    await prisma.$executeRaw`UPDATE "Article" SET "viewCount" = "viewCount" + 1 WHERE "id" = ${articleId}`;
+  } catch {
+    // Bỏ qua lỗi — đếm view là non-critical
+  }
+}
+
 export async function createArticle(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireKnowledgeEditor();
   const module = normalizeModuleKey(formData.get('module') as string);
   const category = (formData.get('category') as string) || 'quy-trinh';
   const title = formData.get('title') as string;
@@ -134,6 +144,7 @@ export async function createArticle(formData: FormData) {
 }
 
 export async function updateArticle(formData: FormData) {
+  await requireKnowledgeEditor();
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
@@ -186,6 +197,7 @@ export async function updateArticle(formData: FormData) {
 }
 
 export async function deleteArticleImage(formData: FormData) {
+  await requireKnowledgeEditor();
   const imageId = formData.get('imageId') as string;
   if (!imageId) throw new Error('Missing image ID');
 
@@ -203,6 +215,7 @@ export async function deleteArticleImage(formData: FormData) {
 }
 
 export async function deleteArticle(formData: FormData) {
+  await requireKnowledgeEditor();
   const id = formData.get('id') as string;
   if (!id) throw new Error('Missing article ID');
 
@@ -390,14 +403,21 @@ export async function getProcedureSharesByArticle(articleId: string) {
         },
       },
       reactions: true,
+      feedbackEvents: {
+        orderBy: { createdAt: 'desc' },
+      },
     },
     orderBy: [{ sharedAt: 'desc' }],
   });
 
   return shares.map((share) => ({
     ...share,
-    likeCount: share.reactions.filter((reaction) => reaction.reactionType === 'like').length,
-    heartCount: share.reactions.filter((reaction) => reaction.reactionType === 'heart').length,
+    likeCount:
+      share.reactions.filter((reaction) => reaction.reactionType === 'like').length +
+      share.feedbackEvents.filter((event) => event.eventType === 'like').length,
+    heartCount:
+      share.reactions.filter((reaction) => reaction.reactionType === 'heart').length +
+      share.feedbackEvents.filter((event) => event.eventType === 'heart').length,
   }));
 }
 
@@ -411,6 +431,9 @@ export async function getProcedureShareByToken(token: string) {
         },
       },
       reactions: true,
+      feedbackEvents: {
+        orderBy: { createdAt: 'desc' },
+      },
       sharedBy: {
         select: {
           fullName: true,
@@ -424,19 +447,27 @@ export async function getProcedureShareByToken(token: string) {
     return null;
   }
 
+  if (share.status === 'revoked' || share.revokedAt) {
+    return null;
+  }
+
   return {
     ...share,
     article: {
       ...share.article,
       module: normalizeModuleKey(share.article.module),
     },
-    likeCount: share.reactions.filter((reaction) => reaction.reactionType === 'like').length,
-    heartCount: share.reactions.filter((reaction) => reaction.reactionType === 'heart').length,
+    likeCount:
+      share.reactions.filter((reaction) => reaction.reactionType === 'like').length +
+      share.feedbackEvents.filter((event) => event.eventType === 'like').length,
+    heartCount:
+      share.reactions.filter((reaction) => reaction.reactionType === 'heart').length +
+      share.feedbackEvents.filter((event) => event.eventType === 'heart').length,
   };
 }
 
 export async function createProcedureShare(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireKnowledgeEditor();
   const articleId = formData.get('articleId') as string;
   const customerName = formData.get('customerName') as string;
   const customerEmail = formData.get('customerEmail') as string;
@@ -469,20 +500,36 @@ export async function markProcedureShareCompleted(formData: FormData) {
 
   const existingShare = await prisma.procedureShare.findUnique({
     where: { token },
-    select: { id: true, articleId: true, completedAt: true },
+    select: { id: true, articleId: true, completedAt: true, status: true, revokedAt: true },
   });
 
   if (!existingShare) {
     throw new Error('Không tìm thấy quy trình đã chia sẻ');
   }
 
-  await prisma.procedureShare.update({
-    where: { token },
-    data: {
-      status: 'completed',
-      completedAt: existingShare.completedAt ?? new Date(),
-      customerComment: customerComment ?? undefined,
-    },
+  if (existingShare.status === 'revoked' || existingShare.revokedAt) {
+    throw new Error('Link chia sẻ này đã bị thu hồi');
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.procedureShare.update({
+      where: { token },
+      data: {
+        status: 'completed',
+        completedAt: existingShare.completedAt ?? new Date(),
+        customerComment: customerComment ?? undefined,
+      },
+    });
+
+    if (!existingShare.completedAt) {
+      await tx.procedureShareFeedback.create({
+        data: {
+          shareId: existingShare.id,
+          eventType: 'completed',
+          comment: customerComment || null,
+        },
+      });
+    }
   });
 
   revalidatePath(`/chia-se/${token}`);
@@ -490,15 +537,33 @@ export async function markProcedureShareCompleted(formData: FormData) {
 }
 
 export async function deleteProcedureShare(formData: FormData) {
-  await requireUser();
+  await requireKnowledgeEditor();
   const shareId = formData.get('shareId') as string;
   const articleId = formData.get('articleId') as string;
 
   if (!shareId) throw new Error('Thiếu ID chia sẻ');
 
-  await prisma.procedureShare.delete({ where: { id: shareId } });
+  const existingShare = await prisma.procedureShare.findUnique({
+    where: { id: shareId },
+    select: { token: true, articleId: true, status: true },
+  });
 
-  revalidatePath(`/kien-thuc/bai/${articleId}`);
+  if (!existingShare) {
+    throw new Error('Không tìm thấy link chia sẻ');
+  }
+
+  if (existingShare.status !== 'revoked') {
+    await prisma.procedureShare.update({
+      where: { id: shareId },
+      data: {
+        status: 'revoked',
+        revokedAt: new Date(),
+      },
+    });
+  }
+
+  revalidatePath(`/kien-thuc/bai/${articleId || existingShare.articleId}`);
+  revalidatePath(`/chia-se/${existingShare.token}`);
 }
 
 export async function reactToProcedureShare(formData: FormData) {
@@ -511,17 +576,21 @@ export async function reactToProcedureShare(formData: FormData) {
 
   const share = await prisma.procedureShare.findUnique({
     where: { token },
-    select: { id: true, articleId: true },
+    select: { id: true, articleId: true, status: true, revokedAt: true },
   });
 
   if (!share) {
     throw new Error('Không tìm thấy quy trình đã chia sẻ');
   }
 
-  await prisma.procedureReaction.create({
+  if (share.status === 'revoked' || share.revokedAt) {
+    throw new Error('Link chia sẻ này đã bị thu hồi');
+  }
+
+  await prisma.procedureShareFeedback.create({
     data: {
       shareId: share.id,
-      reactionType,
+      eventType: reactionType,
     },
   });
 
@@ -663,4 +732,47 @@ export async function submitContentFeedback(formData: FormData): Promise<void> {
     revalidatePath('/sinh-hoc-phan-tu/ma-loi');
     revalidatePath('/cepheid/ma-loi');
   }
+}
+
+// ─── Feedback comments cho tác giả xem ─────────────────────────────────────
+
+export async function getArticleDislikeComments(articleId: string) {
+  const rows = await db.contentFeedback.findMany({
+    where: {
+      contentType: 'article',
+      contentId: articleId,
+      reaction: 'dislike',
+      comment: { not: null },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+    select: { comment: true, createdAt: true },
+  });
+  return rows as Array<{ comment: string; createdAt: Date }>;
+}
+
+// ─── Bài liên quan ──────────────────────────────────────────────────────────
+
+export async function getRelatedArticles(module: string, category: string, excludeId: string, limit = 3) {
+  // Ưu tiên cùng module + cùng category
+  const bySameCategory = await prisma.article.findMany({
+    where: { module, category, id: { not: excludeId } },
+    orderBy: { updatedAt: 'desc' },
+    take: limit,
+    select: { id: true, title: true, category: true, author: true, updatedAt: true, module: true },
+  });
+
+  if (bySameCategory.length >= limit) return bySameCategory;
+
+  // Bù vào bằng cùng module, category khác
+  const remaining = limit - bySameCategory.length;
+  const excludeIds = [excludeId, ...bySameCategory.map((a) => a.id)];
+  const byModule = await prisma.article.findMany({
+    where: { module, id: { notIn: excludeIds } },
+    orderBy: { updatedAt: 'desc' },
+    take: remaining,
+    select: { id: true, title: true, category: true, author: true, updatedAt: true, module: true },
+  });
+
+  return [...bySameCategory, ...byModule];
 }

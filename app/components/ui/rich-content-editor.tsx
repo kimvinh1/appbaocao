@@ -10,6 +10,9 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useRef, useCallback, useState, useEffect } from 'react';
+
+const AUTOSAVE_DELAY = 3000; // ms sau lần gõ cuối mới lưu
+const STORAGE_PREFIX = 'tiptap-draft-';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -97,15 +100,21 @@ interface RichContentEditorProps {
   defaultValue?: string;
   className?: string;
   rows?: number;
+  storageKey?: string; // key cho localStorage autosave (e.g. "new-article", "edit-abc123")
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export function RichContentEditor({ name, defaultValue, rows = 18 }: RichContentEditorProps) {
+export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }: RichContentEditorProps) {
   const hiddenRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
+
+  // ── Autosave state ────────────────────────────────────────────────────────
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [draftBanner, setDraftBanner] = useState<{ html: string; savedAt: Date } | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -120,7 +129,22 @@ export function RichContentEditor({ name, defaultValue, rows = 18 }: RichContent
     content: defaultValue || '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      if (hiddenRef.current) hiddenRef.current.value = editor.getHTML();
+      const html = editor.getHTML();
+      if (hiddenRef.current) hiddenRef.current.value = html;
+
+      // ── Autosave vào localStorage (debounced 3s) ──────────────────────────
+      if (storageKey) {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+          try {
+            localStorage.setItem(
+              STORAGE_PREFIX + storageKey,
+              JSON.stringify({ html, savedAt: new Date().toISOString() }),
+            );
+            setSavedAt(new Date());
+          } catch { /* localStorage không khả dụng */ }
+        }, AUTOSAVE_DELAY);
+      }
     },
     editorProps: {
       attributes: { class: 'tiptap-prose focus:outline-none' },
@@ -148,6 +172,32 @@ export function RichContentEditor({ name, defaultValue, rows = 18 }: RichContent
   useEffect(() => {
     if (hiddenRef.current && editor) hiddenRef.current.value = editor.getHTML();
   }, [editor]);
+
+  // ── Khôi phục bản nháp từ localStorage khi mount ─────────────────────────
+  useEffect(() => {
+    if (!editor || !storageKey) return;
+    try {
+      const raw = localStorage.getItem(STORAGE_PREFIX + storageKey);
+      if (!raw) return;
+      const data = JSON.parse(raw) as { html: string; savedAt: string };
+      const hasContent = defaultValue && defaultValue.trim().length > 10;
+      if (!hasContent) {
+        // Bài mới: restore thầm lặng
+        editor.commands.setContent(data.html);
+        if (hiddenRef.current) hiddenRef.current.value = data.html;
+        setSavedAt(new Date(data.savedAt));
+      } else {
+        // Bài đang edit: hỏi user trước
+        setDraftBanner({ html: data.html, savedAt: new Date(data.savedAt) });
+      }
+    } catch { /* bỏ qua data lỗi */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, storageKey]);
+
+  // ── Cleanup timer khi unmount ─────────────────────────────────────────────
+  useEffect(() => {
+    return () => clearTimeout(saveTimerRef.current);
+  }, []);
 
   // ── Upload ────────────────────────────────────────────────────────────────
 
@@ -178,6 +228,22 @@ export function RichContentEditor({ name, defaultValue, rows = 18 }: RichContent
     }
     setUploading(false);
   }, [editor, uploadFile]);
+
+  // ── Draft banner callbacks ─────────────────────────────────────────────────
+  const restoreDraft = useCallback(() => {
+    if (!editor || !draftBanner) return;
+    editor.commands.setContent(draftBanner.html);
+    if (hiddenRef.current) hiddenRef.current.value = draftBanner.html;
+    setSavedAt(draftBanner.savedAt);
+    setDraftBanner(null);
+  }, [editor, draftBanner]);
+
+  const discardDraft = useCallback(() => {
+    if (!storageKey) return;
+    try { localStorage.removeItem(STORAGE_PREFIX + storageKey); } catch { /* ignore */ }
+    setDraftBanner(null);
+    setSavedAt(null);
+  }, [storageKey]);
 
   const applyLink = useCallback(() => {
     if (!editor) return;
@@ -312,10 +378,40 @@ export function RichContentEditor({ name, defaultValue, rows = 18 }: RichContent
         <TBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Hoàn tác (Ctrl+Z)"><Undo2 size={13} /></TBtn>
         <TBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại (Ctrl+Y)"><Redo2 size={13} /></TBtn>
 
-        <span className="ml-auto hidden sm:block text-[10px] text-slate-400 dark:text-slate-500 pr-1 shrink-0">
-          Ctrl+V ảnh · Kéo thả ảnh vào
+        <span className="ml-auto hidden sm:flex items-center gap-2 pr-1 shrink-0">
+          {storageKey && savedAt ? (
+            <span className="text-[10px] text-emerald-500 dark:text-emerald-400 flex items-center gap-1">
+              ✓ Đã lưu lúc {savedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          ) : (
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">Ctrl+V ảnh · Kéo thả ảnh vào</span>
+          )}
         </span>
       </div>
+
+      {/* ── Banner khôi phục bản nháp (chỉ hiện khi edit bài đã có content) ── */}
+      {draftBanner && (
+        <div className="flex items-center gap-3 border-b border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs">
+          <span className="text-amber-300">
+            Có bản nháp chưa lưu từ{' '}
+            {draftBanner.savedAt.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+          </span>
+          <button
+            type="button"
+            onClick={restoreDraft}
+            className="rounded bg-amber-500 px-2 py-0.5 text-white hover:bg-amber-400 transition"
+          >
+            Khôi phục
+          </button>
+          <button
+            type="button"
+            onClick={discardDraft}
+            className="rounded bg-slate-700 px-2 py-0.5 text-slate-300 hover:bg-slate-600 transition"
+          >
+            Bỏ qua
+          </button>
+        </div>
+      )}
 
       {/* ── Editor area ── */}
       <EditorContent editor={editor} className="tiptap-content-area" style={{ minHeight }} />

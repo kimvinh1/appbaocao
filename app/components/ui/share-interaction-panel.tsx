@@ -26,6 +26,7 @@ export function ShareInteractionPanel({
   const [heartCount, setHeartCount] = useState(initialHeartCount);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handleComplete() {
@@ -33,9 +34,14 @@ export function ShareInteractionPanel({
     fd.set('token', token);
     fd.set('customerComment', comment);
     startTransition(async () => {
-      await markProcedureShareCompleted(fd);
-      setStatus('completed');
-      setSubmitted(true);
+      try {
+        setError(null);
+        await markProcedureShareCompleted(fd);
+        setStatus('completed');
+        setSubmitted(true);
+      } catch {
+        setError('Không thể ghi nhận phản hồi. Link có thể đã bị thu hồi.');
+      }
     });
   }
 
@@ -44,15 +50,25 @@ export function ShareInteractionPanel({
     fd.set('token', token);
     fd.set('reactionType', reactionType);
     startTransition(async () => {
-      await reactToProcedureShare(fd);
-      if (reactionType === 'like') setLikeCount((c) => c + 1);
-      else setHeartCount((c) => c + 1);
+      try {
+        setError(null);
+        await reactToProcedureShare(fd);
+        if (reactionType === 'like') setLikeCount((c) => c + 1);
+        else setHeartCount((c) => c + 1);
+      } catch {
+        setError('Không thể ghi nhận đánh giá. Link có thể đã bị thu hồi.');
+      }
     });
   }
 
   if (submitted || status === 'completed') {
     return (
       <div className="space-y-4">
+        {error ? (
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {error}
+          </div>
+        ) : null}
         <div className="flex items-center gap-3 rounded-xl bg-emerald-500/15 px-4 py-3 text-emerald-300 ring-1 ring-emerald-400/25">
           <CheckCircle2 size={20} className="shrink-0" />
           <p className="text-sm font-medium">Cảm ơn bạn đã xác nhận hoàn tất! Đội kỹ thuật đã ghi nhận.</p>
@@ -79,6 +95,11 @@ export function ShareInteractionPanel({
 
   return (
     <div className="space-y-4">
+      {error ? (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {error}
+        </div>
+      ) : null}
       <div>
         <label className="text-sm text-slate-300 block mb-1.5">
           Nhận xét của bạn <span className="text-slate-500">(không bắt buộc)</span>

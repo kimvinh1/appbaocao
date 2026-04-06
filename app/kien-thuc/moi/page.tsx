@@ -42,6 +42,8 @@ export default function NewArticlePage() {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         await createArticle(formData);
+        // Xóa bản nháp autosave sau khi lưu thành công
+        try { localStorage.removeItem('tiptap-draft-new-article'); } catch { /* ignore */ }
         formRef.current?.reset();
         setImagePreviews([]);
         window.location.href = '/kien-thuc';
@@ -170,7 +172,7 @@ export default function NewArticlePage() {
                 {/* Rich text content */}
                 <div>
                     <label className="form-label">Nội Dung</label>
-                    <RichContentEditor name="content" rows={18} />
+                    <RichContentEditor name="content" rows={18} storageKey="new-article" />
                 </div>
 
                 {/* Submit */}

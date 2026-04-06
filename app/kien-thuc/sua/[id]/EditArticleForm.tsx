@@ -36,12 +36,15 @@ const ARTICLE_CATEGORIES = [
 export function EditArticleForm({ article, moduleTheme }: { article: ArticleData; moduleTheme: ModuleTheme }) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const storageKey = `edit-${article.id}`;
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         startTransition(async () => {
             await updateArticle(formData);
+            // Xóa bản nháp autosave sau khi lưu thành công
+            try { localStorage.removeItem(`tiptap-draft-${storageKey}`); } catch { /* ignore */ }
             router.push(`/kien-thuc/bai/${article.id}`);
         });
     }
@@ -98,7 +101,7 @@ export function EditArticleForm({ article, moduleTheme }: { article: ArticleData
             <div className="block text-sm text-slate-300">
                 Nội Dung
                 <div className="mt-1">
-                    <RichContentEditor name="content" defaultValue={article.content} rows={16} />
+                    <RichContentEditor name="content" defaultValue={article.content} rows={16} storageKey={storageKey} />
                 </div>
             </div>
 

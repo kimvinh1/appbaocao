@@ -1,10 +1,60 @@
-import { createProcedureShare, deleteProcedureShare, getArticleById, getContentFeedback, getProcedureSharesByArticle } from '@/app/actions-kb';
+import {
+    createProcedureShare,
+    deleteProcedureShare,
+    getArticleById,
+    getArticleDislikeComments,
+    getContentFeedback,
+    getProcedureSharesByArticle,
+    getRelatedArticles,
+} from '@/app/actions-kb';
 import { getCurrentUser } from '@/lib/auth';
-import { ArrowLeft, Calendar, Download, Heart, MessageSquare, Share2, Tag, ThumbsUp, Trash2, User } from 'lucide-react';
+import {
+    ArrowLeft, Calendar, Clock, Download, Eye, Heart,
+    MessageSquare, Share2, Tag, ThumbsDown, ThumbsUp, Trash2, User,
+} from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getModuleTheme, normalizeModuleKey } from '@/lib/module-theme';
 import { FeedbackButtons } from '@/app/components/ui/feedback-buttons';
+import { ViewTracker } from '@/app/components/ui/view-tracker';
+import { CopyLinkButton } from '@/app/components/ui/copy-link-button';
+import { ArticleToc } from '@/app/components/ui/article-toc';
+import { extractTocAndAddIds } from '@/lib/html-toc';
+
+const CATEGORY_LABEL: Record<string, string> = {
+    'quy-trinh': 'Quy trình / SOP',
+    'huong-dan': 'Hướng dẫn sử dụng',
+    'troubleshooting': 'Xử lý sự cố',
+    'faq': 'FAQ',
+};
+
+const SHARE_STATUS_META: Record<string, string> = {
+    pending: 'bg-slate-800 text-slate-300',
+    completed: 'bg-emerald-500/15 text-emerald-300',
+    revoked: 'bg-red-500/15 text-red-300',
+};
+
+const SHARE_STATUS_LABEL: Record<string, string> = {
+    pending: 'Chưa hoàn tất',
+    completed: 'Đã hoàn tất',
+    revoked: 'Đã thu hồi',
+};
+
+const SHARE_EVENT_LABEL: Record<string, string> = {
+    completed: 'Xác nhận hoàn tất',
+    like: 'Đánh giá hữu ích',
+    heart: 'Đánh giá rất hiệu quả',
+};
+
+function formatDateTime(value: Date | string) {
+    return new Date(value).toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
 
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -12,16 +62,39 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
     if (!article) notFound();
 
     const normalizedModule = normalizeModuleKey(article.module);
-    const [currentUser, shares, feedback] = await Promise.all([
+
+    const [currentUser, shares, feedback, dislikeComments, relatedArticles] = await Promise.all([
         getCurrentUser(),
         getProcedureSharesByArticle(article.id),
         getContentFeedback('article', id),
+        getCurrentUser().then((u) =>
+            u && (u.fullName === article.author || u.role === 'admin')
+                ? getArticleDislikeComments(article.id)
+                : Promise.resolve([])
+        ),
+        getRelatedArticles(article.module, article.category, article.id, 3),
     ]);
+
     const cfg = getModuleTheme(normalizedModule);
     const tags = article.tags ? article.tags.split(',').filter(Boolean) : [];
 
+    // Parse TOC từ rich-text content
+    const isHtml = /^[\s]*<[a-zA-Z]/.test(article.content);
+    const { enrichedHtml, headings } = isHtml
+        ? extractTocAndAddIds(article.content)
+        : { enrichedHtml: article.content, headings: [] };
+
+    const isAuthorOrAdmin = currentUser && (currentUser.fullName === article.author || currentUser.role === 'admin');
+
     return (
         <div className="mx-auto max-w-5xl space-y-6">
+            {/* Tăng view count khi user thật sự mở trang */}
+            <ViewTracker articleId={article.id} />
+
+            {/* ── TOC sidebar (desktop) + collapsible (mobile) ── */}
+            {headings.length >= 2 && <ArticleToc headings={headings} />}
+
+            {/* ── Header ── */}
             <div>
                 <Link
                     href={`/kien-thuc/${normalizedModule}`}
@@ -33,11 +106,16 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
                     <span className="flex items-center gap-1"><User size={12} /> {article.author}</span>
                     <span className="flex items-center gap-1">
-                        <Calendar size={12} /> {new Date(article.updatedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        <Calendar size={12} />
+                        {new Date(article.updatedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </span>
+                    <span className="flex items-center gap-1">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        <Eye size={12} /> {(article as any).viewCount ?? 0} lượt xem
                     </span>
                     <span className={`font-semibold ${cfg.textClass}`}>{cfg.label}</span>
                     <span className="rounded-full bg-slate-800/80 px-2 py-0.5 uppercase tracking-wide text-slate-300">
-                        {article.category === 'quy-trinh' ? 'Quy trình / SOP' : article.category === 'huong-dan' ? 'Hướng dẫn sử dụng' : article.category === 'troubleshooting' ? 'Xử lý sự cố' : 'FAQ'}
+                        {CATEGORY_LABEL[article.category] ?? article.category}
                     </span>
                 </div>
                 {tags.length > 0 && (
@@ -51,12 +129,12 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 )}
             </div>
 
+            {/* ── Nội dung bài ── */}
             <div className="glass-panel rounded-2xl p-6">
-                {/* Render HTML (rich-text) or plain text depending on content format */}
-                {/^[\s]*<[a-zA-Z]/.test(article.content) ? (
+                {isHtml ? (
                     <div
                         className="rich-content text-slate-200"
-                        dangerouslySetInnerHTML={{ __html: article.content }}
+                        dangerouslySetInnerHTML={{ __html: enrichedHtml }}
                     />
                 ) : (
                     <div className="space-y-4">
@@ -135,7 +213,29 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 </div>
             </div>
 
-            {currentUser ? (
+            {/* ── Feedback comments cho tác giả / admin ── */}
+            {isAuthorOrAdmin && dislikeComments.length > 0 && (
+                <div className="glass-panel rounded-2xl px-6 py-4 space-y-3">
+                    <p className="flex items-center gap-2 text-sm font-medium text-red-300">
+                        <ThumbsDown size={14} /> Góp ý cần cải thiện ({dislikeComments.length})
+                        <span className="text-xs text-slate-500 font-normal">(chỉ tác giả thấy)</span>
+                    </p>
+                    <div className="space-y-2">
+                        {dislikeComments.map((c, i) => (
+                            <div key={i} className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+                                <p className="text-sm text-slate-300 italic">&ldquo;{c.comment}&rdquo;</p>
+                                <p className="mt-1 flex items-center gap-1 text-[10px] text-slate-500">
+                                    <Clock size={10} />
+                                    {new Date(c.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* ── Chia sẻ quy trình ── */}
+            {currentUser && (
                 <section className="glass-panel rounded-2xl p-6">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -188,42 +288,74 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                             <p className="mt-1 text-xs text-slate-400">
                                                 {share.customerEmail || 'Không có email'} · Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
                                             </p>
-                                            <a
-                                                href={`/chia-se/${share.token}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="mt-2 inline-flex text-sm text-cyan-300 hover:underline"
-                                            >
-                                                Mở link chia sẻ
-                                            </a>
+                                            <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
+                                                <Clock size={11} />
+                                                Tạo lúc {formatDateTime(share.sharedAt)}
+                                                {share.revokedAt ? ` · Thu hồi lúc ${formatDateTime(share.revokedAt)}` : ''}
+                                            </p>
+                                            {share.status !== 'revoked' ? (
+                                                <div className="mt-2 flex items-center gap-3">
+                                                    <a
+                                                        href={`/chia-se/${share.token}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-cyan-300 hover:underline"
+                                                    >
+                                                        Mở link chia sẻ
+                                                    </a>
+                                                    <CopyLinkButton url={`/chia-se/${share.token}`} />
+                                                </div>
+                                            ) : (
+                                                <p className="mt-2 text-sm text-slate-500">
+                                                    Link này đã bị thu hồi và không còn truy cập công khai.
+                                                </p>
+                                            )}
                                             {'customerComment' in share && share.customerComment && (
                                                 <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-400 italic">
                                                     <MessageSquare size={12} className="mt-0.5 shrink-0" />
                                                     &ldquo;{share.customerComment}&rdquo;
                                                 </p>
                                             )}
+                                            {share.feedbackEvents.length > 0 && (
+                                                <div className="mt-3 space-y-2 border-t border-slate-800/80 pt-3">
+                                                    {share.feedbackEvents.map((event) => (
+                                                        <div key={event.id} className="rounded-xl border border-slate-800/80 bg-slate-950/50 px-3 py-2">
+                                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                                <p className="text-xs font-medium text-slate-200">
+                                                                    {SHARE_EVENT_LABEL[event.eventType] ?? event.eventType}
+                                                                </p>
+                                                                <p className="text-[11px] text-slate-500">{formatDateTime(event.createdAt)}</p>
+                                                            </div>
+                                                            {event.comment ? (
+                                                                <p className="mt-1 text-xs italic text-slate-400">&ldquo;{event.comment}&rdquo;</p>
+                                                            ) : null}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
-                                            <span className={`rounded-full px-2 py-1 ${share.status === 'completed' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-800'}`}>
-                                                {share.status === 'completed' ? 'Đã hoàn tất' : 'Chưa hoàn tất'}
+                                            <span className={`rounded-full px-2 py-1 ${SHARE_STATUS_META[share.status] ?? 'bg-slate-800 text-slate-300'}`}>
+                                                {SHARE_STATUS_LABEL[share.status] ?? share.status}
                                             </span>
                                             <span className="inline-flex items-center gap-1"><ThumbsUp size={12} /> {share.likeCount}</span>
                                             <span className="inline-flex items-center gap-1"><Heart size={12} /> {share.heartCount}</span>
-                                            {/* Nút xóa/thu hồi link */}
-                                            <form action={deleteProcedureShare}>
-                                                <input type="hidden" name="shareId" value={share.id} />
-                                                <input type="hidden" name="articleId" value={article.id} />
-                                                <button
-                                                    type="submit"
-                                                    title="Thu hồi link chia sẻ"
-                                                    className="rounded-lg bg-red-500/10 p-1.5 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500/20 transition"
-                                                    onClick={(e) => {
-                                                        if (!confirm('Thu hồi link chia sẻ này? Khách hàng sẽ không truy cập được nữa.')) e.preventDefault();
-                                                    }}
-                                                >
-                                                    <Trash2 size={13} />
-                                                </button>
-                                            </form>
+                                            {share.status !== 'revoked' ? (
+                                                <form action={deleteProcedureShare}>
+                                                    <input type="hidden" name="shareId" value={share.id} />
+                                                    <input type="hidden" name="articleId" value={article.id} />
+                                                    <button
+                                                        type="submit"
+                                                        title="Thu hồi link chia sẻ"
+                                                        className="rounded-lg bg-red-500/10 p-1.5 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500/20 transition"
+                                                        onClick={(e) => {
+                                                            if (!confirm('Thu hồi link chia sẻ này? Khách hàng sẽ không truy cập được nữa.')) e.preventDefault();
+                                                        }}
+                                                    >
+                                                        <Trash2 size={13} />
+                                                    </button>
+                                                </form>
+                                            ) : null}
                                         </div>
                                     </div>
                                 </div>
@@ -231,8 +363,38 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                         )}
                     </div>
                 </section>
-            ) : null}
+            )}
 
+            {/* ── Bài liên quan ── */}
+            {relatedArticles.length > 0 && (
+                <section className="space-y-3">
+                    <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Bài liên quan</h3>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        {relatedArticles.map((rel) => {
+                            const relTheme = getModuleTheme(normalizeModuleKey(rel.module));
+                            return (
+                                <Link
+                                    key={rel.id}
+                                    href={`/kien-thuc/bai/${rel.id}`}
+                                    className="glass-panel rounded-xl p-4 hover:bg-slate-800/60 transition group block"
+                                >
+                                    <p className={`text-[10px] font-medium uppercase tracking-wide mb-1 ${relTheme.textClass}`}>
+                                        {CATEGORY_LABEL[rel.category] ?? rel.category}
+                                    </p>
+                                    <p className="text-sm font-medium text-white group-hover:text-cyan-300 transition line-clamp-2 leading-snug">
+                                        {rel.title}
+                                    </p>
+                                    <p className="mt-2 text-xs text-slate-500">
+                                        {rel.author} · {new Date(rel.updatedAt).toLocaleDateString('vi-VN')}
+                                    </p>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
+            {/* ── Actions ── */}
             <div className="flex justify-end">
                 <Link
                     href={`/kien-thuc/sua/${article.id}`}

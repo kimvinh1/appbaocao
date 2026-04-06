@@ -18,6 +18,10 @@ export async function GET(
     return NextResponse.json({ error: 'Share not found' }, { status: 404 });
   }
 
+  if (share.status === 'revoked' || share.revokedAt) {
+    return NextResponse.json({ error: 'Share revoked' }, { status: 410 });
+  }
+
   const pdf = await buildArticlePdf(share.article);
 
   return new NextResponse(Buffer.from(pdf.bytes), {

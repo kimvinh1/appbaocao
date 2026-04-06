@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS "Article" (
   "tags" TEXT NOT NULL,
   "author" TEXT NOT NULL,
   "attachmentUrl" TEXT,
+  "viewCount" INTEGER NOT NULL DEFAULT 0,
   "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -126,6 +127,8 @@ CREATE TABLE IF NOT EXISTS "ProcedureShare" (
   "status" TEXT NOT NULL DEFAULT 'pending',
   "sharedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "completedAt" DATETIME,
+  "revokedAt" DATETIME,
+  "customerComment" TEXT,
   "articleId" TEXT NOT NULL,
   "sharedById" TEXT,
   FOREIGN KEY ("articleId") REFERENCES "Article"("id") ON DELETE CASCADE,
@@ -145,6 +148,17 @@ CREATE TABLE IF NOT EXISTS "ProcedureReaction" (
 );
 CREATE INDEX IF NOT EXISTS "ProcedureReaction_shareId_idx" ON "ProcedureReaction"("shareId");
 CREATE INDEX IF NOT EXISTS "ProcedureReaction_reactionType_idx" ON "ProcedureReaction"("reactionType");
+
+CREATE TABLE IF NOT EXISTS "ProcedureShareFeedback" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "eventType" TEXT NOT NULL,
+  "comment" TEXT,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "shareId" TEXT NOT NULL,
+  FOREIGN KEY ("shareId") REFERENCES "ProcedureShare"("id") ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS "ProcedureShareFeedback_shareId_createdAt_idx" ON "ProcedureShareFeedback"("shareId", "createdAt");
+CREATE INDEX IF NOT EXISTS "ProcedureShareFeedback_eventType_idx" ON "ProcedureShareFeedback"("eventType");
 
 -- Kiểm tra bảng đã tạo
 SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;

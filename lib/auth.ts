@@ -80,6 +80,16 @@ export async function requireAdmin() {
   return user;
 }
 
+export async function requireKnowledgeEditor() {
+  const user = await requireUser();
+
+  if (!['admin', 'user', 'app'].includes(user.role)) {
+    redirect('/');
+  }
+
+  return user;
+}
+
 export async function createSession(userId: string) {
   const token = randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);

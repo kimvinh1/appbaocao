@@ -49,6 +49,7 @@ const SQL_STATEMENTS = [
     "tags" TEXT NOT NULL,
     "author" TEXT NOT NULL,
     "attachmentUrl" TEXT,
+    "viewCount" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
   )`,
@@ -135,6 +136,8 @@ const SQL_STATEMENTS = [
     "status" TEXT NOT NULL DEFAULT 'pending',
     "sharedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completedAt" DATETIME,
+    "revokedAt" DATETIME,
+    "customerComment" TEXT,
     "articleId" TEXT NOT NULL,
     "sharedById" TEXT,
     CONSTRAINT "ProcedureShare_articleId_fkey" FOREIGN KEY ("articleId") REFERENCES "Article"("id") ON DELETE CASCADE ON UPDATE CASCADE,
@@ -154,6 +157,17 @@ const SQL_STATEMENTS = [
   )`,
   `CREATE INDEX IF NOT EXISTS "ProcedureReaction_shareId_idx" ON "ProcedureReaction"("shareId")`,
   `CREATE INDEX IF NOT EXISTS "ProcedureReaction_reactionType_idx" ON "ProcedureReaction"("reactionType")`,
+
+  `CREATE TABLE IF NOT EXISTS "ProcedureShareFeedback" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "eventType" TEXT NOT NULL,
+    "comment" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "shareId" TEXT NOT NULL,
+    CONSTRAINT "ProcedureShareFeedback_shareId_fkey" FOREIGN KEY ("shareId") REFERENCES "ProcedureShare"("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE INDEX IF NOT EXISTS "ProcedureShareFeedback_shareId_createdAt_idx" ON "ProcedureShareFeedback"("shareId", "createdAt")`,
+  `CREATE INDEX IF NOT EXISTS "ProcedureShareFeedback_eventType_idx" ON "ProcedureShareFeedback"("eventType")`,
 ];
 
 async function main() {

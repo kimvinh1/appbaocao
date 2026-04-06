@@ -1,14 +1,8 @@
-import { getSupportCases, createSupportCase, updateCaseStatus } from '@/app/actions-kb';
+import { getSupportCases, createSupportCase } from '@/app/actions-kb';
 import { TicketCheck, Plus } from 'lucide-react';
 import { SubmitButton } from '@/app/components/ui/submit-button';
-import { CaseImageGallery } from '@/app/components/kb/case-image-gallery';
 import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
-
-const STATUS_STYLE: Record<string, string> = {
-    open: 'bg-orange-500/20 text-orange-300',
-    resolved: 'bg-emerald-500/20 text-emerald-300',
-    escalated: 'bg-red-500/20 text-red-300',
-};
+import { CaseTable } from './case-table';
 
 type SupportCasePageProps = {
     module: string;
@@ -24,24 +18,6 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
     const { module, title, description, instruments, colorClass, buttonBgClass, focusBorderClass } = props;
     const cases = await getSupportCases(module);
     const fieldClassName = `mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${focusBorderClass}`;
-    const renderCaseContent = (content?: string | null, resolution?: string | null) => {
-        const value = (content?.trim() || resolution?.trim() || '');
-        if (!value) {
-            return null;
-        }
-
-        if (/^[\s]*<[a-zA-Z]/.test(value)) {
-            return <div className="rich-content mt-3 text-slate-200" dangerouslySetInnerHTML={{ __html: value }} />;
-        }
-
-        return (
-            <div className="mt-3 space-y-2">
-                {value.split('\n').map((line, index) =>
-                    line.trim() === '' ? <br key={index} /> : <p key={index} className="text-sm leading-relaxed text-slate-200">{line}</p>
-                )}
-            </div>
-        );
-    };
 
     return (
         <div className="space-y-6">
@@ -121,73 +97,8 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                 </div>
             </details>
 
-            <div className="glass-panel overflow-x-auto rounded-2xl">
-                <table className="w-full text-left text-sm text-slate-300">
-                    <thead className="bg-slate-800/80 text-xs uppercase text-slate-400">
-                        <tr>
-                            <th className="px-5 py-4 font-medium">Ngày / Khách</th>
-                            <th className="px-5 py-4 font-medium">Vấn Đề / Thiết Bị</th>
-                            <th className="px-5 py-4 font-medium">Người Xử Lý</th>
-                            <th className="px-5 py-4 font-medium whitespace-nowrap">Trạng Thái</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-700/60">
-                        {cases.length === 0 ? (
-                            <tr>
-                                <td colSpan={4} className="px-5 py-12 text-center text-slate-500 font-medium">
-                                    Chưa có case hỗ trợ nào.
-                                </td>
-                            </tr>
-                        ) : (
-                            cases.map((c) => (
-                                <tr key={c.id} className="hover:bg-slate-800/40 transition">
-                                    <td className="px-5 py-4 align-top">
-                                        <p className="font-medium text-white">{new Date(c.caseDate).toLocaleDateString('vi-VN')}</p>
-                                        <p className="text-xs text-slate-400 mt-1">{c.customer}</p>
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <p className="font-medium text-white">{c.description}</p>
-                                        <p className="mt-1 text-xs">
-                                            <span className="text-slate-400">{c.instrument}</span> • <span className="text-slate-500">{c.issueType}</span>
-                                        </p>
-                                        {renderCaseContent(c.content, c.resolution)}
-                                        {c.imageUrls.length > 0 && (
-                                            <CaseImageGallery imageUrls={c.imageUrls} title={c.description} />
-                                        )}
-                                        {c.attachmentUrl && (
-                                            <a href={c.attachmentUrl} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs text-cyan-400 bg-cyan-400/10 inline-block px-2 py-1 rounded hover:underline">
-                                                📎 Mở tài liệu đính kèm
-                                            </a>
-                                        )}
-                                    </td>
-                                    <td className="px-5 py-4 align-top font-medium text-slate-300">{c.handler}</td>
-                                    <td className="px-5 py-4 align-top">
-                                        <form action={updateCaseStatus} className="flex flex-col gap-2">
-                                            <input type="hidden" name="id" value={c.id} />
-                                            <select
-                                                name="status"
-                                                defaultValue={c.status}
-                                                onChange={(e) => e.target.form?.requestSubmit()}
-                                                className={`cursor-pointer rounded-lg border-none px-3 py-1.5 text-xs font-semibold outline-none ring-1 ring-inset ring-slate-700 hover:ring-slate-600 focus:ring-slate-500 ${STATUS_STYLE[c.status]}`}
-                                            >
-                                                <option value="open" className="bg-slate-800 text-orange-300">
-                                                    Đang xử lý
-                                                </option>
-                                                <option value="resolved" className="bg-slate-800 text-emerald-300">
-                                                    Đã giải quyết
-                                                </option>
-                                                <option value="escalated" className="bg-slate-800 text-red-300">
-                                                    Leo thang
-                                                </option>
-                                            </select>
-                                        </form>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+            {/* Case table — client component với sort/filter */}
+            <CaseTable cases={cases} colorClass={colorClass} focusBorderClass={focusBorderClass} />
         </div>
     );
 }

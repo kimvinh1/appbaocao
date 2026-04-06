@@ -69,6 +69,7 @@ model Article {
   tags      String   // comma-separated tags
   author    String
   attachmentUrl String?
+  viewCount Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   procedureShares ProcedureShare[]
@@ -177,16 +178,18 @@ model ProcedureShare {
   token         String              @unique
   customerName  String
   customerEmail String?
-  status           String              @default("pending") // pending | completed
-  sharedAt         DateTime            @default(now())
-  completedAt      DateTime?
-  customerComment  String?
+  status         String              @default("pending") // pending | completed | revoked
+  sharedAt       DateTime            @default(now())
+  completedAt    DateTime?
+  revokedAt      DateTime?
+  customerComment String?
   articleId     String
   sharedById    String?
 
-  article   Article            @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  sharedBy  User?              @relation("SharedByUser", fields: [sharedById], references: [id], onDelete: SetNull)
-  reactions ProcedureReaction[]
+  article        Article                 @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  sharedBy       User?                   @relation("SharedByUser", fields: [sharedById], references: [id], onDelete: SetNull)
+  reactions      ProcedureReaction[]
+  feedbackEvents ProcedureShareFeedback[]
 
   @@index([articleId])
   @@index([sharedById])
@@ -203,6 +206,19 @@ model ProcedureReaction {
 
   @@index([shareId])
   @@index([reactionType])
+}
+
+model ProcedureShareFeedback {
+  id        String   @id @default(uuid())
+  eventType String   // completed | like | heart
+  comment   String?
+  createdAt DateTime @default(now())
+  shareId   String
+
+  share ProcedureShare @relation(fields: [shareId], references: [id], onDelete: Cascade)
+
+  @@index([shareId, createdAt])
+  @@index([eventType])
 }
 
 // --- Content Feedback (like/dislike cho article, case, error-code) ---

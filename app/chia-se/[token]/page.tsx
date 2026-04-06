@@ -1,6 +1,6 @@
 import { getProcedureShareByToken } from '@/app/actions-kb';
 import { ShareInteractionPanel } from '@/app/components/ui/share-interaction-panel';
-import { Download, UserRoundCheck } from 'lucide-react';
+import { CheckCircle2, Circle, Download, UserRoundCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getModuleTheme } from '@/lib/module-theme';
 
@@ -14,8 +14,52 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
 
   const theme = getModuleTheme(share.article.module);
 
+  const isCompleted = share.status === 'completed';
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+
+      {/* ── Progress Steps ── */}
+      <div className="glass-panel rounded-2xl px-6 py-4">
+        <ol className="flex items-center gap-0 text-xs text-slate-400">
+          {/* Bước 1 */}
+          <li className="flex items-center gap-2 flex-1">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/40">
+              <CheckCircle2 size={14} />
+            </span>
+            <span className="font-medium text-cyan-300 hidden sm:block">Đọc quy trình</span>
+          </li>
+          <li className="w-8 h-px bg-slate-700 shrink-0" />
+          {/* Bước 2 */}
+          <li className="flex items-center gap-2 flex-1">
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-1 transition ${
+              isCompleted
+                ? 'bg-emerald-500/20 text-emerald-300 ring-emerald-400/40'
+                : 'bg-slate-800 text-slate-500 ring-slate-700'
+            }`}>
+              {isCompleted ? <CheckCircle2 size={14} /> : <Circle size={14} />}
+            </span>
+            <span className={`hidden sm:block ${isCompleted ? 'text-emerald-300 font-medium' : 'text-slate-500'}`}>
+              Xác nhận hoàn thành
+            </span>
+          </li>
+          <li className="w-8 h-px bg-slate-700 shrink-0" />
+          {/* Bước 3 */}
+          <li className="flex items-center gap-2">
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-1 transition ${
+              isCompleted
+                ? 'bg-pink-500/20 text-pink-300 ring-pink-400/40'
+                : 'bg-slate-800 text-slate-500 ring-slate-700'
+            }`}>
+              {isCompleted ? <CheckCircle2 size={14} /> : <Circle size={14} />}
+            </span>
+            <span className={`hidden sm:block ${isCompleted ? 'text-pink-300 font-medium' : 'text-slate-500'}`}>
+              Phản hồi & đánh giá
+            </span>
+          </li>
+        </ol>
+      </div>
+
       {/* Header */}
       <div className="glass-panel rounded-[2rem] p-8">
         <p className={`text-sm font-medium uppercase tracking-[0.22em] ${theme.textClass}`}>
