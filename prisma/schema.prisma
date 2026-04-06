@@ -177,7 +177,7 @@ model ProcedureShare {
   id            String              @id @default(uuid())
   token         String              @unique
   customerName  String
-  customerEmail String?
+  customerPhone String?
   status         String              @default("pending") // pending | completed | revoked
   sharedAt       DateTime            @default(now())
   completedAt    DateTime?

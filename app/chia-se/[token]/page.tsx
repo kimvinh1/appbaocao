@@ -1,6 +1,6 @@
 import { getProcedureShareByToken } from '@/app/actions-kb';
 import { ShareInteractionPanel } from '@/app/components/ui/share-interaction-panel';
-import { CheckCircle2, Circle, Download, UserRoundCheck } from 'lucide-react';
+import { CheckCircle2, Circle, UserRoundCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getModuleTheme } from '@/lib/module-theme';
 
@@ -73,40 +73,20 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
         <p className="mt-1 text-sm text-slate-400">
           Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author} · Mảng {theme.label}
         </p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-          <a
-            href={`/api/chia-se/${share.token}/pdf`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2.5 text-sm font-medium text-white ring-1 ring-slate-700 transition hover:bg-white/10 sm:w-auto"
-          >
-            <Download size={16} /> Tải PDF quy trình
-          </a>
-          {share.article.attachmentUrl ? (
-            <a
-              href={share.article.attachmentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition sm:w-auto ${theme.buttonClass}`}
-            >
-              <Download size={16} /> Mở PDF đính kèm
-            </a>
-          ) : null}
-        </div>
       </div>
 
       {/* Nội dung bài viết */}
-      <section className="glass-panel rounded-2xl p-4 sm:p-6 lg:p-8">
+      <section className="glass-panel rounded-[2rem] p-4 sm:p-6 lg:p-10 mt-6 bg-slate-900/50">
         {/^[\s]*<[a-zA-Z]/.test(share.article.content) ? (
-          <div className="document-paper">
+          <div className="dark-reader-view">
             <div
               className="rich-content"
               dangerouslySetInnerHTML={{ __html: share.article.content }}
             />
           </div>
         ) : (
-          <div className="document-paper space-y-4">
-            {share.article.content.split('\n').map((line, index) => (
+          <div className="dark-reader-view space-y-4">
+            {share.article.content.split('\n').map((line: string, index: number) => (
               line.trim() === '' ? <br key={index} /> : <p key={index} className="leading-relaxed">{line}</p>
             ))}
           </div>

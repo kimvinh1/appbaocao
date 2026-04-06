@@ -257,10 +257,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                             />
                         </label>
                         <label className="text-sm text-slate-300">
-                            Email khách hàng
+                            Số điện thoại khách hàng
                             <input
-                                name="customerEmail"
-                                type="email"
+                                name="customerPhone"
+                                type="tel"
                                 className={`mt-1 w-full rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${cfg.focusBorderClass}`}
                             />
                         </label>
@@ -284,7 +284,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                         <div className="min-w-0 flex-1">
                                             <p className="font-medium text-white">{share.customerName}</p>
                                             <p className="mt-1 text-xs text-slate-400">
-                                                {share.customerEmail || 'Không có email'} · Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
+                                                {share.customerPhone || 'Không có sđt'} · Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
                                             </p>
                                             <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
                                                 <Clock size={11} />

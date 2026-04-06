@@ -488,7 +488,7 @@ export async function createProcedureShare(formData: FormData) {
   const user = await requireKnowledgeEditor();
   const articleId = formData.get('articleId') as string;
   const customerName = formData.get('customerName') as string;
-  const customerEmail = formData.get('customerEmail') as string;
+  const customerPhone = formData.get('customerPhone') as string;
 
   if (!articleId || !customerName) {
     throw new Error('Thiếu thông tin chia sẻ quy trình');
@@ -499,7 +499,7 @@ export async function createProcedureShare(formData: FormData) {
       token: randomUUID(),
       articleId,
       customerName,
-      customerEmail: customerEmail || null,
+      customerPhone: customerPhone || null,
       sharedById: user.id,
     },
   });

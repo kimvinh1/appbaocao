@@ -634,3 +634,89 @@ body {
   color: #64748b;
   text-decoration: line-through;
 }
+
+/* Dark Reader View cho Share Public Page */
+.dark-reader-view {
+  color: #e2e8f0; /* slate-200 */
+  font-size: 16px;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.75;
+}
+
+.dark-reader-view h1, .dark-reader-view h2, .dark-reader-view h3, .dark-reader-view h4 {
+  color: #f8fafc;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.dark-reader-view h1 { font-size: 1.8em; }
+.dark-reader-view h2 { font-size: 1.5em; }
+.dark-reader-view h3 { font-size: 1.25em; }
+
+.dark-reader-view p {
+  margin-bottom: 1em;
+}
+
+.dark-reader-view a {
+  color: #38bdf8; /* sky-400 */
+  text-decoration: none;
+}
+.dark-reader-view a:hover {
+  text-decoration: underline;
+}
+
+.dark-reader-view ul, .dark-reader-view ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.dark-reader-view li {
+  margin-bottom: 0.25em;
+}
+
+/* Các khối đặc biệt trong Dark Mode */
+.dark-reader-view blockquote {
+  border-left: 4px solid #475569;
+  padding-left: 1em;
+  color: #94a3b8;
+  font-style: italic;
+  background-color: transparent !important;
+}
+
+.dark-reader-view .callout-block {
+  background-color: #1e293b !important; /* slate-800 */
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark-reader-view .callout-block strong {
+  color: #f8fafc !important;
+}
+
+.dark-reader-view table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5em;
+  border-color: #334155 !important;
+}
+
+.dark-reader-view th, .dark-reader-view td {
+  border: 1px solid #334155 !important;
+  padding: 0.75em;
+}
+
+.dark-reader-view th {
+  background-color: #1e293b !important;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.dark-reader-view tr:nth-child(even) {
+  background-color: #0f172a !important; /* slate-900 */
+}
+
+.dark-reader-view strong, .dark-reader-view b {
+  color: #f8fafc;
+  font-weight: 600;
+}
