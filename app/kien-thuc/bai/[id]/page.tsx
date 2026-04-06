@@ -1,6 +1,5 @@
 import {
     createProcedureShare,
-    deleteProcedureShare,
     getArticleById,
     getArticleDislikeComments,
     getContentFeedback,
@@ -10,7 +9,8 @@ import {
 import { getCurrentUser } from '@/lib/auth';
 import {
     ArrowLeft, Calendar, Clock, Download, Eye, Heart,
-    MessageSquare, Share2, Tag, ThumbsDown, ThumbsUp, Trash2, User,
+    MessageSquare, Share2, Tag, ThumbsDown, ThumbsUp, User,
+    BarChart3, CheckCheck, Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -19,8 +19,7 @@ import { FeedbackButtons } from '@/app/components/ui/feedback-buttons';
 import { ViewTracker } from '@/app/components/ui/view-tracker';
 import { CopyLinkButton } from '@/app/components/ui/copy-link-button';
 import { ArticleToc } from '@/app/components/ui/article-toc';
-import { ConfirmSubmitButton } from '@/app/components/ui/confirm-submit-button';
-import { RevokeShareButton } from '@/app/components/ui/revoke-share-button';
+import { ToggleShareButton } from '@/app/components/ui/toggle-share-button';
 import { extractTocAndAddIds } from '@/lib/html-toc';
 import { getArticleCategoryLabel } from '@/lib/knowledge-center';
 
@@ -234,118 +233,167 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
             {/* ── Chia sẻ quy trình ── */}
             {currentUser && (
-                <section className="glass-panel rounded-2xl p-6">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-                                <Share2 size={18} className={cfg.textClass} /> Chia sẻ quy trình cho khách hàng
-                            </h2>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Tạo link riêng cho khách hàng. Khi khách hàng hoàn tất và phản hồi, hệ thống sẽ cộng thống kê hiệu quả.
-                            </p>
-                        </div>
+                <section className="glass-panel rounded-2xl p-6 space-y-5">
+                    {/* Header + Form */}
+                    <div>
+                        <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                            <Share2 size={18} className={cfg.textClass} /> Chia sẻ quy trình cho khách hàng
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Tạo link riêng cho từng khách hàng. Theo dõi tương tác và bật/tắt link bất kỳ lúc nào mà không mất lịch sử.
+                        </p>
                     </div>
 
-                    <form action={createProcedureShare} className="mt-5 grid gap-4 md:grid-cols-3">
+                    <form action={createProcedureShare} className="grid gap-3 md:grid-cols-3">
                         <input type="hidden" name="articleId" value={article.id} />
-                        <label className="text-sm text-slate-700 dark:text-slate-300">
-                            Tên khách hàng
+                        <div>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Tên khách hàng *</label>
                             <input
                                 name="customerName"
                                 required
-                                className={`mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${cfg.focusBorderClass}`}
+                                placeholder="Nguyễn Văn A"
+                                className={`w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-slate-400 outline-none transition ${cfg.focusBorderClass}`}
                             />
-                        </label>
-                        <label className="text-sm text-slate-700 dark:text-slate-300">
-                            Số điện thoại khách hàng
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Số điện thoại</label>
                             <input
                                 name="customerPhone"
                                 type="tel"
-                                className={`mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/80 px-3 py-2 text-sm text-white outline-none transition ${cfg.focusBorderClass}`}
+                                placeholder="0909..."
+                                className={`w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-slate-400 outline-none transition ${cfg.focusBorderClass}`}
                             />
-                        </label>
+                        </div>
                         <div className="flex items-end">
                             <button
                                 type="submit"
-                                className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium ring-1 transition ${cfg.buttonClass}`}
+                                className={`w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium ring-1 transition ${cfg.buttonClass}`}
                             >
-                                <Share2 size={16} /> Tạo link chia sẻ
+                                <Share2 size={15} /> Tạo link chia sẻ
                             </button>
                         </div>
                     </form>
 
-                    <div className="mt-6 space-y-3">
-                        {shares.length === 0 ? (
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Chưa có lượt chia sẻ nào cho tài liệu này.</p>
-                        ) : (
-                            shares.map((share) => (
-                                <div key={share.id} className="rounded-2xl border border-slate-300/60 dark:border-slate-700/60 bg-slate-50/40 dark:bg-slate-950/40 p-4">
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
-                                        <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-gray-900 dark:text-white">{share.customerName}</p>
-                                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                {share.customerPhone || 'Không có sđt'} · Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
-                                            </p>
-                                            <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-500">
-                                                <Clock size={11} />
-                                                Tạo lúc {formatDateTime(share.sharedAt)}
-                                                {share.revokedAt ? ` · Thu hồi lúc ${formatDateTime(share.revokedAt)}` : ''}
-                                            </p>
-                                            {share.status !== 'revoked' ? (
-                                                <div className="mt-2 flex items-center gap-3">
-                                                    <a
-                                                        href={`/chia-se/${share.token}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-sm text-cyan-300 hover:underline"
-                                                    >
-                                                        Mở link chia sẻ
-                                                    </a>
-                                                    <CopyLinkButton url={`/chia-se/${share.token}`} />
-                                                </div>
-                                            ) : (
-                                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-500">
-                                                    Link này đã bị thu hồi và không còn truy cập công khai.
-                                                </p>
-                                            )}
-                                            {'customerComment' in share && share.customerComment && (
-                                                <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400 italic">
-                                                    <MessageSquare size={12} className="mt-0.5 shrink-0" />
-                                                    &ldquo;{share.customerComment}&rdquo;
-                                                </p>
-                                            )}
-                                            {share.feedbackEvents.length > 0 && (
-                                                <div className="mt-3 space-y-2 border-t border-slate-200/80 dark:border-slate-800/80 pt-3">
-                                                    {share.feedbackEvents.map((event) => (
-                                                        <div key={event.id} className="rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/50 px-3 py-2">
-                                                            <div className="flex flex-wrap items-center justify-between gap-2">
-                                                                <p className="text-xs font-medium text-slate-800 dark:text-slate-200">
-                                                                    {SHARE_EVENT_LABEL[event.eventType] ?? event.eventType}
-                                                                </p>
-                                                                <p className="text-[11px] text-slate-600 dark:text-slate-500">{formatDateTime(event.createdAt)}</p>
-                                                            </div>
-                                                            {event.comment ? (
-                                                                <p className="mt-1 text-xs italic text-slate-500 dark:text-slate-400">&ldquo;{event.comment}&rdquo;</p>
-                                                            ) : null}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                                            <span className={`rounded-full px-2 py-1 ${SHARE_STATUS_META[share.status] ?? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
+                    {/* Stats tổng hợp */}
+                    {shares.length > 0 && (() => {
+                        const totalLikes = shares.reduce((s, sh) => s + sh.likeCount, 0);
+                        const totalHearts = shares.reduce((s, sh) => s + sh.heartCount, 0);
+                        const totalCompleted = shares.filter(sh => sh.status === 'completed').length;
+                        const totalComments = shares.filter(sh => sh.customerComment).length;
+                        const totalActive = shares.filter(sh => sh.status !== 'revoked').length;
+                        return (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div className="rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 p-3">
+                                    <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-medium"><Users size={12} /> Tổng lượt share</div>
+                                    <p className="mt-1.5 text-2xl font-bold text-blue-700 dark:text-blue-300">{shares.length}</p>
+                                    <p className="text-[11px] text-blue-500 dark:text-blue-400">{totalActive} đang hoạt động</p>
+                                </div>
+                                <div className="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 p-3">
+                                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-medium"><CheckCheck size={12} /> Hoàn tất</div>
+                                    <p className="mt-1.5 text-2xl font-bold text-emerald-700 dark:text-emerald-300">{totalCompleted}</p>
+                                    <p className="text-[11px] text-emerald-500">{shares.length > 0 ? Math.round(totalCompleted/shares.length*100) : 0}% tỉ lệ</p>
+                                </div>
+                                <div className="rounded-xl bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 p-3">
+                                    <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400 text-xs font-medium"><ThumbsUp size={12} /> Lượt thích</div>
+                                    <p className="mt-1.5 text-2xl font-bold text-orange-700 dark:text-orange-300">{totalLikes}</p>
+                                    <p className="text-[11px] text-pink-500 dark:text-pink-400">+ {totalHearts} yêu thích</p>
+                                </div>
+                                <div className="rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 p-3">
+                                    <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-medium"><MessageSquare size={12} /> Bình luận</div>
+                                    <p className="mt-1.5 text-2xl font-bold text-purple-700 dark:text-purple-300">{totalComments}</p>
+                                    <p className="text-[11px] text-purple-500">phản hồi trực tiếp</p>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {/* Danh sách */}
+                    <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{shares.length > 0 ? `${shares.length} lượt chia sẻ` : 'Chưa có lượt chia sẻ nào'}</p>
+                        {shares.map((share) => (
+                            <div
+                                key={share.id}
+                                className={`rounded-2xl border p-4 transition-colors ${
+                                    share.status === 'revoked'
+                                        ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/30 opacity-70'
+                                        : 'border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900/50'
+                                }`}
+                            >
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    {/* Left info */}
+                                    <div className="min-w-0 flex-1 space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="font-semibold text-gray-900 dark:text-white">{share.customerName}</p>
+                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${SHARE_STATUS_META[share.status] ?? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
                                                 {SHARE_STATUS_LABEL[share.status] ?? share.status}
                                             </span>
-                                            <span className="inline-flex items-center gap-1"><ThumbsUp size={12} /> {share.likeCount}</span>
-                                            <span className="inline-flex items-center gap-1"><Heart size={12} /> {share.heartCount}</span>
-                                            {share.status !== 'revoked' ? (
-                                                <RevokeShareButton shareId={share.id} articleId={article.id} />
-                                            ) : null}
                                         </div>
+
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            {share.customerPhone && <span className="font-medium text-slate-700 dark:text-slate-300">{share.customerPhone} · </span>}
+                                            Chia sẻ bởi {share.sharedBy?.fullName ?? article.author}
+                                        </p>
+
+                                        <p className="flex items-center gap-1 text-[11px] text-slate-400">
+                                            <Clock size={10} />
+                                            {formatDateTime(share.sharedAt)}
+                                            {share.revokedAt && <span className="text-red-400"> · Tắt {formatDateTime(share.revokedAt)}</span>}
+                                        </p>
+
+                                        {/* Link actions */}
+                                        {share.status !== 'revoked' && (
+                                            <div className="flex items-center gap-2 pt-0.5">
+                                                <a
+                                                    href={`/chia-se/${share.token}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline font-medium"
+                                                >
+                                                    Mở link chia sẻ ↗
+                                                </a>
+                                                <CopyLinkButton url={`/chia-se/${share.token}`} />
+                                            </div>
+                                        )}
+
+                                        {/* Comment */}
+                                        {'customerComment' in share && share.customerComment && (
+                                            <div className="flex items-start gap-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 px-3 py-2 mt-1">
+                                                <MessageSquare size={11} className="mt-0.5 shrink-0 text-slate-400" />
+                                                <p className="text-xs text-slate-600 dark:text-slate-400 italic">&ldquo;{share.customerComment}&rdquo;</p>
+                                            </div>
+                                        )}
+
+                                        {/* Feedback events */}
+                                        {share.feedbackEvents.length > 0 && (
+                                            <div className="mt-2 space-y-1 border-t border-slate-100 dark:border-slate-800 pt-2">
+                                                {share.feedbackEvents.map((event) => (
+                                                    <div key={event.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 px-3 py-1.5">
+                                                        <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                                            {SHARE_EVENT_LABEL[event.eventType] ?? event.eventType}
+                                                            {event.comment && <span className="ml-1 font-normal text-slate-500 italic">&ldquo;{event.comment}&rdquo;</span>}
+                                                        </p>
+                                                        <p className="text-[11px] text-slate-400 shrink-0">{formatDateTime(event.createdAt)}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Right actions */}
+                                    <div className="flex flex-col items-end gap-2">
+                                        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                                            <span className="inline-flex items-center gap-1 font-medium"><ThumbsUp size={12} className="text-blue-500" /> {share.likeCount}</span>
+                                            <span className="inline-flex items-center gap-1 font-medium"><Heart size={12} className="text-pink-500" /> {share.heartCount}</span>
+                                        </div>
+                                        <ToggleShareButton
+                                            shareId={share.id}
+                                            articleId={article.id}
+                                            isRevoked={share.status === 'revoked'}
+                                        />
                                     </div>
                                 </div>
-                            ))
-                        )}
+                            </div>
+                        ))}
                     </div>
                 </section>
             )}

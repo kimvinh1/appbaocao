@@ -584,6 +584,29 @@ export async function deleteProcedureShare(formData: FormData) {
   revalidatePath(`/chia-se/${existingShare.token}`);
 }
 
+export async function toggleShareLink(shareId: string, articleId: string) {
+  await requireKnowledgeEditor();
+  if (!shareId) throw new Error('Thiếu ID chia sẻ');
+
+  const existingShare = await prisma.procedureShare.findUnique({
+    where: { id: shareId },
+    select: { token: true, articleId: true, status: true },
+  });
+
+  if (!existingShare) throw new Error('Không tìm thấy link chia sẻ');
+
+  const wasRevoked = existingShare.status === 'revoked';
+  await prisma.procedureShare.update({
+    where: { id: shareId },
+    data: wasRevoked
+      ? { status: 'pending', revokedAt: null }
+      : { status: 'revoked', revokedAt: new Date() },
+  });
+
+  revalidatePath(`/kien-thuc/bai/${articleId || existingShare.articleId}`);
+  revalidatePath(`/chia-se/${existingShare.token}`);
+}
+
 export async function reactToProcedureShare(formData: FormData) {
   const token = formData.get('token') as string;
   const reactionType = formData.get('reactionType') as string;
