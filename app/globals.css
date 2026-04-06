@@ -20,10 +20,10 @@
   --border:        #d4d4d8;
   --border-focus:  #2563eb;
 
-  /* Text — deliberately darker for readability */
-  --text-primary:  #09090b;
-  --text-secondary:#3f3f46;   /* z-600 instead of z-400 */
-  --text-muted:    #71717a;   /* z-500 instead of z-400 */
+  /* Text — very dark for light mode */
+  --text-primary:  #0a0a0b;
+  --text-secondary:#1a1a1f;   /* nearly black */
+  --text-muted:    #3d3d46;   /* dark gray, still readable */
   --text-accent:   #1d4ed8;
 
   /* Brand accent */
@@ -74,8 +74,8 @@
 html {
   font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-size: 15px;  /* bump base from 14px browser default */
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 body {
@@ -722,4 +722,34 @@ body {
 .dark-reader-view strong, .dark-reader-view b {
   color: #f8fafc;
   font-weight: 600;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LIGHT MODE: FORCE ALL TEXT TO DARK
+   Override Tailwind slate/gray utilities in light mode so nothing is washed out.
+════════════════════════════════════════════════════════════════════ */
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-400,
+html:not(.dark) .text-gray-400 {
+  color: #374151 !important;  /* gray-700 */
+}
+
+html:not(.dark) .text-slate-500,
+html:not(.dark) .text-gray-500 {
+  color: #1f2937 !important;  /* gray-800 */
+}
+
+html:not(.dark) .text-slate-600,
+html:not(.dark) .text-gray-600 {
+  color: #111827 !important;  /* gray-900 */
+}
+
+html:not(.dark) .text-slate-700 {
+  color: #0f172a !important;  /* slate-950 */
+}
+
+/* Slightly muted secondary text only — for timestamps/labels that should be softer */
+html:not(.dark) p.ts-muted,
+html:not(.dark) span.ts-muted {
+  color: #4b5563;  /* gray-600 */
 }
