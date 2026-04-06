@@ -19,6 +19,7 @@ import { FeedbackButtons } from '@/app/components/ui/feedback-buttons';
 import { ViewTracker } from '@/app/components/ui/view-tracker';
 import { CopyLinkButton } from '@/app/components/ui/copy-link-button';
 import { ArticleToc } from '@/app/components/ui/article-toc';
+import { ConfirmSubmitButton } from '@/app/components/ui/confirm-submit-button';
 import { extractTocAndAddIds } from '@/lib/html-toc';
 import { getArticleCategoryLabel } from '@/lib/knowledge-center';
 
@@ -340,16 +341,13 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                                 <form action={deleteProcedureShare}>
                                                     <input type="hidden" name="shareId" value={share.id} />
                                                     <input type="hidden" name="articleId" value={article.id} />
-                                                    <button
-                                                        type="submit"
+                                                    <ConfirmSubmitButton
                                                         title="Thu hồi link chia sẻ"
                                                         className="rounded-lg bg-red-500/10 p-1.5 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500/20 transition"
-                                                        onClick={(e) => {
-                                                            if (!confirm('Thu hồi link chia sẻ này? Khách hàng sẽ không truy cập được nữa.')) e.preventDefault();
-                                                        }}
+                                                        message="Thu hồi link chia sẻ này? Khách hàng sẽ không truy cập được nữa."
                                                     >
                                                         <Trash2 size={13} />
-                                                    </button>
+                                                    </ConfirmSubmitButton>
                                                 </form>
                                             ) : null}
                                         </div>
