@@ -462,15 +462,15 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
         <TBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại (Ctrl+Y)"><Redo2 size={13} /></TBtn>
 
         <span className="ml-auto hidden sm:flex items-center gap-2 pr-1 shrink-0">
-          <span className="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-500">
+          <span className="text-[12px] text-slate-500 dark:text-slate-400 dark:text-slate-600">
             {editor.storage.characterCount.characters()} ký tự
           </span>
           {storageKey && savedAt ? (
-            <span className="text-[10px] text-emerald-500 dark:text-emerald-400 flex items-center gap-1">
+            <span className="text-[12px] text-emerald-500 dark:text-emerald-400 flex items-center gap-1">
               ✓ Đã lưu lúc {savedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
             </span>
           ) : (
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-500">Ctrl+V ảnh · Kéo thả ảnh vào</span>
+            <span className="text-[12px] text-slate-500 dark:text-slate-400 dark:text-slate-600">Ctrl+V ảnh · Kéo thả ảnh vào</span>
           )}
         </span>
       </div>

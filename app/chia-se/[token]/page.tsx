@@ -21,7 +21,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
 
       {/* ── Progress Steps ── */}
       <div className="glass-panel rounded-2xl px-4 py-4 sm:px-6">
-        <ol className="flex items-center gap-0 text-xs text-slate-500 dark:text-slate-400">
+        <ol className="flex items-center gap-0 text-xs text-slate-500 dark:text-slate-600">
           {/* Bước 1 */}
           <li className="flex items-center gap-2 flex-1">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/40">
@@ -35,11 +35,11 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
             <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-1 transition ${
               isCompleted
                 ? 'bg-emerald-500/20 text-emerald-300 ring-emerald-400/40'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 ring-slate-200 dark:ring-slate-700'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-600 ring-slate-200 dark:ring-slate-700'
             }`}>
               {isCompleted ? <CheckCircle2 size={14} /> : <Circle size={14} />}
             </span>
-            <span className={`hidden sm:block ${isCompleted ? 'text-emerald-300 font-medium' : 'text-slate-600 dark:text-slate-500'}`}>
+            <span className={`hidden sm:block ${isCompleted ? 'text-emerald-300 font-medium' : 'text-slate-600 dark:text-slate-600'}`}>
               Xác nhận hoàn thành
             </span>
           </li>
@@ -49,11 +49,11 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
             <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-1 transition ${
               isCompleted
                 ? 'bg-pink-500/20 text-pink-300 ring-pink-400/40'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 ring-slate-200 dark:ring-slate-700'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-600 ring-slate-200 dark:ring-slate-700'
             }`}>
               {isCompleted ? <CheckCircle2 size={14} /> : <Circle size={14} />}
             </span>
-            <span className={`hidden sm:block ${isCompleted ? 'text-pink-300 font-medium' : 'text-slate-600 dark:text-slate-500'}`}>
+            <span className={`hidden sm:block ${isCompleted ? 'text-pink-300 font-medium' : 'text-slate-600 dark:text-slate-600'}`}>
               Phản hồi & đánh giá
             </span>
           </li>
@@ -70,7 +70,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
           Khách hàng: <span className="font-medium text-gray-900 dark:text-white">{share.customerName}</span>
           {(share as any).customerPhone ? ` · ${(share as any).customerPhone}` : ''}
         </p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">
           Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author} · Mảng {theme.label}
         </p>
       </div>
@@ -118,7 +118,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
             <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
               <UserRoundCheck size={18} className={theme.textClass} /> Phản hồi thực hiện
             </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">
               Sau khi làm xong, xác nhận hoàn tất và để lại cảm nhận của bạn.
             </p>
           </div>

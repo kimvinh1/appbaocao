@@ -122,13 +122,13 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
       {/* ── Filter bar ── */}
       <div className="flex flex-wrap items-center gap-3 glass-panel rounded-xl px-4 py-2.5">
         <div className="relative flex-1 min-w-[180px]">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 dark:text-slate-500" />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 dark:text-slate-600" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm khách hàng, thiết bị, người xử lý..."
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 pl-8 pr-3 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-slate-500 transition"
+            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 pl-8 pr-3 py-1.5 text-sm text-white placeholder:text-slate-600 outline-none focus:border-slate-500 transition"
           />
         </div>
         <select
@@ -142,11 +142,11 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
           <option value="escalated">Leo thang</option>
         </select>
         {hasFilter && (
-          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-600">
             <span>{filtered.length} / {cases.length} case</span>
             <button
               onClick={clearFilters}
-              className="flex items-center gap-0.5 text-slate-600 dark:text-slate-500 hover:text-slate-300 transition"
+              className="flex items-center gap-0.5 text-slate-600 dark:text-slate-600 hover:text-slate-300 transition"
             >
               <X size={12} /> Xóa lọc
             </button>
@@ -157,7 +157,7 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
       {/* ── Table ── */}
       <div className="glass-panel overflow-x-auto rounded-2xl">
         <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-          <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-xs uppercase text-slate-500 dark:text-slate-400">
+          <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-xs uppercase text-slate-500 dark:text-slate-600">
             <tr>
               <th className="px-5 py-4 font-medium cursor-pointer">
                 <SortBtn field="caseDate" current={sortField} dir={sortDir} onClick={() => toggleSort('caseDate')} />
@@ -172,7 +172,7 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
           <tbody className="divide-y divide-slate-700/60">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-5 py-12 text-center text-slate-600 dark:text-slate-500 font-medium">
+                <td colSpan={4} className="px-5 py-12 text-center text-slate-600 dark:text-slate-600 font-medium">
                   {hasFilter ? 'Không tìm thấy case phù hợp.' : 'Chưa có case hỗ trợ nào.'}
                 </td>
               </tr>
@@ -181,12 +181,12 @@ export function CaseTable({ cases, colorClass: _colorClass, focusBorderClass }: 
                 <tr key={c.id} className="hover:bg-slate-800/40 transition">
                   <td className="px-5 py-4 align-top">
                     <p className="font-medium text-gray-900 dark:text-white">{new Date(c.caseDate).toLocaleDateString('vi-VN')}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{c.customer}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-600 mt-1">{c.customer}</p>
                   </td>
                   <td className="px-5 py-4">
                     <p className="font-medium text-gray-900 dark:text-white">{c.description}</p>
                     <p className="mt-1 text-xs">
-                      <span className="text-slate-500 dark:text-slate-400">{c.instrument}</span> • <span className="text-slate-600 dark:text-slate-500">{c.issueType}</span>
+                      <span className="text-slate-500 dark:text-slate-600">{c.instrument}</span> • <span className="text-slate-600 dark:text-slate-600">{c.issueType}</span>
                     </p>
                     {renderContent(c.content, c.resolution)}
                     {c.imageUrls.length > 0 && (

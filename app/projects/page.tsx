@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Quản lý dự án</h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Theo dõi toàn bộ dự án — từ tiếp nhận đến hoàn thành.</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">Theo dõi toàn bộ dự án — từ tiếp nhận đến hoàn thành.</p>
         </div>
         <Link href="/projects/reports" className="inline-flex items-center gap-2 rounded-xl bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/20 transition">
           Thống kê Báo cáo
@@ -36,7 +36,7 @@ export default async function ProjectsPage() {
           <label className="text-sm text-slate-700 dark:text-slate-300">
             Mã dự án
             <input name="code" placeholder="Tự động (để trống)" className={INPUT_CLS} />
-            <span className="mt-1 block text-[11px] text-slate-600 dark:text-slate-500">Để trống → tỲ sinh ILL-26-XXX</span>
+            <span className="mt-1 block text-xs text-slate-600 dark:text-slate-600">Để trống → tỲ sinh ILL-26-XXX</span>
           </label>
 
           <label className="text-sm text-slate-700 dark:text-slate-300">

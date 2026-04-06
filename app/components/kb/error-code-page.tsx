@@ -25,7 +25,7 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
                 <h2 className={`text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2`}>
                     <AlertTriangle size={22} className={colorClass} /> {title}
                 </h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">{description}</p>
             </div>
 
             {/* Add Error Code Form */}
@@ -59,7 +59,7 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
                             <textarea name="solution" required rows={3} placeholder="Các bước xử lý cụ thể" className={fieldClassName} />
                         </label>
                         <label className="text-sm text-slate-700 dark:text-slate-300 md:col-span-1">
-                            Ảnh Minh Họa <span className="text-slate-600 dark:text-slate-500">(upload lên Vercel Blob)</span>
+                            Ảnh Minh Họa <span className="text-slate-600 dark:text-slate-600">(upload lên Vercel Blob)</span>
                             <input type="file" accept="image/*" name="imageFile" className={fileFieldClassName} />
                         </label>
                         <label className="text-sm text-slate-700 dark:text-slate-300 md:col-span-1">
@@ -83,7 +83,7 @@ export async function SharedErrorCodePage(props: ErrorCodePageProps) {
             {/* Error Code List — client component với filter/search */}
             {errorCodes.length === 0 ? (
                 <div className="glass-panel rounded-2xl px-8 py-16 text-center">
-                    <p className="text-slate-500 dark:text-slate-400">Chưa có mã lỗi nào. Thêm mã lỗi đầu tiên ở form trên.</p>
+                    <p className="text-slate-500 dark:text-slate-600">Chưa có mã lỗi nào. Thêm mã lỗi đầu tiên ở form trên.</p>
                 </div>
             ) : (
                 <ErrorCodeList errorCodes={errorCodes} instruments={instruments} colorClass={colorClass} />

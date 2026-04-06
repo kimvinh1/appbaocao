@@ -37,11 +37,11 @@ export default async function ModuleKienThucPage({
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <Link href="/kien-thuc" className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:text-white mb-2 transition">
+                    <Link href="/kien-thuc" className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-600 hover:text-gray-900 dark:text-white mb-2 transition">
                         <ArrowLeft size={12} /> Thư Viện Tài Liệu
                     </Link>
                     <h2 className={`text-2xl font-semibold ${cfg.textClass}`}>{cfg.title}</h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{cfg.description}</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">{cfg.description}</p>
                 </div>
                 <Link
                     href={`/kien-thuc/moi?module=${moduleSlug}`}
@@ -53,15 +53,15 @@ export default async function ModuleKienThucPage({
 
             <div className="grid gap-3 md:grid-cols-3">
                 <div className="glass-panel rounded-2xl p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-500">Tổng nội dung</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-600">Tổng nội dung</p>
                     <p className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{articles.length}</p>
                 </div>
                 <div className="glass-panel rounded-2xl p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-500">Quy trình / hướng dẫn</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-600">Quy trình / hướng dẫn</p>
                     <p className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{articleCounts['quy-trinh']}</p>
                 </div>
                 <div className="glass-panel rounded-2xl p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-500">Case / xử lý sự cố</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-600">Case / xử lý sự cố</p>
                     <p className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{articleCounts.case}</p>
                 </div>
             </div>
@@ -70,10 +70,10 @@ export default async function ModuleKienThucPage({
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Kho nội dung kỹ thuật</h3>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Soạn SOP, hướng dẫn và case thực tế để chia sẻ theo từng khách hàng.</p>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">Soạn SOP, hướng dẫn và case thực tế để chia sẻ theo từng khách hàng.</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/70 dark:bg-slate-900/70 px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-800">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/70 dark:bg-slate-900/70 px-3 py-1.5 text-xs text-slate-500 dark:text-slate-600 ring-1 ring-slate-200 dark:ring-slate-800">
                             <Filter size={12} /> Lọc loại nội dung
                         </span>
                         {[
@@ -105,7 +105,7 @@ export default async function ModuleKienThucPage({
                 {filteredArticles.length === 0 ? (
                     <div className="glass-panel rounded-2xl px-8 py-16 text-center">
                         <FileText size={40} className="mx-auto mb-4 text-slate-600" />
-                        <p className="text-slate-500 dark:text-slate-400">Chưa có nội dung nào đúng bộ lọc này.</p>
+                        <p className="text-slate-500 dark:text-slate-600">Chưa có nội dung nào đúng bộ lọc này.</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -119,18 +119,18 @@ export default async function ModuleKienThucPage({
                                 >
                                     <div className="flex flex-wrap items-center gap-2">
                                         <p className="font-semibold text-gray-900 dark:text-white">{article.title}</p>
-                                        <span className={`rounded-full px-2 py-0.5 text-[11px] ring-1 ${cfg.badgeClass} ${cfg.textClass}`}>
+                                        <span className={`rounded-full px-2 py-0.5 text-xs ring-1 ${cfg.badgeClass} ${cfg.textClass}`}>
                                             {getArticleCategoryLabel(article.category)}
                                         </span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {tags.map((tag) => (
-                                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full">
+                                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-600 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full">
                                                 <Tag size={10} /> {tag.trim()}
                                             </span>
                                         ))}
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-600">
                                         {article.author} · Cập nhật {new Date(article.updatedAt).toLocaleDateString('vi-VN')}
                                     </p>
                                 </Link>

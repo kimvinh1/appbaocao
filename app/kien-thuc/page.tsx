@@ -27,7 +27,7 @@ export default async function KienThucPage() {
                     <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <BookOpen size={22} className="text-cyan-300" /> Thư Viện Tài Liệu
                     </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Tất cả quy trình, case xử lý sự cố và tài liệu dùng để chia sẻ cho khách hàng.</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">Tất cả quy trình, case xử lý sự cố và tài liệu dùng để chia sẻ cho khách hàng.</p>
                 </div>
                 <Link
                     href="/kien-thuc/moi"
@@ -53,7 +53,7 @@ export default async function KienThucPage() {
                                 <p className={`font-semibold ${cfg.color}`}>{cfg.label}</p>
                             </div>
                             <p className="mt-3 text-3xl font-semibold text-gray-900 dark:text-white">{count}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">tài liệu</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-600 mt-1">tài liệu</p>
                         </Link>
                     );
                 })}
@@ -63,7 +63,7 @@ export default async function KienThucPage() {
             {articles.length === 0 ? (
                 <div className="glass-panel rounded-2xl px-8 py-16 text-center">
                     <FileText size={40} className="mx-auto mb-4 text-slate-600" />
-                    <p className="text-slate-500 dark:text-slate-400">Chưa có tài liệu nào. Nhấn &quot;Thêm Tài Liệu&quot; để bắt đầu.</p>
+                    <p className="text-slate-500 dark:text-slate-600">Chưa có tài liệu nào. Nhấn &quot;Thêm Tài Liệu&quot; để bắt đầu.</p>
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -84,16 +84,16 @@ export default async function KienThucPage() {
                                             </span>
                                         )}
                                         {tags.map((tag) => (
-                                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full">
+                                            <span key={tag} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-600 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-full">
                                                 <Tag size={10} /> {tag.trim()}
                                             </span>
                                         ))}
                                     </div>
                                     <p className="font-semibold text-gray-900 dark:text-white truncate">{article.title}</p>
-                                    <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-600 dark:text-slate-500">
+                                    <p className="mt-1 text-xs uppercase tracking-wide text-slate-600 dark:text-slate-600">
                                         {getArticleCategoryLabel(article.category)}
                                     </p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    <p className="text-xs text-slate-500 dark:text-slate-600 mt-1">
                                         {article.author} · {new Date(article.updatedAt).toLocaleDateString('vi-VN')}
                                     </p>
                                 </div>

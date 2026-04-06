@@ -15,7 +15,7 @@ export default async function LogsPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Nhật ký công việc</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Ghi nhận khối lượng công việc hằng ngày và liên kết với dự án.</p>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">Ghi nhận khối lượng công việc hằng ngày và liên kết với dự án.</p>
       </div>
 
       <section className="glass-panel rounded-2xl p-5">
@@ -105,7 +105,7 @@ export default async function LogsPage() {
 
       <section className="table-shell">
         <table className="min-w-full text-sm">
-          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-600">
             <tr>
               <th className="px-4 py-3">Ngày</th>
               <th className="px-4 py-3">Nhân sự</th>
@@ -129,7 +129,7 @@ export default async function LogsPage() {
 
             {!logs.length && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-600">
                   Chưa có nhật ký công việc nào. Hãy thêm bản ghi đầu tiên bằng biểu mẫu bên trên.
                 </td>
               </tr>

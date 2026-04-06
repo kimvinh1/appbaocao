@@ -21,10 +21,10 @@ export function CaseImageGallery({ imageUrls, title }: CaseImageGalleryProps) {
   return (
     <div className="mt-3 rounded-2xl border border-slate-300/60 dark:border-slate-700/60 bg-slate-50/40 dark:bg-slate-950/40 p-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-600">
           <ImageIcon size={14} /> Ảnh hiện trường
         </p>
-        <span className="rounded-full bg-white dark:bg-slate-900 px-2.5 py-1 text-[11px] text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-700">
+        <span className="rounded-full bg-white dark:bg-slate-900 px-2.5 py-1 text-xs text-slate-500 dark:text-slate-600 ring-1 ring-slate-200 dark:ring-slate-700">
           {activeIndex + 1}/{imageUrls.length}
         </span>
       </div>

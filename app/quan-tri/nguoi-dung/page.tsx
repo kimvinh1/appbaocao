@@ -17,7 +17,7 @@ export default async function QuanTriNguoiDungPage() {
           <ShieldCheck size={22} className="text-orange-300" />
           Quản trị người dùng
         </h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">
           Admin có thể tạo tài khoản nội bộ cho APP và quản lý vai trò truy cập.
         </p>
       </div>
@@ -80,7 +80,7 @@ export default async function QuanTriNguoiDungPage() {
 
       <section className="table-shell">
         <table className="min-w-full text-sm">
-          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <thead className="bg-white/90 dark:bg-slate-900/90 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-600">
             <tr>
               <th className="px-4 py-3">Họ tên</th>
               <th className="px-4 py-3">Email</th>

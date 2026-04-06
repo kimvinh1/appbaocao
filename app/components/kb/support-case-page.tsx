@@ -25,7 +25,7 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                 <h2 className={`text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2`}>
                     <TicketCheck size={22} className={colorClass} /> {title}
                 </h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-600">{description}</p>
             </div>
 
             <details className="glass-panel rounded-2xl group">
@@ -57,7 +57,7 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                             <input name="description" required placeholder="VD: NextSeq báo lỗi fluidics sau khi wash" className={fieldClassName} />
                         </label>
                         <label className="text-sm text-slate-700 dark:text-slate-300 md:col-span-3">
-                            Nội Dung Case <span className="text-slate-600 dark:text-slate-500">(paste ảnh trực tiếp, ảnh sẽ tự upload lên Vercel Blob)</span>
+                            Nội Dung Case <span className="text-slate-600 dark:text-slate-600">(paste ảnh trực tiếp, ảnh sẽ tự upload lên Vercel Blob)</span>
                             <div className="mt-1">
                                 <RichContentEditor name="content" rows={12} />
                             </div>
@@ -86,7 +86,7 @@ export async function SharedSupportCasePage(props: SupportCasePageProps) {
                             </select>
                         </label>
                         <label className="text-sm text-slate-700 dark:text-slate-300 md:col-span-3">
-                            Link Tài Liệu Đính Kèm <span className="text-slate-600 dark:text-slate-500">(Google Drive hoặc link web hãng)</span>
+                            Link Tài Liệu Đính Kèm <span className="text-slate-600 dark:text-slate-600">(Google Drive hoặc link web hãng)</span>
                             <input type="url" name="attachmentUrl" placeholder="https://drive.google.com/file/d/..." className={fieldClassName} />
                         </label>
 

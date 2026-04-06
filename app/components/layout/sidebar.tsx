@@ -31,7 +31,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
         <aside className="glass-panel h-full lg:min-h-screen lg:overflow-y-auto flex flex-col w-[260px]">
             {/* Brand header */}
             <div className="px-4 pt-5 pb-4 border-b border-[var(--border)]">
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--accent)]">APP Team Portal</p>
+                <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[var(--accent)]">APP Team Portal</p>
                 <h1 className="mt-0.5 text-[15px] font-bold text-[var(--text-primary)] tracking-tight">Hỗ Trợ Kỹ Thuật</h1>
             </div>
 
@@ -43,9 +43,9 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     </div>
                     <div className="min-w-0">
                         <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{currentUser.fullName}</p>
-                        <p className="text-[11px] text-[var(--text-muted)] truncate">{currentUser.email}</p>
+                        <p className="text-xs text-[var(--text-muted)] truncate">{currentUser.email}</p>
                     </div>
-                    <span className="ml-auto flex-shrink-0 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-[var(--accent-light)] text-[var(--accent)]">
+                    <span className="ml-auto flex-shrink-0 text-[12px] font-bold uppercase px-1.5 py-0.5 rounded bg-[var(--accent-light)] text-[var(--accent)]">
                         {currentUser.role === 'admin' ? 'Admin' : 'Staff'}
                     </span>
                 </div>

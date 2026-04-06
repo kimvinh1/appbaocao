@@ -13,5 +13,5 @@ export const PROJECT_STATUSES = [
 export function statusBadge(value: string) {
   const found = PROJECT_STATUSES.find((s) => s.value === value);
   const color = found?.color ?? 'bg-slate-600 text-slate-800 dark:text-slate-200';
-  return `inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${color}`;
+  return `inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${color}`;
 }

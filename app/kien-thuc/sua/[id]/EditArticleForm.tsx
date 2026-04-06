@@ -79,7 +79,7 @@ export function EditArticleForm({ article, moduleTheme }: { article: ArticleData
             </label>
 
             <label className="block text-sm text-slate-700 dark:text-slate-300">
-                Tags <span className="text-slate-600 dark:text-slate-500">(phân cách bằng dấu phẩy)</span>
+                Tags <span className="text-slate-600 dark:text-slate-600">(phân cách bằng dấu phẩy)</span>
                 <input
                     name="tags"
                     defaultValue={article.tags ?? ''}
@@ -88,7 +88,7 @@ export function EditArticleForm({ article, moduleTheme }: { article: ArticleData
             </label>
 
             <label className="block text-sm text-slate-700 dark:text-slate-300">
-                Link tài liệu / PDF <span className="text-slate-600 dark:text-slate-500">(Google Drive hoặc link công khai)</span>
+                Link tài liệu / PDF <span className="text-slate-600 dark:text-slate-600">(Google Drive hoặc link công khai)</span>
                 <input
                     name="attachmentUrl"
                     type="url"
@@ -143,7 +143,7 @@ export function EditArticleForm({ article, moduleTheme }: { article: ArticleData
 
             <label className="block text-sm text-slate-700 dark:text-slate-300">
                 <span className="flex items-center gap-1.5">
-                    <ImagePlus size={14} /> Thêm ảnh mới <span className="text-slate-600 dark:text-slate-500">(tối đa 5 ảnh mỗi lần)</span>
+                    <ImagePlus size={14} /> Thêm ảnh mới <span className="text-slate-600 dark:text-slate-600">(tối đa 5 ảnh mỗi lần)</span>
                 </span>
                 <input
                     type="file"

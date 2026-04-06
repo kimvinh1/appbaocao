@@ -8,32 +8,32 @@
 ════════════════════════════════════════════════════════════════════ */
 :root {
   /* Backgrounds */
-  --bg-page:       #f5f5f7;
+  --bg-page:       #f0f0f3;
   --bg-sidebar:    #ffffff;
   --bg-card:       #ffffff;
   --bg-input:      #ffffff;
   --bg-input-hover:#f7f8fa;
-  --bg-hover:      #f1f1f3;
-  --bg-active:     #eff6ff;
+  --bg-hover:      #ebebef;
+  --bg-active:     #dbeafe;
 
   /* Borders */
-  --border:        #e4e4e7;
-  --border-focus:  #3b82f6;
+  --border:        #d4d4d8;
+  --border-focus:  #2563eb;
 
-  /* Text */
+  /* Text — deliberately darker for readability */
   --text-primary:  #09090b;
-  --text-secondary:#52525b;
-  --text-muted:    #a1a1aa;
-  --text-accent:   #2563eb;
+  --text-secondary:#3f3f46;   /* z-600 instead of z-400 */
+  --text-muted:    #71717a;   /* z-500 instead of z-400 */
+  --text-accent:   #1d4ed8;
 
   /* Brand accent */
-  --accent:        #3b82f6;
+  --accent:        #2563eb;
   --accent-light:  #dbeafe;
   --accent-fg:     #ffffff;
 
   /* Shadows */
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:   0 4px 12px rgba(0,0,0,0.1),  0 2px 4px rgba(0,0,0,0.06);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
   --shadow-sidebar: 1px 0 0 var(--border);
 }
 
@@ -74,6 +74,8 @@
 html {
   font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-size: 15px;  /* bump base from 14px browser default */
+  line-height: 1.6;
 }
 
 body {
@@ -119,7 +121,7 @@ body {
    TYPOGRAPHY UTILITIES  
 ════════════════════════════════════════════════════════════════════ */
 .page-title {
-  font-size: 1.5rem;
+  font-size: 1.625rem;   /* 26px */
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
@@ -127,14 +129,15 @@ body {
 }
 
 .page-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;  /* 15px */
   color: var(--text-secondary);
   margin-top: 0.25rem;
+  font-weight: 450;
 }
 
 .section-label {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -189,9 +192,9 @@ body {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.4rem 0.625rem;
+  padding: 0.45rem 0.625rem;
   border-radius: 8px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;   /* 13px → 14px */
   font-weight: 500;
   color: var(--text-secondary);
   transition: background-color 0.15s, color 0.15s;

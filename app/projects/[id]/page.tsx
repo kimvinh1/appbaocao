@@ -17,7 +17,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Back */}
-      <Link href="/projects" className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-cyan-300 transition">
+      <Link href="/projects" className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-600 hover:text-cyan-300 transition">
         ← Danh sách dự án
       </Link>
 
@@ -30,31 +30,31 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <DeleteProjectButton projectId={project.id} />
             </div>
             <p className="text-xl font-semibold text-gray-900 dark:text-white mt-1">{project.clientName}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{project.panelType}{project.instrument ? ` · ${project.instrument}` : ''}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600 mt-1">{project.panelType}{project.instrument ? ` · ${project.instrument}` : ''}</p>
           </div>
           <span className={statusBadge(project.status)}>{project.status}</span>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-slate-600 dark:text-slate-500 text-xs uppercase tracking-wide">Ngày tạo</p>
+            <p className="text-slate-600 dark:text-slate-600 text-xs uppercase tracking-wide">Ngày tạo</p>
             <p className="text-slate-800 dark:text-slate-200 mt-0.5">{new Date(project.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
           </div>
           {(project as any).salesPerson && (
             <div>
-              <p className="text-slate-600 dark:text-slate-500 text-xs uppercase tracking-wide">PS / Sales</p>
+              <p className="text-slate-600 dark:text-slate-600 text-xs uppercase tracking-wide">PS / Sales</p>
               <p className="text-slate-800 dark:text-slate-200 mt-0.5">{(project as any).salesPerson}</p>
             </div>
           )}
           {(project as any).appPerson && (
             <div>
-              <p className="text-slate-600 dark:text-slate-500 text-xs uppercase tracking-wide">App phụ trách</p>
+              <p className="text-slate-600 dark:text-slate-600 text-xs uppercase tracking-wide">App phụ trách</p>
               <p className="text-slate-800 dark:text-slate-200 mt-0.5">{(project as any).appPerson}</p>
             </div>
           )}
           {project.description && (
             <div className="col-span-2">
-              <p className="text-slate-600 dark:text-slate-500 text-xs uppercase tracking-wide">Mô tả</p>
+              <p className="text-slate-600 dark:text-slate-600 text-xs uppercase tracking-wide">Mô tả</p>
               <p className="text-slate-800 dark:text-slate-200 mt-0.5">{project.description}</p>
             </div>
           )}
@@ -95,11 +95,11 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <section className="glass-panel rounded-2xl p-5">
         <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
           Lịch sử dự án
-          <span className="ml-2 text-xs text-slate-600 dark:text-slate-500 font-normal">({project.projectLogs.length} bản ghi)</span>
+          <span className="ml-2 text-xs text-slate-600 dark:text-slate-600 font-normal">({project.projectLogs.length} bản ghi)</span>
         </h3>
 
         {project.projectLogs.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-500 italic">Chưa có lịch sử.</p>
+          <p className="text-sm text-slate-600 dark:text-slate-600 italic">Chưa có lịch sử.</p>
         ) : (
           <ol className="relative border-l border-slate-300 dark:border-slate-700 ml-3 space-y-5">
             {project.projectLogs.map((log) => (
@@ -107,7 +107,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 <div className="absolute -left-1.5 h-3 w-3 rounded-full border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800" />
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <span className={statusBadge(log.status)}>{log.status}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                  <span className="text-xs text-slate-500 dark:text-slate-600">
                     {new Date(log.createdAt).toLocaleString('vi-VN', {
                       day: '2-digit', month: '2-digit', year: 'numeric',
                       hour: '2-digit', minute: '2-digit',
