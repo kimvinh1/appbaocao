@@ -74,6 +74,21 @@ function ensureImageFiles(files: File[], maxCount: number, label: string) {
   return files;
 }
 
+function normalizeRichTextContent(value: string | null | undefined) {
+  const raw = (value ?? '').trim();
+  if (!raw) return '';
+
+  const textOnly = raw
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return textOnly ? raw : '';
+}
+
 // ─── ARTICLES ───────────────────────────────────────────────────────────────
 
 export async function getArticles(module?: string) {
@@ -107,12 +122,12 @@ export async function createArticle(formData: FormData) {
   const module = normalizeModuleKey(formData.get('module') as string);
   const category = (formData.get('category') as string) || 'quy-trinh';
   const title = formData.get('title') as string;
-  const content = formData.get('content') as string;
+  const content = normalizeRichTextContent(formData.get('content') as string);
   const tags = formData.get('tags') as string;
   const attachmentUrlInput = (formData.get('attachmentUrl') as string | null)?.trim() || null;
   const imageFiles = ensureImageFiles(getUploadedFiles(formData, 'imageFiles'), 5, 'Ảnh đính kèm');
 
-  if (!module || !title) throw new Error('Missing required fields: module and title');
+  if (!module || !title || !content) throw new Error('Missing required fields: module, title and content');
 
   const attachmentUrl = attachmentUrlInput || null;
   const imageUrls = await Promise.all(
@@ -147,7 +162,7 @@ export async function updateArticle(formData: FormData) {
   await requireKnowledgeEditor();
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
-  const content = formData.get('content') as string;
+  const content = normalizeRichTextContent(formData.get('content') as string);
   const tags = formData.get('tags') as string;
   const category = (formData.get('category') as string) || undefined;
   const attachmentUrl = (formData.get('attachmentUrl') as string | null)?.trim() || null;

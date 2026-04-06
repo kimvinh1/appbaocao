@@ -26,6 +26,8 @@ export default function NewArticlePage() {
     const defaultModule = rawModule === 'sinh-hoc-phan-tu' ? 'cepheid' : rawModule;
     const formRef = useRef<HTMLFormElement>(null);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         const files = Array.from(e.target.files ?? []);
@@ -40,13 +42,21 @@ export default function NewArticlePage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        await createArticle(formData);
-        // Xóa bản nháp autosave sau khi lưu thành công
-        try { localStorage.removeItem('tiptap-draft-new-article'); } catch { /* ignore */ }
-        formRef.current?.reset();
-        setImagePreviews([]);
-        window.location.href = '/kien-thuc';
+        setError(null);
+        setIsSaving(true);
+        try {
+            const formData = new FormData(e.currentTarget);
+            await createArticle(formData);
+            // Xóa bản nháp autosave sau khi lưu thành công
+            try { localStorage.removeItem('tiptap-draft-new-article'); } catch { /* ignore */ }
+            formRef.current?.reset();
+            setImagePreviews([]);
+            window.location.href = '/kien-thuc';
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Không lưu được tài liệu. Vui lòng thử lại.');
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     return (
@@ -175,10 +185,16 @@ export default function NewArticlePage() {
                     <RichContentEditor name="content" rows={18} storageKey="new-article" />
                 </div>
 
+                {error && (
+                    <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                        {error}
+                    </div>
+                )}
+
                 {/* Submit */}
                 <div className="flex items-center gap-3 pt-2">
-                    <button type="submit" className="btn-primary">
-                        <Save size={16} /> Lưu Tài Liệu
+                    <button type="submit" disabled={isSaving} className="btn-primary disabled:opacity-60">
+                        <Save size={16} /> {isSaving ? 'Đang lưu...' : 'Lưu Tài Liệu'}
                     </button>
                     <Link href="/kien-thuc" className="btn-ghost">
                         Hủy

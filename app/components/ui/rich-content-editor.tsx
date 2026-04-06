@@ -2,6 +2,7 @@
 
 import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
+import type { Editor as TiptapEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Highlight from '@tiptap/extension-highlight';
@@ -16,7 +17,7 @@ const STORAGE_PREFIX = 'tiptap-draft-';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  List, ListOrdered, Link2, LinkOff, ImagePlus, Undo2, Redo2,
+  List, ListOrdered, Link2, Link2Off, ImagePlus, Undo2, Redo2,
   Highlighter, Loader2, Quote, Minus,
 } from 'lucide-react';
 
@@ -103,10 +104,17 @@ interface RichContentEditorProps {
   storageKey?: string; // key cho localStorage autosave (e.g. "new-article", "edit-abc123")
 }
 
+function getSerializedContent(editor: TiptapEditor | null | undefined) {
+  if (!editor) return '';
+  if (editor.isEmpty) return '';
+  return editor.getHTML();
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }: RichContentEditorProps) {
   const hiddenRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -129,7 +137,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
     content: defaultValue || '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
+      const html = getSerializedContent(editor);
       if (hiddenRef.current) hiddenRef.current.value = html;
 
       // ── Autosave vào localStorage (debounced 3s) ──────────────────────────
@@ -170,7 +178,25 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
   });
 
   useEffect(() => {
-    if (hiddenRef.current && editor) hiddenRef.current.value = editor.getHTML();
+    if (hiddenRef.current && editor) hiddenRef.current.value = getSerializedContent(editor);
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor || !rootRef.current) return;
+    const form = rootRef.current.closest('form');
+    if (!form) return;
+
+    const syncHiddenInput = () => {
+      if (hiddenRef.current) hiddenRef.current.value = getSerializedContent(editor);
+    };
+
+    form.addEventListener('submit', syncHiddenInput, true);
+    form.addEventListener('formdata', syncHiddenInput);
+
+    return () => {
+      form.removeEventListener('submit', syncHiddenInput, true);
+      form.removeEventListener('formdata', syncHiddenInput);
+    };
   }, [editor]);
 
   // ── Khôi phục bản nháp từ localStorage khi mount ─────────────────────────
@@ -264,7 +290,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
   }
 
   return (
-    <div className="relative rounded-xl border border-slate-200 dark:border-slate-700 overflow-visible shadow-sm">
+    <div ref={rootRef} className="relative rounded-xl border border-slate-200 dark:border-slate-700 overflow-visible shadow-sm">
       <input type="hidden" name={name} ref={hiddenRef} defaultValue={defaultValue ?? ''} />
 
       {uploading && (
@@ -346,7 +372,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
             }}
             title={editor.isActive('link') ? 'Gỡ link' : 'Thêm link'}
           >
-            {editor.isActive('link') ? <LinkOff size={13} /> : <Link2 size={13} />}
+            {editor.isActive('link') ? <Link2Off size={13} /> : <Link2 size={13} />}
           </TBtn>
           {showLinkInput && (
             <div className="absolute top-full left-0 mt-1 z-50 flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl p-2 min-w-[260px]">

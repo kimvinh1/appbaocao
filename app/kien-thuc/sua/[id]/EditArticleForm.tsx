@@ -4,7 +4,7 @@ import { updateArticle, deleteArticleImage } from '@/app/actions-kb';
 import { RichContentEditor } from '@/app/components/ui/rich-content-editor';
 import { ImagePlus, Save, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 interface ArticleImage {
     id: string;
@@ -36,16 +36,22 @@ const ARTICLE_CATEGORIES = [
 export function EditArticleForm({ article, moduleTheme }: { article: ArticleData; moduleTheme: ModuleTheme }) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState<string | null>(null);
     const storageKey = `edit-${article.id}`;
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         startTransition(async () => {
-            await updateArticle(formData);
-            // Xóa bản nháp autosave sau khi lưu thành công
-            try { localStorage.removeItem(`tiptap-draft-${storageKey}`); } catch { /* ignore */ }
-            router.push(`/kien-thuc/bai/${article.id}`);
+            setError(null);
+            try {
+                await updateArticle(formData);
+                // Xóa bản nháp autosave sau khi lưu thành công
+                try { localStorage.removeItem(`tiptap-draft-${storageKey}`); } catch { /* ignore */ }
+                router.push(`/kien-thuc/bai/${article.id}`);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Không lưu được tài liệu. Vui lòng thử lại.');
+            }
         });
     }
 
@@ -104,6 +110,12 @@ export function EditArticleForm({ article, moduleTheme }: { article: ArticleData
                     <RichContentEditor name="content" defaultValue={article.content} rows={16} storageKey={storageKey} />
                 </div>
             </div>
+
+            {error && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                    {error}
+                </div>
+            )}
 
             {article.images && article.images.length > 0 && (
                 <div className="block text-sm text-slate-300">
