@@ -53,20 +53,22 @@ function formatDateTime(value: Date | string) {
 
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const article = await getArticleById(id);
+    // Chạy song song: getArticleById + getCurrentUser (2 query độc lập)
+    const [article, currentUser] = await Promise.all([
+        getArticleById(id),
+        getCurrentUser(),
+    ]);
     if (!article) notFound();
 
     const normalizedModule = normalizeModuleKey(article.module);
+    const isAuthorOrAdmin = !!(currentUser && (currentUser.fullName === article.author || currentUser.role === 'admin'));
 
-    const [currentUser, shares, feedback, dislikeComments, relatedArticles] = await Promise.all([
-        getCurrentUser(),
+    const [shares, feedback, dislikeComments, relatedArticles] = await Promise.all([
         getProcedureSharesByArticle(article.id),
         getContentFeedback('article', id),
-        getCurrentUser().then((u) =>
-            u && (u.fullName === article.author || u.role === 'admin')
-                ? getArticleDislikeComments(article.id)
-                : Promise.resolve([])
-        ),
+        isAuthorOrAdmin
+            ? getArticleDislikeComments(article.id)
+            : Promise.resolve([]),
         getRelatedArticles(article.module, article.category, article.id, 3),
     ]);
 
@@ -79,7 +81,6 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
         ? extractTocAndAddIds(article.content)
         : { enrichedHtml: article.content, headings: [] };
 
-    const isAuthorOrAdmin = currentUser && (currentUser.fullName === article.author || currentUser.role === 'admin');
 
     return (
         <div className="mx-auto max-w-5xl space-y-6">
