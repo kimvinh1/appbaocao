@@ -131,73 +131,59 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* ── Nội dung bài ── */}
-            <div className="glass-panel rounded-2xl overflow-hidden">
-                {isHtml ? (
-                    <div className="document-paper">
-                        <div
-                            className="rich-content"
-                            dangerouslySetInnerHTML={{ __html: enrichedHtml }}
-                        />
-                    </div>
-                ) : (
-                    <div className="document-paper space-y-4">
-                        {article.content.split('\n').map((line, i) =>
-                            line.trim() === '' ? <br key={i} /> : <p key={i} className="leading-relaxed">{line}</p>
-                        )}
-                    </div>
-                )}
+            {isHtml ? (
+                <div className="document-paper">
+                    <div
+                        className="rich-content"
+                        dangerouslySetInnerHTML={{ __html: enrichedHtml }}
+                    />
+                </div>
+            ) : (
+                <div className="document-paper space-y-4">
+                    {article.content.split('\n').map((line, i) =>
+                        line.trim() === '' ? <br key={i} /> : <p key={i} className="leading-relaxed">{line}</p>
+                    )}
+                </div>
+            )}
 
-                {article.images && article.images.length > 0 && (
-                    <div className="mt-6">
-                        <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">Ảnh đính kèm</p>
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            {article.images.map((img) => (
-                                <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
-                                    <img
-                                        src={img.imageUrl}
-                                        alt="Ảnh đính kèm"
-                                        className="h-40 w-full rounded-xl object-cover border border-slate-300 dark:border-slate-700 hover:opacity-90 transition"
-                                    />
-                                </a>
-                            ))}
-                        </div>
+            {/* Ảnh đính kèm */}
+            {article.images && article.images.length > 0 && (
+                <div className="glass-panel rounded-2xl p-5">
+                    <p className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Ảnh đính kèm</p>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                        {article.images.map((img) => (
+                            <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                                <img
+                                    src={img.imageUrl}
+                                    alt="Ảnh đính kèm"
+                                    className="h-36 w-full rounded-xl object-cover border border-slate-200 dark:border-slate-700 hover:opacity-90 transition shadow-sm"
+                                />
+                            </a>
+                        ))}
                     </div>
-                )}
+                </div>
+            )}
 
-                {article.attachmentUrl ? (
-                    <div className="mt-6 rounded-xl border border-slate-300/60 dark:border-slate-700/60 bg-slate-50/40 dark:bg-slate-950/40 p-4">
-                        <p className="text-sm font-medium text-white">Tài liệu đính kèm</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                            <a
-                                href={article.attachmentUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-lg bg-cyan-500/10 px-3 py-2 text-sm text-cyan-300 ring-1 ring-cyan-400/30 hover:bg-cyan-500/20"
-                            >
-                                Mở file đính kèm
-                            </a>
-                            <a
-                                href={`/api/articles/${article.id}/pdf`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-gray-900 dark:text-white ring-1 ring-slate-200 dark:ring-slate-700 transition hover:bg-white/10"
-                            >
-                                <Download size={15} /> Xuất PDF
-                            </a>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="mt-6">
-                        <a
-                            href={`/api/articles/${article.id}/pdf`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-gray-900 dark:text-white ring-1 ring-slate-200 dark:ring-slate-700 transition hover:bg-white/10"
-                        >
-                            <Download size={15} /> Xuất PDF
-                        </a>
-                    </div>
+            {/* Tài liệu & xuất PDF */}
+            <div className="flex flex-wrap gap-2">
+                {article.attachmentUrl && (
+                    <a
+                        href={article.attachmentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-cyan-500/10 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 px-4 py-2 text-sm font-medium text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/20 transition"
+                    >
+                        Mở tài liệu đính kèm
+                    </a>
                 )}
+                <a
+                    href={`/api/articles/${article.id}/pdf`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                >
+                    <Download size={15} /> Xuất PDF
+                </a>
             </div>
 
             {/* ── Đánh giá nội dung ── */}
