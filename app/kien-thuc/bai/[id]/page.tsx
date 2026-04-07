@@ -22,6 +22,7 @@ import { ArticleToc } from '@/app/components/ui/article-toc';
 import { ToggleShareButton } from '@/app/components/ui/toggle-share-button';
 import { extractTocAndAddIds } from '@/lib/html-toc';
 import { getArticleCategoryLabel } from '@/lib/knowledge-center';
+import { ArticleActions } from '@/app/components/ui/article-actions';
 
 const SHARE_STATUS_META: Record<string, string> = {
     pending: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
@@ -127,6 +128,32 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                 <Tag size={10} /> {tag.trim()}
                             </span>
                         ))}
+                    </div>
+                )}
+
+                {/* Archive banner */}
+                {article.isArchived && (
+                    <div className="flex items-center gap-2 rounded-xl border border-amber-300/50 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-4 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+                        ⚠️ Bài viết này đang được <strong>lưu trữ</strong> — ẩn khỏi danh sách.
+                    </div>
+                )}
+
+                {/* Nút xoá / lưu trữ — chỉ hiện với tác giả hoặc admin */}
+                {isAuthorOrAdmin && (
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href={`/kien-thuc/sua/${article.id}`}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                            >
+                                ✏️ Sửa bài
+                            </Link>
+                        </div>
+                        <ArticleActions
+                            articleId={article.id}
+                            isArchived={article.isArchived}
+                            moduleHref={`/kien-thuc/${normalizedModule}`}
+                        />
                     </div>
                 )}
             </div>

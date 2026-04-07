@@ -64,12 +64,13 @@ model Article {
   id        String   @id @default(uuid())
   module    String   // illumina | vi-sinh | cepheid
   title     String
-  category  String   @default("quy-trinh") // quy-trinh | huong-dan | troubleshooting | faq
+  category  String   @default("quy-trinh")
   content   String
   tags      String   // comma-separated tags
   author    String
   attachmentUrl String?
   viewCount Int      @default(0)
+  isArchived Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   procedureShares ProcedureShare[]
@@ -78,6 +79,7 @@ model Article {
   @@index([module])
   @@index([category])
   @@index([updatedAt])
+  @@index([isArchived])
 }
 
 model ArticleImage {

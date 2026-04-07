@@ -475,22 +475,32 @@ body {
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   line-height: 1.85;
   padding: 2.5rem 3.5rem;
-  border-radius: 12px;
+  border-radius: 14px;
   max-width: 860px;
   margin: 0 auto;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
 }
 
+/* Tablet */
 @media (max-width: 768px) {
   .document-paper {
-    padding: 1.5rem 1.25rem;
-    font-size: 15.5px;
+    padding: 1.5rem 1.5rem;
+    font-size: 16px;
   }
 }
 
+/* Mobile — full-width, no shadow/radius so it doesn't look like a "floating box" */
 @media (max-width: 640px) {
   .document-paper {
-    padding: 1.25rem 1rem;
+    padding: 1.25rem 1.1rem;
+    border-radius: 0;
+    box-shadow: none;
+    /* Remove margin to bleed full width on mobile */
+    margin-left: -1rem;
+    margin-right: -1rem;
+    /* Slightly wider to cover shell padding */
+    width: calc(100% + 2rem);
+    max-width: none;
   }
   .rich-editor-area {
     padding: 1rem 1rem;

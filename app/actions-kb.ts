@@ -258,11 +258,34 @@ export async function deleteArticle(formData: FormData) {
   if (existingArticle) {
     await Promise.all(existingArticle.images.map((image) => deleteBlobIfManaged(image.imageUrl).catch(() => undefined)));
     revalidateKnowledgeBase(existingArticle.module, id);
-    return;
+  } else {
+    revalidatePath('/kien-thuc');
+    revalidatePath('/search');
   }
 
-  revalidatePath('/kien-thuc');
-  revalidatePath('/search');
+  // Redirect về danh sách sau khi xoá
+  const { redirect } = await import('next/navigation');
+  redirect('/kien-thuc');
+}
+
+export async function archiveArticle(formData: FormData) {
+  await requireKnowledgeEditor();
+  const id = formData.get('id') as string;
+  const archive = formData.get('archive') !== 'false'; // default true = lưu trữ
+  if (!id) throw new Error('Missing article ID');
+
+  const article = await prisma.article.findUnique({
+    where: { id },
+    select: { module: true },
+  });
+  if (!article) throw new Error('Article not found');
+
+  await prisma.article.update({
+    where: { id },
+    data: { isArchived: archive },
+  });
+
+  revalidateKnowledgeBase(article.module, id);
 }
 
 // ─── ERROR CODES ─────────────────────────────────────────────────────────────
