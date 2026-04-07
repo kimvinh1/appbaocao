@@ -237,3 +237,22 @@ model ContentFeedback {
   @@index([contentType, contentId])
   @@index([userId])
 }
+
+// --- Resource Link Library ---
+
+model ResourceLink {
+  id          String   @id @default(uuid())
+  module      String   // illumina | vi-sinh | cepheid | chung
+  category    String   // "Máy móc" | "Kit & Reagent" | "Phần mềm" | "IFU / SDS" | "Khác"
+  title       String
+  url         String
+  description String?
+  tags        String   @default("")
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([module])
+  @@index([category])
+  @@index([updatedAt])
+}

@@ -3,7 +3,7 @@
 import {
     Dna, FolderKanban, LayoutDashboard, Microscope,
     FileText, FlaskConical,
-    LibraryBig, LogOut, ShieldCheck,
+    LibraryBig, LogOut, ShieldCheck, Link2,
 } from 'lucide-react';
 import { SidebarLink } from './sidebar-link';
 import { SidebarGroup } from './sidebar-group';
@@ -99,6 +99,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
 
                 <p className="section-label px-2.5 pt-1 pb-0.5">Quản Lý Chung</p>
                 <SidebarLink href="/kien-thuc" label="Thư Viện Tài Liệu" icon={LibraryBig} />
+                <SidebarLink href="/tai-lieu" label="Link Tài Liệu Ngoài" icon={Link2} />
                 {currentUser.role === 'admin' && (
                     <SidebarLink href="/quan-tri/nguoi-dung" label="Quản trị người dùng" icon={ShieldCheck} />
                 )}
