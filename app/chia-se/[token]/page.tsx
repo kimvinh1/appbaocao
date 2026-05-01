@@ -1,8 +1,10 @@
 import { getProcedureShareByToken } from '@/app/actions-kb';
 import { ShareInteractionPanel } from '@/app/components/ui/share-interaction-panel';
-import { CheckCircle2, Circle, UserRoundCheck } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Circle, UserRoundCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getModuleTheme } from '@/lib/module-theme';
+
+export const dynamic = 'force-dynamic';
 
 export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -15,6 +17,33 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
   const theme = getModuleTheme(share.article.module);
 
   const isCompleted = share.status === 'completed';
+
+  if ('unavailableReason' in share && share.unavailableReason) {
+    const isRevoked = share.unavailableReason === 'revoked';
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center px-4">
+        <div className="glass-panel w-full rounded-[2rem] p-7 text-center sm:p-9">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/15 text-amber-300 ring-1 ring-amber-400/30">
+            <AlertTriangle size={26} />
+          </div>
+          <p className={`mt-5 text-sm font-semibold uppercase tracking-[0.22em] ${theme.textClass}`}>
+            Link hỗ trợ không còn hoạt động
+          </p>
+          <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
+            {isRevoked ? 'Link đã được thu hồi' : 'Link đã hết hạn'}
+          </h1>
+          <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            Link hướng dẫn cho <span className="font-medium text-gray-900 dark:text-white">{share.customerName}</span>{' '}
+            hiện đã được đóng. Vui lòng liên hệ người phụ trách kỹ thuật để được mở lại hoặc nhận link mới.
+          </p>
+          <div className="mt-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/50 px-4 py-3 text-left text-sm text-slate-600 dark:text-slate-300">
+            <p className="font-medium text-gray-900 dark:text-white">{share.article.title}</p>
+            <p className="mt-1">Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 sm:space-y-6">
@@ -72,6 +101,7 @@ export default async function ChiaSeQuyTrinhPage({ params }: { params: Promise<{
         </p>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Người chia sẻ: {share.sharedBy?.fullName ?? share.article.author} · Mảng {theme.label}
+          {share.expiresAt ? ` · Link hết hạn ${new Date(share.expiresAt).toLocaleDateString('vi-VN')}` : ''}
         </p>
       </div>
 

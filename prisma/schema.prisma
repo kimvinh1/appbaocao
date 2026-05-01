@@ -183,6 +183,10 @@ model ProcedureShare {
   customerPhone String?
   status         String              @default("pending") // pending | completed | revoked
   sharedAt       DateTime            @default(now())
+  expiresAt      DateTime?
+  openedAt       DateTime?
+  lastOpenedAt   DateTime?
+  openCount      Int                 @default(0)
   completedAt    DateTime?
   revokedAt      DateTime?
   customerComment String?
@@ -197,6 +201,7 @@ model ProcedureShare {
   @@index([articleId])
   @@index([sharedById])
   @@index([status])
+  @@index([expiresAt])
 }
 
 model ProcedureReaction {
@@ -213,7 +218,7 @@ model ProcedureReaction {
 
 model ProcedureShareFeedback {
   id        String   @id @default(uuid())
-  eventType String   // completed | like | heart
+  eventType String   // opened | completed | like | heart
   comment   String?
   createdAt DateTime @default(now())
   shareId   String

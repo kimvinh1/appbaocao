@@ -29,6 +29,10 @@ export async function GET(
     return NextResponse.json({ error: 'Share revoked' }, { status: 410 });
   }
 
+  if (share.expiresAt && share.expiresAt.getTime() <= Date.now()) {
+    return NextResponse.json({ error: 'Share expired' }, { status: 410 });
+  }
+
   const pdf = await buildArticlePdf(share.article);
 
   return new NextResponse(Buffer.from(pdf.bytes), {

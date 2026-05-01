@@ -121,6 +121,110 @@ function getSerializedContent(editor: TiptapEditor | null | undefined) {
   return editor.getHTML();
 }
 
+function cleanWordHtml(input: string) {
+  if (typeof window === 'undefined') return input;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(input, 'text/html');
+
+  doc.querySelectorAll('meta, link, style, script, xml, o\\:p').forEach((node) => node.remove());
+
+  const allowedBlockTags = new Set([
+    'P', 'H1', 'H2', 'H3', 'H4', 'UL', 'OL', 'LI', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'BLOCKQUOTE', 'PRE', 'HR',
+  ]);
+  const allowedInlineTags = new Set(['A', 'STRONG', 'B', 'EM', 'I', 'U', 'S', 'CODE', 'BR', 'SPAN', 'MARK', 'IMG']);
+  const allowedTags = new Set([...allowedBlockTags, ...allowedInlineTags]);
+
+  const unwrap = (el: Element) => {
+    const parent = el.parentNode;
+    if (!parent) return;
+    while (el.firstChild) parent.insertBefore(el.firstChild, el);
+    parent.removeChild(el);
+  };
+
+  doc.body.querySelectorAll('*').forEach((el) => {
+    const tag = el.tagName;
+
+    if (!allowedTags.has(tag)) {
+      unwrap(el);
+      return;
+    }
+
+    const style = el.getAttribute('style') || '';
+    const textAlign = style.match(/text-align:\s*(left|center|right|justify)/i)?.[1]?.toLowerCase();
+    const background = style.match(/background(?:-color)?:\s*([^;]+)/i)?.[1]?.trim();
+
+    [...el.attributes].forEach((attr) => {
+      if (attr.name === 'href' || attr.name === 'src' || attr.name === 'alt' || attr.name === 'colspan' || attr.name === 'rowspan') return;
+      el.removeAttribute(attr.name);
+    });
+
+    if (textAlign && tag !== 'SPAN') {
+      el.setAttribute('style', `text-align: ${textAlign}`);
+    }
+
+    if (background && tag === 'SPAN' && !/transparent|inherit|initial/i.test(background)) {
+      const mark = doc.createElement('mark');
+      mark.setAttribute('data-color', background);
+      mark.setAttribute('style', `background-color: ${background}; color: inherit`);
+      while (el.firstChild) mark.appendChild(el.firstChild);
+      el.replaceWith(mark);
+      return;
+    }
+
+    if (tag === 'A') {
+      const href = el.getAttribute('href') || '';
+      if (!/^https?:\/\//i.test(href) && !/^mailto:/i.test(href)) el.removeAttribute('href');
+    }
+
+    if (tag === 'IMG') {
+      const src = el.getAttribute('src') || '';
+      if (!/^https?:\/\//i.test(src) && !/^data:image\//i.test(src)) el.remove();
+    }
+
+    if (tag === 'SPAN' && !el.attributes.length) {
+      unwrap(el);
+    }
+  });
+
+  return doc.body.innerHTML
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\sclass="Mso[^"]*"/g, '')
+    .replace(/<p>\s*<\/p>/g, '');
+}
+
+async function uploadDataUrlImage(dataUrl: string) {
+  const res = await fetch('/api/upload-inline-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dataUrl }),
+  });
+
+  if (!res.ok) return null;
+  const json = await res.json();
+  return typeof json.url === 'string' ? json.url : null;
+}
+
+async function prepareWordHtmlForInsert(input: string) {
+  if (typeof window === 'undefined') return input;
+
+  const cleanedHtml = cleanWordHtml(input);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(cleanedHtml, 'text/html');
+  const images = Array.from(doc.querySelectorAll('img'));
+
+  await Promise.all(images.map(async (image) => {
+    const src = image.getAttribute('src') || '';
+    if (!src.startsWith('data:image/')) return;
+
+    const uploadedUrl = await uploadDataUrlImage(src);
+    if (uploadedUrl) image.setAttribute('src', uploadedUrl);
+    else image.remove();
+  }));
+
+  return doc.body.innerHTML;
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }: RichContentEditorProps) {
@@ -186,14 +290,32 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
         return true;
       },
       handlePaste: (_view, event) => {
+        const html = event.clipboardData?.getData('text/html');
+        const looksLikeWord = html
+          ? /class="?Mso|mso-|urn:schemas-microsoft-com:office|<!--\[if|<o:p/i.test(html)
+          : false;
+
+        if (html && looksLikeWord) {
+          event.preventDefault();
+          setUploading(true);
+          void prepareWordHtmlForInsert(html)
+            .then((preparedHtml) => {
+              editor?.chain().focus().insertContent(preparedHtml).run();
+            })
+            .finally(() => setUploading(false));
+          return true;
+        }
+
         const items = Array.from(event.clipboardData?.items ?? []);
         const imgItem = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
-        if (!imgItem) return false;
-        const file = imgItem.getAsFile();
-        if (!file) return false;
-        event.preventDefault();
-        void handleImageFiles([file]);
-        return true;
+        if (imgItem) {
+          const file = imgItem.getAsFile();
+          if (!file) return false;
+          event.preventDefault();
+          void handleImageFiles([file]);
+          return true;
+        }
+        return false;
       },
     },
   });
@@ -487,7 +609,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
               ✓ Đã lưu lúc {savedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
             </span>
           ) : (
-            <span className="text-[12px] text-slate-500 dark:text-slate-400 dark:text-slate-600">Ctrl+V ảnh · Kéo thả ảnh vào</span>
+            <span className="text-[12px] text-slate-500 dark:text-slate-400 dark:text-slate-600">Dán từ Word · Ctrl+V ảnh · Kéo thả ảnh</span>
           )}
         </span>
       </div>

@@ -23,6 +23,8 @@ function revalidateKnowledgeBase(module: string, articleId?: string) {
 }
 
 const ALL_MODULES = ['illumina', 'vi-sinh', 'cepheid', 'sinh-hoc-phan-tu'] as const;
+const DEFAULT_SHARE_EXPIRY_DAYS = 14;
+const MAX_SHARE_EXPIRY_DAYS = 90;
 
 function revalidateModulePages(module: string) {
   const normalizedModule = normalizeModuleKey(module);
@@ -33,6 +35,22 @@ function revalidateModulePages(module: string) {
     revalidatePath(`/${m}/ma-loi`);
     revalidatePath(`/${m}/case`);
   }
+}
+
+function parseShareExpiresAt(value: FormDataEntryValue | null) {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  const days = raw ? Number.parseInt(raw, 10) : DEFAULT_SHARE_EXPIRY_DAYS;
+  const safeDays = Number.isFinite(days)
+    ? Math.min(Math.max(days, 1), MAX_SHARE_EXPIRY_DAYS)
+    : DEFAULT_SHARE_EXPIRY_DAYS;
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + safeDays);
+  return expiresAt;
+}
+
+function isShareExpired(share: { expiresAt?: Date | null }) {
+  return !!share.expiresAt && share.expiresAt.getTime() <= Date.now();
 }
 
 function getModuleFilter(module?: string) {
@@ -501,22 +519,83 @@ export async function getProcedureShareByToken(token: string) {
     return null;
   }
 
+  const normalizedArticle = {
+    ...share.article,
+    module: normalizeModuleKey(share.article.module),
+  };
+
   if (share.status === 'revoked' || share.revokedAt) {
-    return null;
+    return {
+      ...share,
+      article: normalizedArticle,
+      likeCount: 0,
+      heartCount: 0,
+      unavailableReason: 'revoked' as const,
+    };
   }
 
+  if (isShareExpired(share)) {
+    return {
+      ...share,
+      article: normalizedArticle,
+      likeCount: 0,
+      heartCount: 0,
+      unavailableReason: 'expired' as const,
+    };
+  }
+
+  const isFirstOpen = !share.openedAt;
+  const openedShare = await prisma.$transaction(async (tx) => {
+    const updated = await tx.procedureShare.update({
+      where: { token },
+      data: {
+        openedAt: share.openedAt ?? new Date(),
+        lastOpenedAt: new Date(),
+        openCount: { increment: 1 },
+      },
+      include: {
+        article: {
+          include: {
+            images: { orderBy: { sortOrder: 'asc' } },
+          },
+        },
+        reactions: true,
+        feedbackEvents: {
+          orderBy: { createdAt: 'desc' },
+        },
+        sharedBy: {
+          select: {
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (isFirstOpen) {
+      await tx.procedureShareFeedback.create({
+        data: {
+          shareId: share.id,
+          eventType: 'opened',
+        },
+      });
+    }
+
+    return updated;
+  });
+
   return {
-    ...share,
+    ...openedShare,
     article: {
-      ...share.article,
-      module: normalizeModuleKey(share.article.module),
+      ...openedShare.article,
+      module: normalizeModuleKey(openedShare.article.module),
     },
     likeCount:
-      share.reactions.filter((reaction) => reaction.reactionType === 'like').length +
-      share.feedbackEvents.filter((event) => event.eventType === 'like').length,
+      openedShare.reactions.filter((reaction) => reaction.reactionType === 'like').length +
+      openedShare.feedbackEvents.filter((event) => event.eventType === 'like').length,
     heartCount:
-      share.reactions.filter((reaction) => reaction.reactionType === 'heart').length +
-      share.feedbackEvents.filter((event) => event.eventType === 'heart').length,
+      openedShare.reactions.filter((reaction) => reaction.reactionType === 'heart').length +
+      openedShare.feedbackEvents.filter((event) => event.eventType === 'heart').length,
   };
 }
 
@@ -525,6 +604,7 @@ export async function createProcedureShare(formData: FormData) {
   const articleId = formData.get('articleId') as string;
   const customerName = formData.get('customerName') as string;
   const customerPhone = formData.get('customerPhone') as string;
+  const expiresAt = parseShareExpiresAt(formData.get('expiresInDays'));
 
   if (!articleId || !customerName) {
     throw new Error('Thiếu thông tin chia sẻ quy trình');
@@ -536,6 +616,7 @@ export async function createProcedureShare(formData: FormData) {
       articleId,
       customerName,
       customerPhone: customerPhone || null,
+      expiresAt,
       sharedById: user.id,
     },
   });
@@ -554,7 +635,7 @@ export async function markProcedureShareCompleted(formData: FormData) {
 
   const existingShare = await prisma.procedureShare.findUnique({
     where: { token },
-    select: { id: true, articleId: true, completedAt: true, status: true, revokedAt: true },
+    select: { id: true, articleId: true, completedAt: true, status: true, revokedAt: true, expiresAt: true },
   });
 
   if (!existingShare) {
@@ -563,6 +644,10 @@ export async function markProcedureShareCompleted(formData: FormData) {
 
   if (existingShare.status === 'revoked' || existingShare.revokedAt) {
     throw new Error('Link chia sẻ này đã bị thu hồi');
+  }
+
+  if (isShareExpired(existingShare)) {
+    throw new Error('Link chia sẻ này đã hết hạn');
   }
 
   await prisma.$transaction(async (tx) => {
@@ -653,7 +738,7 @@ export async function reactToProcedureShare(formData: FormData) {
 
   const share = await prisma.procedureShare.findUnique({
     where: { token },
-    select: { id: true, articleId: true, status: true, revokedAt: true },
+    select: { id: true, articleId: true, status: true, revokedAt: true, expiresAt: true },
   });
 
   if (!share) {
@@ -662,6 +747,10 @@ export async function reactToProcedureShare(formData: FormData) {
 
   if (share.status === 'revoked' || share.revokedAt) {
     throw new Error('Link chia sẻ này đã bị thu hồi');
+  }
+
+  if (isShareExpired(share)) {
+    throw new Error('Link chia sẻ này đã hết hạn');
   }
 
   await prisma.procedureShareFeedback.create({

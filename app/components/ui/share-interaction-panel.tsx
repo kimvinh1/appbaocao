@@ -154,11 +154,10 @@ export function ShareInteractionPanel({
           onChange={(e) => setComment(e.target.value)}
           rows={3}
           placeholder="VD: Quy trình rõ ràng, dễ thực hiện. Tôi đã hoàn thành thành công..."
-          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/80 px-3 py-2 text-sm text-white outline-none resize-none placeholder:text-slate-600 focus:border-slate-400 transition"
+          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/80 px-3 py-2 text-sm text-gray-900 dark:text-white outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-slate-400 transition"
         />
       </div>
       {renderButtons()}
     </div>
   );
 }
-

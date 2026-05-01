@@ -10,7 +10,7 @@ import { getCurrentUser } from '@/lib/auth';
 import {
     ArrowLeft, Calendar, Clock, Download, Eye, Heart,
     MessageSquare, Share2, Tag, ThumbsDown, ThumbsUp, User,
-    BarChart3, CheckCheck, Users,
+    BarChart3, CheckCheck, Users, CalendarClock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -37,6 +37,7 @@ const SHARE_STATUS_LABEL: Record<string, string> = {
 };
 
 const SHARE_EVENT_LABEL: Record<string, string> = {
+    opened: 'Khách đã mở link',
     completed: 'Xác nhận hoàn tất',
     like: 'Đánh giá hữu ích',
     heart: 'Đánh giá rất hiệu quả',
@@ -264,7 +265,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                         </p>
                     </div>
 
-                    <form action={createProcedureShare} className="grid gap-3 md:grid-cols-3">
+                    <form action={createProcedureShare} className="grid gap-3 md:grid-cols-4">
                         <input type="hidden" name="articleId" value={article.id} />
                         <div>
                             <label className="block text-xs font-medium text-slate-600 dark:text-slate-600 mb-1">Tên khách hàng *</label>
@@ -284,6 +285,20 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                 className={`w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-slate-400 outline-none transition ${cfg.focusBorderClass}`}
                             />
                         </div>
+                        <div>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-600 mb-1">Hạn link</label>
+                            <select
+                                name="expiresInDays"
+                                defaultValue="14"
+                                className={`w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white outline-none transition ${cfg.focusBorderClass}`}
+                            >
+                                <option value="3">3 ngày</option>
+                                <option value="7">7 ngày</option>
+                                <option value="14">14 ngày</option>
+                                <option value="30">30 ngày</option>
+                                <option value="90">90 ngày</option>
+                            </select>
+                        </div>
                         <div className="flex items-end">
                             <button
                                 type="submit"
@@ -300,7 +315,8 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                         const totalHearts = shares.reduce((s, sh) => s + sh.heartCount, 0);
                         const totalCompleted = shares.filter(sh => sh.status === 'completed').length;
                         const totalComments = shares.filter(sh => sh.customerComment).length;
-                        const totalActive = shares.filter(sh => sh.status !== 'revoked').length;
+                        const totalActive = shares.filter(sh => sh.status !== 'revoked' && (!sh.expiresAt || new Date(sh.expiresAt).getTime() > Date.now())).length;
+                        const totalOpens = shares.reduce((s, sh) => s + (sh.openCount ?? 0), 0);
                         return (
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 <div className="rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 p-3">
@@ -319,9 +335,9 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                     <p className="text-xs text-pink-500 dark:text-pink-400">+ {totalHearts} yêu thích</p>
                                 </div>
                                 <div className="rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 p-3">
-                                    <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-medium"><MessageSquare size={12} /> Bình luận</div>
-                                    <p className="mt-1.5 text-2xl font-bold text-purple-700 dark:text-purple-300">{totalComments}</p>
-                                    <p className="text-xs text-purple-500">phản hồi trực tiếp</p>
+                                    <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-medium"><Eye size={12} /> Lượt mở</div>
+                                    <p className="mt-1.5 text-2xl font-bold text-purple-700 dark:text-purple-300">{totalOpens}</p>
+                                    <p className="text-xs text-purple-500">{totalComments} phản hồi trực tiếp</p>
                                 </div>
                             </div>
                         );
@@ -330,11 +346,14 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                     {/* Danh sách */}
                     <div className="space-y-2">
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">{shares.length > 0 ? `${shares.length} lượt chia sẻ` : 'Chưa có lượt chia sẻ nào'}</p>
-                        {shares.map((share) => (
+                        {shares.map((share) => {
+                            const isExpired = !!share.expiresAt && new Date(share.expiresAt).getTime() <= Date.now() && share.status !== 'revoked';
+                            const displayStatus = isExpired ? 'expired' : share.status;
+                            return (
                             <div
                                 key={share.id}
                                 className={`rounded-2xl border p-4 transition-colors ${
-                                    share.status === 'revoked'
+                                    displayStatus === 'revoked' || displayStatus === 'expired'
                                         ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/30 opacity-70'
                                         : 'border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900/50'
                                 }`}
@@ -344,8 +363,8 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                     <div className="min-w-0 flex-1 space-y-1.5">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <p className="font-semibold text-gray-900 dark:text-white">{share.customerName}</p>
-                                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${SHARE_STATUS_META[share.status] ?? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
-                                                {SHARE_STATUS_LABEL[share.status] ?? share.status}
+                                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${displayStatus === 'expired' ? 'bg-amber-500/15 text-amber-300' : SHARE_STATUS_META[displayStatus] ?? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
+                                                {displayStatus === 'expired' ? 'Đã hết hạn' : SHARE_STATUS_LABEL[displayStatus] ?? displayStatus}
                                             </span>
                                         </div>
 
@@ -359,9 +378,25 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                             {formatDateTime(share.sharedAt)}
                                             {share.revokedAt && <span className="text-red-500"> · Tắt {formatDateTime(share.revokedAt)}</span>}
                                         </p>
+                                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                            <span className="inline-flex items-center gap-1">
+                                                <Eye size={11} /> Mở {share.openCount ?? 0} lần
+                                            </span>
+                                            {share.openedAt && (
+                                                <span>lần đầu {formatDateTime(share.openedAt)}</span>
+                                            )}
+                                            {share.lastOpenedAt && (
+                                                <span>gần nhất {formatDateTime(share.lastOpenedAt)}</span>
+                                            )}
+                                            {share.expiresAt && (
+                                                <span className="inline-flex items-center gap-1">
+                                                    <CalendarClock size={11} /> hết hạn {formatDateTime(share.expiresAt)}
+                                                </span>
+                                            )}
+                                        </div>
 
                                         {/* Link actions */}
-                                        {share.status !== 'revoked' && (
+                                        {displayStatus !== 'revoked' && displayStatus !== 'expired' && (
                                             <div className="flex items-center gap-2 pt-1">
                                                 <a
                                                     href={`/chia-se/${share.token}`}
@@ -413,7 +448,8 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
             )}
