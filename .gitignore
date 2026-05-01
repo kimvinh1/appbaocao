@@ -5,31 +5,24 @@ node_modules/
 
 # Build output
 .next/
+.next_stale*/
 out/
 build/
+output/
+.vercel/
 
 # Environment – KHÔNG commit file này lên git
 .env
 .env.local
 .env.production
+.env*.local
 
 # Database local
 prisma/dev.db
 prisma/dev.db-journal
+dev.db
 
 # Misc
 .DS_Store
 *.tsbuildinfo
-
-# Next.js build cache
-.next/
-.next_stale*/
-out/
-
-# Next.js build cache
-.next/
-.next_stale*/
-out/
-.vercel
-.env*.local
-dev.db
+.playwright-cli/
