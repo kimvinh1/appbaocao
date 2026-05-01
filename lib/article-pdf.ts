@@ -363,7 +363,11 @@ export async function buildArticlePdf(article: ArticlePdfSource) {
   const browser = await puppeteer.launch({
     executablePath,
     args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
+    defaultViewport: {
+      width: 1280,
+      height: 720,
+      deviceScaleFactor: 1,
+    },
     headless: true,
   });
 
