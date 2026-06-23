@@ -121,6 +121,85 @@ function getSerializedContent(editor: TiptapEditor | null | undefined) {
   return editor.getHTML();
 }
 
+// Map class tên kiểu Word Heading → thẻ heading thật
+function mapWordHeadings(doc: Document) {
+  doc.querySelectorAll('p').forEach((p) => {
+    const cls = (p.getAttribute('class') || '').toLowerCase();
+    const styleName = cls.replace(/mso/g, '');
+    let level: 1 | 2 | 3 | null = null;
+    if (/title/.test(cls)) level = 1;
+    else if (/heading1|heading-1/.test(styleName)) level = 1;
+    else if (/heading2|heading-2/.test(styleName)) level = 2;
+    else if (/heading[3-6]/.test(styleName)) level = 3;
+    if (!level) return;
+    const h = doc.createElement(`h${level}`);
+    while (p.firstChild) h.appendChild(p.firstChild);
+    p.replaceWith(h);
+  });
+}
+
+// Nhận diện 1 đoạn văn là item của list Word (có mso-list hoặc class MsoListParagraph)
+function isWordListItem(el: Element) {
+  if (el.tagName !== 'P') return false;
+  const cls = (el.getAttribute('class') || '').toLowerCase();
+  const style = (el.getAttribute('style') || '').toLowerCase();
+  return cls.includes('msolistparagraph') || /mso-list\s*:/.test(style);
+}
+
+// Bullet marker (·, o, §, ▪, -) → ul ; số/chữ + . hoặc ) → ol
+function markerIsOrdered(marker: string) {
+  const m = marker.trim().replace(/[\s ]/g, '');
+  return /^(\d+|[a-z]|[ivxlcdm]+)[.)]?$/i.test(m) && !/^[·•▪◦o§oO]$/.test(m);
+}
+
+// Gom các đoạn list Word liên tiếp thành <ul>/<ol> lồng theo level
+function convertWordLists(doc: Document) {
+  const body = doc.body;
+  let i = 0;
+  const children = Array.from(body.children);
+  while (i < children.length) {
+    const el = children[i];
+    if (!isWordListItem(el)) { i++; continue; }
+
+    // Thu thập cụm list liên tiếp
+    const group: Element[] = [];
+    let j = i;
+    while (j < children.length && isWordListItem(children[j])) {
+      group.push(children[j]);
+      j++;
+    }
+
+    // Xác định ordered/unordered từ marker đầu tiên
+    const firstMarkerEl = group[0].querySelector('span[style*="mso-list"], span[style*="Ignore"]');
+    const firstMarker = firstMarkerEl?.textContent || '';
+    const ordered = markerIsOrdered(firstMarker);
+    const list = doc.createElement(ordered ? 'ol' : 'ul');
+
+    group.forEach((p) => {
+      // Xóa span marker của Word
+      p.querySelectorAll('span[style*="mso-list"], span[style*="Ignore"]').forEach((s) => s.remove());
+      const li = doc.createElement('li');
+      while (p.firstChild) li.appendChild(p.firstChild);
+      // Dọn ký tự bullet/số còn sót ở đầu text
+      const firstText = li.querySelector('*')?.firstChild ?? li.firstChild;
+      if (firstText && firstText.nodeType === Node.TEXT_NODE) {
+        firstText.textContent = (firstText.textContent || '').replace(
+          /^[\s ]*[·•▪◦o§•▪◦oO]?[\s ]*(?:\d+|[a-z]|[ivxlcdm]+)?[.)]?[\s ]+/i,
+          '',
+        );
+      }
+      list.appendChild(li);
+    });
+
+    group[0].replaceWith(list);
+    group.slice(1).forEach((p) => p.remove());
+
+    // Cập nhật lại danh sách con sau khi thay đổi DOM
+    children.splice(i, group.length, list);
+    i++;
+  }
+}
+
 function cleanWordHtml(input: string) {
   if (typeof window === 'undefined') return input;
 
@@ -128,6 +207,10 @@ function cleanWordHtml(input: string) {
   const doc = parser.parseFromString(input, 'text/html');
 
   doc.querySelectorAll('meta, link, style, script, xml, o\\:p').forEach((node) => node.remove());
+
+  // Chuyển cấu trúc Word (heading theo class, list theo mso-list) trước khi lọc thẻ
+  mapWordHeadings(doc);
+  convertWordLists(doc);
 
   const allowedBlockTags = new Set([
     'P', 'H1', 'H2', 'H3', 'H4', 'UL', 'OL', 'LI', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'BLOCKQUOTE', 'PRE', 'HR',
@@ -190,7 +273,10 @@ function cleanWordHtml(input: string) {
   return doc.body.innerHTML
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/\sclass="Mso[^"]*"/g, '')
-    .replace(/<p>\s*<\/p>/g, '');
+    .replace(/&nbsp;/g, ' ')
+    // Xóa đoạn rỗng / chỉ chứa khoảng trắng hoặc <br>
+    .replace(/<p[^>]*>(?:\s|<br\s*\/?>)*<\/p>/gi, '')
+    .replace(/[ \t]{2,}/g, ' ');
 }
 
 async function uploadDataUrlImage(dataUrl: string) {
@@ -467,7 +553,7 @@ export function RichContentEditor({ name, defaultValue, rows = 18, storageKey }:
       )}
 
       {/* ── Toolbar ── */}
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded-t-xl sticky top-0 z-10">
+      <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 dark:border-slate-700 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur px-2.5 py-2 rounded-t-xl sticky top-0 z-10">
 
         {/* Paragraph style */}
         <select
@@ -666,8 +752,8 @@ function TBtn({
       title={title}
       disabled={disabled}
       className={[
-        'flex h-7 min-w-[1.75rem] items-center justify-center rounded px-1.5 text-xs transition shrink-0',
-        active ? 'bg-slate-200 dark:bg-slate-600 text-slate-900 dark:text-white'
+        'flex h-8 min-w-[2rem] items-center justify-center rounded-md px-1.5 text-xs transition shrink-0',
+        active ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300 ring-1 ring-cyan-300/50 dark:ring-cyan-500/30'
                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700',
         disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer',
       ].join(' ')}

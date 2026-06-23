@@ -182,7 +182,8 @@ export async function deleteProject(formData: FormData) {
 
 // ─── Activity Logs ────────────────────────────────────────────────────────────
 
-export async function getActivityLogs() {
+// Giới hạn mặc định để dashboard/trang logs không tải toàn bộ bảng (chậm dần theo thời gian)
+export async function getActivityLogs(limit = 500) {
   return prisma.activityLog.findMany({
     include: {
       project: {
@@ -195,6 +196,7 @@ export async function getActivityLogs() {
       },
     },
     orderBy: [{ logDate: 'desc' }, { createdAt: 'desc' }],
+    take: limit,
   });
 }
 

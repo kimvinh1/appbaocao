@@ -301,10 +301,17 @@ body {
 ════════════════════════════════════════════════════════════════════ */
 
 /* ── TipTap Editor (mới) ── */
+/* Canvas nền xám ôm lấy "trang giấy" trắng ở giữa — giống Word, đỡ chói trong dark mode */
 .tiptap-content-area {
-  background-color: #ffffff;
+  background-color: #eef2f7;
   border-bottom-left-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.dark .tiptap-content-area {
+  background-color: #0b1220;
 }
 
 .tiptap-content-area .ProseMirror {
@@ -313,11 +320,15 @@ body {
   font-size: 16px;
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   line-height: 1.75;
-  padding: 2rem 3rem;
+  padding: 2.75rem 3.25rem;
   min-height: inherit;
   outline: none;
   width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
   box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
 .tiptap-content-area .ProseMirror > *:first-child {
@@ -329,6 +340,9 @@ body {
 }
 
 @media (max-width: 640px) {
+  .tiptap-content-area {
+    padding: 0.5rem;
+  }
   .tiptap-content-area .ProseMirror {
     padding: 1.25rem 1rem;
   }
